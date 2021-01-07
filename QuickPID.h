@@ -62,8 +62,8 @@ class QuickPID
     void SetSampleTimeUs(uint32_t);
 
     //Display functions ******************************************************************************************
-    float GetKp();			   // These functions query the pid for interal values. They were created mainly for
-    float GetKi();			   // the pid front-end, where it's important to know what is actually inside the PID.
+    float GetKp();         // These functions query the pid for interal values. They were created mainly for
+    float GetKi();         // the pid front-end, where it's important to know what is actually inside the PID.
     float GetKd();
     int16_t GetError();
     bool GetMode();

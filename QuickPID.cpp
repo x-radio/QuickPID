@@ -27,7 +27,7 @@ QuickPID::QuickPID(int16_t* Input, uint8_t* Output, int16_t* Setpoint,
   mySetpoint = Setpoint;
   inAuto = false;
 
-  QuickPID::SetOutputLimits(0, 255);	// default is same as the arduino PWM limit
+  QuickPID::SetOutputLimits(0, 255);  // default is same as the arduino PWM limit
   SampleTimeUs = 100000;              // default is 0.1 seconds
 
   QuickPID::SetControllerDirection(ControllerDirection);
@@ -150,24 +150,20 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
   if (NewSampleTimeUs > 0)
   {
     float ratio  = (float)NewSampleTimeUs / (float)SampleTimeUs;
-    //float ratio  = FX_FL(FX_DIV(FL_FX(NewSampleTimeUs), FL_FX(SampleTimeUs)));
 
     ki *= ratio;
-    //ki = FX_FL(FX_MUL(FL_FX(ki), FL_FX(ratio)));
-
     kd /= ratio;
-    //kd = FX_FL(FX_DIV(FL_FX(kd), FL_FX(ratio)));
-    //----------------------------------------------------------------------------------------------------------------------------
+
     SampleTimeUs = (uint32_t)NewSampleTimeUs;
   }
 }
 
-/* SetOutputLimits(...)****************************************************
+/* SetOutputLimits(...)********************************************************
    This function will be used far more often than SetInputLimits. While
    the input to the controller will generally be in the 0-1023 range, which is
    the default already, the required output limits might be unique, like using
    a time window of 0-8000 needing to clamp it from 0-125.
- **************************************************************************/
+ ******************************************************************************/
 void QuickPID::SetOutputLimits(uint8_t Min, uint8_t Max)
 {
   if (Min >= Max) return;
