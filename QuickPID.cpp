@@ -67,14 +67,12 @@ bool QuickPID::Compute()
     int32_t dInput = (int32_t)input - (int32_t)lastInput;
 
     /*  outputSum+= (ki * error);  */
-    //outputSum += (ki * error);
     if (ki < 31) outputSum += FX_INT(FX_MUL(FL_FX(ki), INT_FX(error)));
     else outputSum += FX_INT(FX_MUL(FL__FX(ki), INT_FX(error)));
 
     /*Add Proportional on Measurement, if P_ON_M is specified*/
     /*  outputSum -= kp * dInput;  */
     if (!pOnE) {
-      //outputSum -= kp * dInput;
       if (kp < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kp), INT_FX(dInput)));
       else outputSum -= FX_INT(FX_MUL(FL__FX(kp), INT_FX(dInput)));
     }
@@ -86,7 +84,6 @@ bool QuickPID::Compute()
     /*  if (pOnE) output = (kp * (float)error);  */
     uint16_t output;
     if (pOnE) {
-      //output = (kp * (float)error);
       if (kp < 31) output = FX_INT(FX_MUL(FL_FX(kp), INT_FX(error)));
       else  output = FX_INT(FX_MUL(FL__FX(kp), INT_FX(error)));
     }
@@ -94,7 +91,6 @@ bool QuickPID::Compute()
 
     /*Compute Rest of PID output*/
     /*  output += outputSum - (kd * dInput);  */
-    //output += outputSum - (kd * dInput);
     output += outputSum - FX_INT(FX_MUL(FL_FX(kd), INT_FX(dInput)));
 
     if (output > outMax) output = outMax;
@@ -248,7 +244,7 @@ bool QuickPID::GetDirection() {
   return controllerDirection;
 }
 
-// Utility functions ********************************************************************************
+// Utility functions **********************************************************
 
 int QuickPID::analogReadFast(int ADCpin) {
 #if defined(__AVR_ATmega328P__)

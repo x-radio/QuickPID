@@ -11,19 +11,19 @@ The API follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) 
 
 PID performance varies depending on how many coefficients are used.  When a  coefficient is zero, less calculation is done. The controller was  benchmarked using an Arduino UNO. QuickPID was benchmarked using analogReadFast() code.
 
-| P_ON_M    Compute()                                        | Kp   | Ki   | Kd   | Step Time (µS) |
-| ---------------------------------------------------------- | ---- | ---- | ---- | -------------- |
-| QuickPID                                                   | 2.0  | 5.0  | 0.0  | 88             |
-| Arduino PID                                                | 2.0  | 5.0  | 0.0  | 104            |
-| **P_ON_M    `analogRead(), `Compute(),** **analogWrite()** |      |      |      |                |
-| QuickPID                                                   | 2.0  | 5.0  | 0.2  | 164            |
-| Arduino PID                                                | 2.0  | 5.0  | 0.2  | 224            |
+| P_ON_M  Compute                               | Kp   | Ki   | Kd   | Step Time (µS) |
+| :-------------------------------------------- | ---- | ---- | ---- | -------------- |
+| QuickPID                                      | 2.0  | 5.0  | 0.0  | 88             |
+| Arduino PID                                   | 2.0  | 5.0  | 0.0  | 104            |
+| **P_ON_M   analogRead, Compute, analogWrite** |      |      |      |                |
+| QuickPID                                      | 2.0  | 5.0  | 0.2  | 164            |
+| Arduino PID                                   | 2.0  | 5.0  | 0.2  | 224            |
 
 ### Execution Frequency
 
 A future version will provide further performance improvements by pre-calculating (scaling) the terms and providing direct timer with ISR support.
 
-#### Variables
+### Variables
 
 
 | Variable     | Arduino PID | QuickPID         | Data Type    | Resolution | Bits Used | Min   | Max        |
