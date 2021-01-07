@@ -1,7 +1,5 @@
 # QuickPID
 
-### API
-
 The API follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
 
 - Library named as **QuickPID** and can run concurrently with Arduino **PID**
@@ -53,8 +51,7 @@ A future version will provide further performance improvements by pre-calculatin
 ***************************************************************
 ```
 
- - For an ultra-detailed explanation of why the code is the way it is, please visit: 
+ - For an ultra-detailed explanation of why the code is the way it is, please visit:
    http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 
  - For function documentation see:  http://playground.arduino.cc/Code/PIDLibrary
-
