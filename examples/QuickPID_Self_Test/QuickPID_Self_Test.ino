@@ -53,13 +53,13 @@ void loop()
     Serial.println(",");
   }
 
-  before = micros();
   Input = myQuickPID.analogReadFast(PIN_INPUT);
+  before = micros();
   myQuickPID.Compute();
-  analogWrite(PIN_OUTPUT, Output);
   after = micros();
+  analogWrite(PIN_OUTPUT, Output);
 
-  delay(50);
+  delay(20);
   cnt++;
   if (cnt == 100) {
     analogWrite(PIN_OUTPUT, 0);

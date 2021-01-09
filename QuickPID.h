@@ -14,14 +14,6 @@ class QuickPID
 #define P_ON_M  0
 #define P_ON_E  1
 
-    // fixed point defines
-#define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
-#define FX_FL(a) (float)(a/256.0)    // fixed point to float
-#define INT_FX(a) (a<<8)             // integer to fixed point
-#define FX_INT(a) (int32_t)(a>>8)    // fixed point to integer
-#define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
-#define FX_DIV(a,b) ((a/b)<<8)       // fixed point divide
-
 
     // commonly used functions ************************************************************************************
 

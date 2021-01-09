@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.0.1
+   QuickPID Library for Arduino - Version 2.0.2
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -67,17 +67,13 @@ bool QuickPID::Compute()
 
     /*Working error, Proportional on Measurement and Remaining PID output*/
     if (!pOnE) {
-      if (ki < 31) outputSum += FX_INT(FX_MUL(FL_FX(ki), INT_FX(error)));
-      else outputSum += (ki * error);
-      if (kpd < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kpd), INT_FX(dInput)));
-      else outputSum -= (kpd * dInput);
+      outputSum += (ki * error);
+      outputSum -= (kpd * dInput);
     }
     /*Working error, Proportional on Error and remaining PID output*/
     if (pOnE) {
-      if (kpi < 31) outputSum += FX_INT(FX_MUL(FL_FX(kpi), INT_FX(error)));
-      else  outputSum += (kpi * error);
-      if (kd < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kd), INT_FX(dInput)));
-      else outputSum -= (kd * dInput);
+      outputSum += (kpi * error);
+      outputSum -= (kd * dInput);
     }
     if (outputSum > outMax) outputSum = outMax;
     if (outputSum < outMin) outputSum = outMin;

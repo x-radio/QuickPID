@@ -1,10 +1,10 @@
 # QuickPID
 
-This API (version 2.01) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
+This API (version 2.02) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
 
 - Library named as **QuickPID** and can run concurrently with Arduino **PID**
 - Reorganized and more efficient PID algorithms
-- Fast fixed-point calculations for smaller coefficients, floating point calculations for larger coefficients
+- micros() timing resolution
 - Faster analog read function
 - `GetError()`function added for diagnostics
 
@@ -21,19 +21,19 @@ This API (version 2.01) follows the [ArduinoPID](https://github.com/br3ttb/Ardui
 ### Variables
 
 
-| Variable     | Arduino PID | QuickPID       | Data Type    | Resolution           | Bits Used | Min         | Max         |
-| ------------ | ----------- | -------------- | ------------ | -------------------- | --------- | ----------- | ----------- |
-| Setpoint     | double      | int16_t        | Binary       | 1                    | 10        | 0           | 1023        |
-| Input        | double      | int16_t        | Binary       | 1                    | 10        | 0           | 1023        |
-| Output       | double      | uint8_t        | Binary       | 1                    | 8         | 0           | 255         |
-| Kp           | double      | int32_t, float | s23.8, float | 6-7 digits precision | 4 bytes   |             |             |
-| Ki           | double      | int32_t, float | s23.8, float | 6-7 digits precision | 4 bytes   |             |             |
-| Kd           | double      | int32_t, float | s23.8, float | 6-7 digits precision | 4 bytes   |             |             |
-| ratio        | double      | float          | float        | 6-7 digits precision | 4 bytes   |             |             |
-| SampleTimeUs | double      | uint32_t       | Binary       | 1                    | 32        | 0           | 4294967295  |
-| outputSum    | double      | int16_t        | Binary       | 1                    | 8         | 0 (limit)   | 255 (limit) |
-| error        | double      | int32_t        | Binary       | 1                    | 32        | -2147483648 | 2147483647  |
-| dInput       | double      | int32_t        | Binary       | 1                    | 32        | -2147483648 | 2147483647  |
+| Variable     | Arduino PID | QuickPID | Data Type | Min        | Max        |
+| :----------- | :---------- | :------- | :-------- | :--------- | :--------- |
+| Setpoint     | double      | int16_t  | Binary    | 0          | 1023       |
+| Input        | double      | int16_t  | Binary    | 0          | 1023       |
+| Output       | double      | uint8_t  | Binary    | 0          | 255        |
+| Kp           | double      | float    | float     | -3.402E+38 | 3.402E+38  |
+| Ki           | double      | float    | float     | -3.402E+38 | 3.402E+38  |
+| Kd           | double      | float    | float     | -3.402E+38 | 3.402E+38  |
+| ratio        | double      | float    | float     | -3.402E+38 | 3.402E+38  |
+| SampleTimeUs | double      | uint32_t | Binary    | 0          | 4294967295 |
+| outputSum    | double      | int16_t  | Binary    | 0          | 255        |
+| error        | double      | int32_t  | Binary    | -1023      | 1023       |
+| dInput       | double      | int32_t  | Binary    | -1023      | 1023       |
 
 ### Original README
 
