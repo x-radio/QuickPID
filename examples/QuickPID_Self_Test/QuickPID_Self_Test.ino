@@ -19,7 +19,7 @@ uint32_t before, after;
 uint16_t cnt = 0;
 
 //Specify the initial tuning parameters
-float Kp = 2.0, Ki = 5.0, Kd = 0.0;
+float Kp = 2.0, Ki = 15.0, Kd = 0.05;
 
 QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
@@ -53,13 +53,13 @@ void loop()
     Serial.println(",");
   }
 
-  Input = myQuickPID.analogReadFast(PIN_INPUT);
   before = micros();
+  Input = myQuickPID.analogReadFast(PIN_INPUT);
   myQuickPID.Compute();
-  after = micros();
   analogWrite(PIN_OUTPUT, Output);
+  after = micros();
 
-  delay(110);
+  delay(50);
   cnt++;
   if (cnt == 100) {
     analogWrite(PIN_OUTPUT, 0);

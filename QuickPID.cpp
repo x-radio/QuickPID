@@ -14,7 +14,6 @@
 
 #include "QuickPID.h"
 
-
 /* Constructor ********************************************************************
    The parameters specified here are those for for which we can't set up
    reliable defaults, so we need to have the user set them.
@@ -63,39 +62,26 @@ bool QuickPID::Compute()
   {
     /*Compute all the working error variables*/
     int16_t input = *myInput;
-    error = (*mySetpoint - input);
-    int32_t dInput = (int32_t)input - (int32_t)lastInput;
+    int16_t dInput = input - lastInput;
+    error = *mySetpoint - input;
 
-    /*  outputSum+= (ki * error);  */
-    if (ki < 31) outputSum += FX_INT(FX_MUL(FL_FX(ki), INT_FX(error)));
-    else outputSum += FX_INT(FX_MUL(FL__FX(ki), INT_FX(error)));
-
-    /*Add Proportional on Measurement, if P_ON_M is specified*/
-    /*  outputSum -= kp * dInput;  */
+    /*Working error, Proportional on Measurement and Remaining PID output*/
     if (!pOnE) {
-      if (kp < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kp), INT_FX(dInput)));
-      else outputSum -= FX_INT(FX_MUL(FL__FX(kp), INT_FX(dInput)));
+      if (ki < 31) outputSum += FX_INT(FX_MUL(FL_FX(ki), INT_FX(error)));
+      else outputSum += (ki * error);
+      if (kpd < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kpd), INT_FX(dInput)));
+      else outputSum -= (kpd * dInput);
     }
-
-    if (outputSum > outMax) outputSum = outMax;
-    else if (outputSum < outMin) outputSum = outMin;
-
-    /*Add Proportional on Error, if P_ON_E is specified*/
-    /*  if (pOnE) output = (kp * (float)error);  */
-    uint16_t output;
+    /*Working error, Proportional on Error and remaining PID output*/
     if (pOnE) {
-      if (kp < 31) output = FX_INT(FX_MUL(FL_FX(kp), INT_FX(error)));
-      else  output = FX_INT(FX_MUL(FL__FX(kp), INT_FX(error)));
+      if (kpi < 31) outputSum += FX_INT(FX_MUL(FL_FX(kpi), INT_FX(error)));
+      else  outputSum += (kpi * error);
+      if (kd < 31) outputSum -= FX_INT(FX_MUL(FL_FX(kd), INT_FX(dInput)));
+      else outputSum -= (kd * dInput);
     }
-    else output = 0;
-
-    /*Compute Rest of PID output*/
-    /*  output += outputSum - (kd * dInput);  */
-    output += outputSum - FX_INT(FX_MUL(FL_FX(kd), INT_FX(dInput)));
-
-    if (output > outMax) output = outMax;
-    else if (output < outMin) output = outMin;
-    *myOutput = output;
+    if (outputSum > outMax) outputSum = outMax;
+    if (outputSum < outMin) outputSum = outMin;
+    *myOutput = outputSum;
 
     /*Remember some variables for next time*/
     lastInput = input;
@@ -118,10 +104,12 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, bool POn)
   pOnE = POn == P_ON_E;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
-  float SampleTimeSec = ((float)SampleTimeUs) / 1000000;
+  float SampleTimeSec = (float)SampleTimeUs / 1000000;
   kp = Kp;
   ki = Ki * SampleTimeSec;
   kd = Kd / SampleTimeSec;
+  kpd = kp + kd;
+  kpi = kp + ki;
 
   if (controllerDirection == REVERSE)
   {
@@ -146,11 +134,10 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
   if (NewSampleTimeUs > 0)
   {
     float ratio  = (float)NewSampleTimeUs / (float)SampleTimeUs;
-
     ki *= ratio;
     kd /= ratio;
 
-    SampleTimeUs = (uint32_t)NewSampleTimeUs;
+    SampleTimeUs = NewSampleTimeUs;
   }
 }
 

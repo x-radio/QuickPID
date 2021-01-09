@@ -14,14 +14,11 @@ class QuickPID
 #define P_ON_M  0
 #define P_ON_E  1
 
-    // s23.8 fixed point defines
-#define FL__FX(a) (int64_t)(a*256.0) // float to fixed point
+    // fixed point defines
 #define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
 #define FX_FL(a) (float)(a/256.0)    // fixed point to float
 #define INT_FX(a) (a<<8)             // integer to fixed point
 #define FX_INT(a) (int32_t)(a>>8)    // fixed point to integer
-#define FX_ADD(a,b) (a+b)            // fixed point add
-#define FX_SUB(a,b) (a-b)            // fixed point subtract 
 #define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
 #define FX_DIV(a,b) ((a/b)<<8)       // fixed point divide
 
@@ -82,6 +79,8 @@ class QuickPID
     float kp;              // (P)roportional Tuning Parameter
     float ki;              // (I)ntegral Tuning Parameter
     float kd;              // (D)erivative Tuning Parameter
+    float kpd = kp + kd;
+    float kpi = kp + ki;
 
     bool controllerDirection;
     bool pOn;
