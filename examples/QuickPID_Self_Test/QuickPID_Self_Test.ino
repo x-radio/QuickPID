@@ -11,12 +11,12 @@
 #define PIN_OUTPUT  3
 
 //Define Variables
-int16_t Setpoint = 700;
-int16_t Input;
-uint8_t Output;
+int Setpoint = 700;
+int Input;
+int Output;
 
-uint32_t before, after;
-uint16_t cnt = 0;
+unsigned long before, after;
+int cnt = 0;
 
 //Specify the initial tuning parameters
 float Kp = 2.0, Ki = 15.0, Kd = 0.05;

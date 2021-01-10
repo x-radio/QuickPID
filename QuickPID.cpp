@@ -18,7 +18,7 @@
    The parameters specified here are those for for which we can't set up
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
-QuickPID::QuickPID(int16_t* Input, uint8_t* Output, int16_t* Setpoint,
+QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
                    float Kp, float Ki, float Kd, bool POn, bool ControllerDirection)
 {
   myOutput = Output;
@@ -40,7 +40,7 @@ QuickPID::QuickPID(int16_t* Input, uint8_t* Output, int16_t* Setpoint,
    to use Proportional on Error without explicitly saying so.
  **********************************************************************************/
 
-QuickPID::QuickPID(int16_t* Input, uint8_t* Output, int16_t* Setpoint,
+QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
                    float Kp, float Ki, float Kd, bool ControllerDirection)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, P_ON_E, ControllerDirection)
 {
@@ -143,7 +143,7 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
    the default already, the required output limits might be unique, like using
    a time window of 0-8000 needing to clamp it from 0-125.
  ******************************************************************************/
-void QuickPID::SetOutputLimits(uint8_t Min, uint8_t Max)
+void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
 {
   if (Min >= Max) return;
   outMin = Min;

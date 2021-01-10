@@ -18,10 +18,10 @@ class QuickPID
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(int16_t*, uint8_t*, int16_t*, float, float, float, bool, bool);
+    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, bool, bool);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(int16_t*, uint8_t*, int16_t*, float, float, float, bool);
+    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, bool);
 
     // Sets PID to either Manual (0) or Auto (non-0).
     void SetMode(bool Mode);
@@ -32,7 +32,7 @@ class QuickPID
 
     // Clamps the output to a specific range. 0-255 by default, but it's likely the user will want to change this
     // depending on the application.
-    void SetOutputLimits(uint8_t, uint8_t);
+    void SetOutputLimits(int16_t, int16_t);
 
     // available but not commonly used functions ******************************************************************
 
@@ -78,14 +78,13 @@ class QuickPID
     bool pOn;
 
     int16_t *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
-    uint8_t *myOutput;     // hard link between the variables and the PID, freeing the user from having
+    int16_t *myOutput;     // hard link between the variables and the PID, freeing the user from having
     int16_t *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
 
     uint32_t SampleTimeUs, lastTime;
+    int16_t outMin, outMax, error;
     int16_t lastInput, outputSum;
-    uint8_t outMin, outMax;
     bool inAuto, pOnE;
-    int32_t error;
 };
 
 #endif
