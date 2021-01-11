@@ -66,10 +66,16 @@ bool QuickPID::Compute()
     error = *mySetpoint - input;
 
     /*Working error, Proportional on Measurement and Remaining PID output*/
-    if (!pOnE) outputSum += FX_MUL(FL_FX(ki) , error) - FX_MUL(FL_FX(kpd), dInput);
+    if (!pOnE) {
+      if (ki < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(ki) , error) - FX_MUL(FL_FX(kpd), dInput);
+      else outputSum += (ki * error) - (kpd * dInput);
+    }
 
     /*Working error, Proportional on Error and remaining PID output*/
-    if (pOnE) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kd), dInput);
+    if (pOnE) {
+      if (kpi < 31 && kd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kd), dInput);
+      else outputSum += (kpi * error) - (kd * dInput);
+    }
 
     if (outputSum > outMax) outputSum = outMax;
     if (outputSum < outMin) outputSum = outMin;
