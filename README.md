@@ -3,7 +3,8 @@
 This API (version 2.02) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
 
 - Library named as **QuickPID** and can run concurrently with Arduino **PID**
-- Reorganized and more efficient PID algorithms
+- Quicker fixed point math in compute function
+- Reorganized and more efficient PID algorithm
 - micros() timing resolution
 - Faster analog read function
 - `GetError()`function added for diagnostics
@@ -12,10 +13,10 @@ This API (version 2.02) follows the [ArduinoPID](https://github.com/br3ttb/Ardui
 
 | Compute                              | Kp   | Ki   | Kd   | Step Time (µS) |
 | :----------------------------------- | ---- | ---- | ---- | -------------- |
-| QuickPID                             | 2.0  | 15.0 | 0.05 | 72             |
+| QuickPID                             | 2.0  | 15.0 | 0.05 | 68             |
 | Arduino PID                          | 2.0  | 15.0 | 0.05 | 104            |
 | **analogRead, Compute, analogWrite** |      |      |      |                |
-| QuickPID                             | 2.0  | 5.0  | 0.2  | 132            |
+| QuickPID                             | 2.0  | 5.0  | 0.2  | 96             |
 | Arduino PID                          | 2.0  | 5.0  | 0.2  | 224            |
 
 #### Self Test Example (RC Filter): P_ON_M

@@ -14,6 +14,9 @@ class QuickPID
 #define P_ON_M  0
 #define P_ON_E  1
 
+#define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
+#define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
+
 
     // commonly used functions ************************************************************************************
 

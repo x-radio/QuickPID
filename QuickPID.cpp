@@ -66,15 +66,11 @@ bool QuickPID::Compute()
     error = *mySetpoint - input;
 
     /*Working error, Proportional on Measurement and Remaining PID output*/
-    if (!pOnE) {
-      outputSum += (ki * error);
-      outputSum -= (kpd * dInput);
-    }
+    if (!pOnE) outputSum += FX_MUL(FL_FX(ki) , error) - FX_MUL(FL_FX(kpd), dInput);
+
     /*Working error, Proportional on Error and remaining PID output*/
-    if (pOnE) {
-      outputSum += (kpi * error);
-      outputSum -= (kd * dInput);
-    }
+    if (pOnE) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kd), dInput);
+
     if (outputSum > outMax) outputSum = outMax;
     if (outputSum < outMin) outputSum = outMin;
     *myOutput = outputSum;
@@ -232,19 +228,19 @@ bool QuickPID::GetDirection() {
 int QuickPID::analogReadFast(int ADCpin) {
 #if defined(__AVR_ATmega328P__)
   byte ADCregOriginal = ADCSRA;
-  ADCSRA = (ADCSRA & B11111000) | 6; //64 prescaler
+  ADCSRA = (ADCSRA & B11111000) | 5; //32 prescaler
   int adc = analogRead(ADCpin);
   ADCSRA = ADCregOriginal;
   return adc;
 #elif defined(__AVR_ATtiny_Zero_One__) || defined(__AVR_ATmega_Zero__)
   byte ADCregOriginal = ADC0_CTRLC;
-  ADC0_CTRLC = 0x55; //reduced cap, Vdd ref, 64 prescaler
+  ADC0_CTRLC = 0x54; //reduced cap, Vdd ref, 32 prescaler
   int adc = analogRead(ADCpin);
   ADC0_CTRLC = ADCregOriginal;
   return adc;
 #elif defined(__AVR_DA__)
   byte ADCregOriginal = ADC0.CTRLC;
-  ADC0.CTRLC = ADC_PRESC_DIV64_gc; //64 prescaler
+  ADC0.CTRLC = ADC_PRESC_DIV32_gc; //32 prescaler
   int adc = analogRead(ADCpin);
   ADC0.CTRLC = ADCregOriginal;
   return adc;

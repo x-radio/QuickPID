@@ -59,7 +59,7 @@ void loop()
   after = micros();
   analogWrite(PIN_OUTPUT, Output);
 
-  delay(20);
+  delay(40);
   cnt++;
   if (cnt == 100) {
     analogWrite(PIN_OUTPUT, 0);
