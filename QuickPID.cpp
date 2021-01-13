@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.0.2
+   QuickPID Library for Arduino - Version 2.0.3
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -219,14 +219,17 @@ float QuickPID::GetKi() {
 float QuickPID::GetKd() {
   return  dispKd;
 }
-int16_t QuickPID::GetError() {
-  return  error;
-}
 bool QuickPID::GetMode() {
   return  inAuto ? AUTOMATIC : MANUAL;
 }
 bool QuickPID::GetDirection() {
   return controllerDirection;
+}
+int16_t QuickPID::GetError() {
+  return  error;
+}
+bool QuickPID::GetpOnE() {
+  return pOnE;
 }
 
 // Utility functions **********************************************************

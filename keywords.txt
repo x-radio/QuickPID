@@ -23,6 +23,7 @@ GetKi	KEYWORD2
 GetKd	KEYWORD2
 GetMode	KEYWORD2
 GetError	KEYWORD2
+GetpOnE	KEYWORD2
 GetDirection	KEYWORD2
 analogReadFast	KEYWORD2
 

@@ -1,13 +1,14 @@
 # QuickPID
 
-This API (version 2.02) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
+This API (version 2.03) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
 
-- Library named as **QuickPID** and can run concurrently with Arduino **PID**
-- Quicker fixed point math in compute function
+- This library named as **QuickPID** and can run alongside with Arduino **PID** if needed
+- Quicker fixed point math in compute function for small tuning values, floating point math used for large tuning values
 - Reorganized and more efficient PID algorithm
 - micros() timing resolution
 - Faster analog read function
-- `GetError()`function added for diagnostics
+- `GetError()`and `GetpOnE()`functions added for diagnostics and control benefits
+- Runs a complete PID cycle (*read-compute-write*) faster than just an `analogRead()` command  in Arduino
 
 ### Performance
 
@@ -19,9 +20,18 @@ This API (version 2.02) follows the [ArduinoPID](https://github.com/br3ttb/Ardui
 | QuickPID                             | 2.0  | 5.0  | 0.2  | 96             |
 | Arduino PID                          | 2.0  | 5.0  | 0.2  | 224            |
 
-#### Self Test Example (RC Filter): P_ON_M
+#### Self Test Example (RC Filter):
 
-![pid_self_test_pom](https://user-images.githubusercontent.com/63488701/104115407-2cee5900-52dd-11eb-9b24-ff06d39fd2d6.gif)
+This example allows you to set an output voltage, then view the result of your tuning parameters. The mode of the P-Term automatically toggles from Proportional on Error to [Proportional on Measurement.](http://brettbeauregard.com/blog/2017/06/introducing-proportional-on-measurement/)
+
+![pid_self_test_pom](https://user-images.githubusercontent.com/63488701/104389509-a66a8f00-5509-11eb-927b-1190231a1ee9.gif)
+
+### Simplified PID Algorithm 
+
+| Proportional Term Mode      | Algorithm                                     |
+| --------------------------- | --------------------------------------------- |
+| Proportional on Error       | `outputSum += (kpi * error) - (kd * dInput);` |
+| Proportional on Measurement | `outputSum += (ki * error) - (kpd * dInput);` |
 
 ### Variables
 

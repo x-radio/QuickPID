@@ -25,33 +25,27 @@ QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup()
 {
-  myQuickPID.SetTunings(Kp, Ki, Kd, P_ON_M);
   Serial.begin(115200);
-  analogWrite(PIN_OUTPUT, 0);
-  delay(1000); // discharge capacitor
-  Input = myQuickPID.analogReadFast(PIN_INPUT);
+  myQuickPID.SetTunings(Kp, Ki, Kd, P_ON_E);
   myQuickPID.SetMode(AUTOMATIC);
+  analogWrite(PIN_OUTPUT, 0); // discharge capacitor
+  delay(1000);
 }
 
 void loop()
 {
-  //Serial.println("Min:0,Max:1000"); // set scale
-
-  // Stretch the plot x2
-  for (int i = 0; i <= 1; i++) {
-    Serial.print("Setpoint:");
-    Serial.print(Setpoint);
-    Serial.print(",");
-    Serial.print("Input:");
-    Serial.print(Input);
-    Serial.print(",");
-    Serial.print("Output:");
-    Serial.print(Output);
-    Serial.print(",");
-    Serial.print("Runtime:");
-    Serial.print(after - before);
-    Serial.println(",");
-  }
+  Serial.print("Setpoint:");
+  Serial.print(Setpoint);
+  Serial.print(",");
+  Serial.print("Input:");
+  Serial.print(Input);
+  Serial.print(",");
+  Serial.print("Output:");
+  Serial.print(Output);
+  Serial.print(",");
+  Serial.print("Runtime:");
+  Serial.print(after - before);
+  Serial.println(",");
 
   Input = myQuickPID.analogReadFast(PIN_INPUT);
   before = micros();
@@ -59,11 +53,12 @@ void loop()
   after = micros();
   analogWrite(PIN_OUTPUT, Output);
 
-  delay(40);
+  delay(10);
   cnt++;
-  if (cnt == 100) {
+  if (cnt == 250) {
     analogWrite(PIN_OUTPUT, 0);
     delay(1000); // discharge capacitor
     cnt = 0;
+    myQuickPID.SetTunings(Kp, Ki, Kd, !(myQuickPID.GetpOnE())); //toggle P-Term mode
   }
 }

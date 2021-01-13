@@ -57,9 +57,10 @@ class QuickPID
     float GetKp();         // These functions query the pid for interal values. They were created mainly for
     float GetKi();         // the pid front-end, where it's important to know what is actually inside the PID.
     float GetKd();
-    int16_t GetError();
     bool GetMode();
     bool GetDirection();
+    int16_t GetError();
+    bool GetpOnE();
 
     // Utility functions ******************************************************************************************
     int analogReadFast(int);
