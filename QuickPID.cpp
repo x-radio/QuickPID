@@ -19,7 +19,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
-                   float Kp, float Ki, float Kd, bool POn, bool ControllerDirection)
+                   float Kp, float Ki, float Kd, float POn, bool ControllerDirection)
 {
   myOutput = Output;
   myInput = Input;
@@ -42,7 +42,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
                    float Kp, float Ki, float Kd, bool ControllerDirection)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, P_ON_E, ControllerDirection)
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn, ControllerDirection)
 {
 
 }
@@ -65,17 +65,9 @@ bool QuickPID::Compute()
     int16_t dInput = input - lastInput;
     error = *mySetpoint - input;
 
-    /*Working error, Proportional on Measurement and Remaining PID output*/
-    if (!pOnE) {
-      if (ki < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(ki) , error) - FX_MUL(FL_FX(kpd), dInput);
-      else outputSum += (ki * error) - (kpd * dInput);
-    }
-
-    /*Working error, Proportional on Error and remaining PID output*/
-    if (pOnE) {
-      if (kpi < 31 && kd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kd), dInput);
-      else outputSum += (kpi * error) - (kd * dInput);
-    }
+    /*Working error, Proportional distribution and Remaining PID output*/
+    if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput);
+    else outputSum += (kpi * error) - (kpd * dInput);
 
     if (outputSum > outMax) outputSum = outMax;
     if (outputSum < outMin) outputSum = outMin;
@@ -94,20 +86,19 @@ bool QuickPID::Compute()
    it's called automatically from the constructor, but tunings can also
    be adjusted on the fly during normal operation
  ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, bool POn)
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
 {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
 
   pOn = POn;
-  pOnE = POn == P_ON_E;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
   float SampleTimeSec = (float)SampleTimeUs / 1000000;
   kp = Kp;
   ki = Ki * SampleTimeSec;
   kd = Kd / SampleTimeSec;
-  kpd = kp + kd;
-  kpi = kp + ki;
+  kpi = kp * pOn + ki;
+  kpd = kp * (1 - pOn) + kd;
 
   if (controllerDirection == REVERSE)
   {
@@ -227,9 +218,6 @@ bool QuickPID::GetDirection() {
 }
 int16_t QuickPID::GetError() {
   return  error;
-}
-bool QuickPID::GetpOnE() {
-  return pOnE;
 }
 
 // Utility functions **********************************************************

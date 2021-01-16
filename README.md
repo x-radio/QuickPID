@@ -2,8 +2,8 @@
 
 This API (version 2.03) follows the [ArduinoPID](https://github.com/br3ttb/Arduino-PID-Library) library, however there have been some significant updates as follows:
 
-- This library named as **QuickPID** and can run alongside with Arduino **PID** if needed
-- Quicker fixed point math in compute function for small tuning values, floating point math used for large tuning values
+- Quicker hybrid fixed/floating point math in compute function
+-  POn parameter controls the setpoint weighting of Proportional on Error (PonE) to Proportional on Measurement (PonM)
 - Reorganized and more efficient PID algorithm
 - micros() timing resolution
 - Faster analog read function
@@ -14,7 +14,7 @@ This API (version 2.03) follows the [ArduinoPID](https://github.com/br3ttb/Ardui
 
 | Compute                              | Kp   | Ki   | Kd   | Step Time (µS) |
 | :----------------------------------- | ---- | ---- | ---- | -------------- |
-| QuickPID                             | 2.0  | 15.0 | 0.05 | 68             |
+| QuickPID                             | 2.0  | 15.0 | 0.05 | 72             |
 | Arduino PID                          | 2.0  | 15.0 | 0.05 | 104            |
 | **analogRead, Compute, analogWrite** |      |      |      |                |
 | QuickPID                             | 2.0  | 5.0  | 0.2  | 96             |
@@ -22,7 +22,7 @@ This API (version 2.03) follows the [ArduinoPID](https://github.com/br3ttb/Ardui
 
 #### Self Test Example (RC Filter):
 
-This example allows you to set an output voltage, then view the result of your tuning parameters. The mode of the P-Term automatically toggles from Proportional on Error to [Proportional on Measurement.](http://brettbeauregard.com/blog/2017/06/introducing-proportional-on-measurement/)
+[This example](https://github.com/Dlloydev/QuickPID/wiki/QuickPID_RC_Filter) allows you to experiment with the four tuning parameters.
 
 ![pid_self_test_pom](https://user-images.githubusercontent.com/63488701/104389509-a66a8f00-5509-11eb-927b-1190231a1ee9.gif)
 

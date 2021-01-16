@@ -1,9 +1,10 @@
-/************************************************************
-   PID RC Filter Self Test Example:
-   One 47µF capacitor connected from GND to a 27K resistor
+/**************************************************************
+   PID RC Filter Example:
+   One 47µF capacitor connected from GND to a 10K resistor
    terminated at pwm pin 3. Junction point of the RC filter
    is connected to A0. Use Serial Plotter to view results.
- ************************************************************/
+   https://github.com/Dlloydev/QuickPID/wiki/QuickPID_RC_Filter
+ **************************************************************/
 
 #include "QuickPID.h"
 
@@ -19,14 +20,14 @@ unsigned long before, after;
 int cnt = 0;
 
 //Specify the initial tuning parameters
-float Kp = 2.0, Ki = 15.0, Kd = 0.05;
+float Kp = 2.0, Ki = 15.0, Kd = 0.05, POn = 1.0;
 
 QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup()
 {
   Serial.begin(115200);
-  myQuickPID.SetTunings(Kp, Ki, Kd, P_ON_E);
+  myQuickPID.SetTunings(Kp, Ki, Kd, POn);
   myQuickPID.SetMode(AUTOMATIC);
   analogWrite(PIN_OUTPUT, 0); // discharge capacitor
   delay(1000);
@@ -59,6 +60,5 @@ void loop()
     analogWrite(PIN_OUTPUT, 0);
     delay(1000); // discharge capacitor
     cnt = 0;
-    myQuickPID.SetTunings(Kp, Ki, Kd, !(myQuickPID.GetpOnE())); //toggle P-Term mode
   }
 }

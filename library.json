@@ -1,7 +1,7 @@
 {
   "name": "QuickPID",
   "keywords": "PID, controller, signal",
-  "description": "A fast, fixed point PID controller that seeks to keep an input variable close to a desired setpoint by adjusting an output. The way in which it does this can be 'tuned' by adjusting three parameters (P,I,D).",
+  "description": "QuickPID controller - a faster implementation of the Arduino PID Library with more features. This hybrid fixed/floating point controller seeks to keep an output close to a desired setpoint  by adjusting four parameters (P,I,D) and POn (PonE, PonM setpoint weighting).",
   "url": "https://github.com/Dlloydev/QuickPID",
   "include": "QuickPID",
   "authors":

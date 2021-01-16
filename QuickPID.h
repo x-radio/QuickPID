@@ -11,8 +11,6 @@ class QuickPID
 #define MANUAL	0
 #define DIRECT  0
 #define REVERSE 1
-#define P_ON_M  0
-#define P_ON_E  1
 
 #define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
 #define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
@@ -21,7 +19,7 @@ class QuickPID
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, bool, bool);
+    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, float, bool);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
     QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, bool);
@@ -44,7 +42,7 @@ class QuickPID
     void SetTunings(float, float, float);
 
     // Overload for specifying proportional mode.
-    void SetTunings(float, float, float, bool);
+    void SetTunings(float, float, float, float);
 
     // Sets the Direction, or "Action" of control. DIRECT means the output will increase when error is positive.
     // REVERSE means the opposite. It's very unlikely that this will be needed once it is set in the constructor.
@@ -60,7 +58,6 @@ class QuickPID
     bool GetMode();
     bool GetDirection();
     int16_t GetError();
-    bool GetpOnE();
 
     // Utility functions ******************************************************************************************
     int analogReadFast(int);
@@ -68,18 +65,18 @@ class QuickPID
   private:
     void Initialize();
 
-    float dispKp;          // We'll hold on to the tuning parameters in user-entered format for display purposes.
+    float dispKp;          // We'll hold on to the tuning parameters for display purposes.
     float dispKi;
     float dispKd;
 
+    float pOn;             // proportional mode (0-1) default 1 (100% on Error, 0% on Measurement)
     float kp;              // (P)roportional Tuning Parameter
     float ki;              // (I)ntegral Tuning Parameter
     float kd;              // (D)erivative Tuning Parameter
-    float kpd = kp + kd;
-    float kpi = kp + ki;
+    float kpi;             // proportional on error amount
+    float kpd;             // proportional on measurement amount
 
     bool controllerDirection;
-    bool pOn;
 
     int16_t *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
     int16_t *myOutput;     // hard link between the variables and the PID, freeing the user from having
@@ -88,7 +85,7 @@ class QuickPID
     uint32_t SampleTimeUs, lastTime;
     int16_t outMin, outMax, error;
     int16_t lastInput, outputSum;
-    bool inAuto, pOnE;
+    bool inAuto;
 };
 
 #endif
