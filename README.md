@@ -30,25 +30,25 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 
 ### Functions
 
-[QuickPID::QuickPID Constructor](#QuickPID::QuickPID Constructor)
+[QuickPID Constructor](#QuickPID Constructor)
 
-[Compute()](#Compute())
+[Compute](#Compute)
 
-[SetTunings()](#SetTunings())
+[SetTunings](#SetTunings)
 
-[SetSampleTime()](#SetSampleTime())
+[SetSampleTime](#SetSampleTime)
 
-[SetOutputLimits()](#SetOutputLimits())
+[SetOutputLimits](#SetOutputLimits)
 
-[SetMode()](#SetMode())
+[SetMode](#SetMode)
 
-[Initialize()](#Initialize())
+[Initialize](#Initialize)
 
-[SetControllerDirection()](#SetControllerDirection())
+[SetControllerDirection](#SetControllerDirection)
 
-[Display Functions](#Display Functions())
+[Display Functions](#Display Functions)
 
-[Utility Functions](#Utility Functions())
+[Utility Functions](#Utility Functions)
 
 ### Self Test Example (RC Filter):
 
@@ -69,7 +69,7 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
  kpd = kp * (1 - pOn) + kd;
 ```
 
-#### QuickPID::QuickPID Constructor
+#### QuickPID Constructor
 
 ```c++
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
@@ -88,7 +88,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
 This allows you to use Proportional on Error without explicitly saying so.
 
-#### Compute()
+#### Compute
 
 ```c++
 bool QuickPID::Compute()
@@ -96,7 +96,7 @@ bool QuickPID::Compute()
 
 This function contains the PID algorithm and it should be called once every loop(). Most of the time it will just return false without doing anything. However, at a  frequency specified by `SetSampleTime` it will calculate a new Output and return true.
 
-#### SetTunings()
+#### SetTunings
 
 ```c++
 void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
@@ -110,7 +110,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd)
 
 Set Tunings using the last remembered POn setting.
 
-#### SetSampleTime()
+#### SetSampleTime
 
 ```c++
 void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
@@ -118,7 +118,7 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
 
 Sets the period, in microseconds, at which the calculation is performed. The default is 100ms.
 
-#### SetOutputLimits()
+#### SetOutputLimits
 
 ```c++
 void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
@@ -126,7 +126,7 @@ void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
 
 The PID controller is designed to vary its output within a given range.  By default this range is 0-255, the Arduino PWM range.
 
-#### SetMode()
+#### SetMode
 
 ```c++
 void QuickPID::SetMode(bool Mode)
@@ -134,7 +134,7 @@ void QuickPID::SetMode(bool Mode)
 
 Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (non-zero). when the transition from manual to automatic occurs, the controller is automatically initialized.
 
-#### Initialize()
+#### Initialize
 
 ```c++
 void QuickPID::Initialize()
@@ -142,7 +142,7 @@ void QuickPID::Initialize()
 
 Does all the things that need to happen to ensure a bumpless transfer from manual to automatic mode.
 
-#### SetControllerDirection()
+#### SetControllerDirection
 
 ```c++
 void QuickPID::SetControllerDirection(bool Direction)
