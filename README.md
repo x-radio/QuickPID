@@ -30,7 +30,7 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 
 ### Functions
 
-[QuickPID Constructor](#QuickPID Constructor)
+[QuickPID_Constructor](#QuickPID_Constructor)
 
 [Compute](#Compute)
 
@@ -46,9 +46,9 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 
 [SetControllerDirection](#SetControllerDirection)
 
-[Display Functions](#Display Functions)
+[Display_Functions](#Display_Functions)
 
-[Utility Functions](#Utility Functions)
+[Utility_Functions](#Utility_Functions)
 
 ### Self Test Example (RC Filter):
 
@@ -69,7 +69,7 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
  kpd = kp * (1 - pOn) + kd;
 ```
 
-#### QuickPID Constructor
+#### QuickPID_Constructor
 
 ```c++
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
@@ -150,7 +150,7 @@ void QuickPID::SetControllerDirection(bool Direction)
 
 The PID will either be connected to a DIRECT acting process (+Output leads to +Input) or a REVERSE acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.
 
-#### Display Functions
+#### Display_Functions
 
 ```c++
 float QuickPID::GetKp()
@@ -163,7 +163,7 @@ int16_t QuickPID::GetError()
 
 These functions query the internal state of the PID. They're here for display purposes.
 
-#### Utility Functions
+#### Utility_Functions
 
 ```c++
 int QuickPID::analogReadFast(int ADCpin)
