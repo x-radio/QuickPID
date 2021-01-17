@@ -62,7 +62,7 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 outputSum += (kpi * error) - (kpd * dInput);
 ```
 
-The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required The POn parameter controls the setpoint weighting of Proportional on Error and Proportional on Measurement. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated in the `QuickPID::SetTunings()` function as follows:
+The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required The pOn variable controls the setpoint weighting of Proportional on Error and Proportional on Measurement. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated as follows:
 
 ```c++
  kpi = kp * pOn + ki;
@@ -172,11 +172,14 @@ int QuickPID::analogReadFast(int ADCpin)
 A faster configuration of `analogRead()`where a preset of 32 is used. Works with the following defines:
 
 `__AVR_ATmega328P__`
+
 `__AVR_ATtiny_Zero_One__`
+
 `__AVR_ATmega_Zero__`
+
 `__AVR_DA__`
 
-Uses Arduino's default settings and returns `analogRead()` if the definition isn't found. 
+ If the definition isn't found, normal `analogRead()`is used to return a value.
 
 ### Original README (Arduino PID)
 

@@ -6,9 +6,9 @@
    https://github.com/Dlloydev/QuickPID/wiki/QuickPID_RC_Filter
  **************************************************************/
 
-#include "QuickPID.h"
+#include <QuickPID.h>
 
-#define PIN_INPUT  A0
+#define PIN_INPUT   0
 #define PIN_OUTPUT  3
 
 //Define Variables
@@ -20,14 +20,15 @@ unsigned long before, after;
 int cnt = 0;
 
 //Specify the initial tuning parameters
-float Kp = 2.0, Ki = 15.0, Kd = 0.05, POn = 1.0;
+float Kp = 2.0, Ki = 15.0, Kd = 0.05;
+float POn = 1.0; // Range is 0.0 to 1.0 (1.0 is 100% P on Error, 0% P on Measurement)
 
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DIRECT);
 
 void setup()
 {
   Serial.begin(115200);
-  myQuickPID.SetTunings(Kp, Ki, Kd, POn);
+  myQuickPID.SetTunings(Kp, Ki, Kd);
   myQuickPID.SetMode(AUTOMATIC);
   analogWrite(PIN_OUTPUT, 0); // discharge capacitor
   delay(1000);
