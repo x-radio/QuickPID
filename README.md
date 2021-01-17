@@ -31,14 +31,23 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 ### Functions
 
 [QuickPID::QuickPID Constructor](#QuickPID::QuickPID Constructor)
+
 [Compute()](#Compute())
+
 [SetTunings()](#SetTunings())
+
 [SetSampleTime()](#SetSampleTime())
+
 [SetOutputLimits()](#SetOutputLimits())
+
 [SetMode()](#SetMode())
+
 [Initialize()](#Initialize())
+
 [SetControllerDirection()](#SetControllerDirection())
+
 [Display Functions](#Display Functions())
+
 [Utility Functions](#Utility Functions())
 
 ### Self Test Example (RC Filter):
