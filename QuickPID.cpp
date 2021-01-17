@@ -109,7 +109,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
 }
 
 /* SetTunings(...)*************************************************************
-   Set Tunings using the last-rembered POn setting
+   Set Tunings using the last remembered POn setting.
  ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
   SetTunings(Kp, Ki, Kd, pOn);
@@ -131,10 +131,8 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
 }
 
 /* SetOutputLimits(...)********************************************************
-   This function will be used far more often than SetInputLimits. While
-   the input to the controller will generally be in the 0-1023 range, which is
-   the default already, the required output limits might be unique, like using
-   a time window of 0-8000 needing to clamp it from 0-125.
+   The PID controller is designed to vary its output within a given range.
+   By default this range is 0-255, the Arduino PWM range.
  ******************************************************************************/
 void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
 {
@@ -168,7 +166,7 @@ void QuickPID::SetMode(bool Mode)
 }
 
 /* Initialize()****************************************************************
- 	 Does all the things that need to happen to ensure a bumpless transfer
+   Does all the things that need to happen to ensure a bumpless transfer
    from manual to automatic mode.
  ******************************************************************************/
 void QuickPID::Initialize()
