@@ -28,33 +28,9 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 | QuickPID using `analogReadFast()`                            | 2.0  | 5.0  | 0.2  | 96             |
 | Arduino PID using `analogRead()`                             | 2.0  | 5.0  | 0.2  | 224            |
 
-### Functions
-
-[QuickPID_Constructor](#QuickPID_Constructor)
-
-[Compute](#Compute)
-
-[SetTunings](#SetTunings)
-
-[SetSampleTime](#SetSampleTime)
-
-[SetOutputLimits](#SetOutputLimits)
-
-[SetMode](#SetMode)
-
-[Initialize](#Initialize)
-
-[SetControllerDirection](#SetControllerDirection)
-
-[Display_Functions](#Display_Functions)
-
-[Utility_Functions](#Utility_Functions)
-
 ### Self Test Example (RC Filter):
 
 [This example](https://github.com/Dlloydev/QuickPID/wiki/QuickPID_RC_Filter) allows you to experiment with the four tuning parameters.
-
-![pid_self_test_pom](https://user-images.githubusercontent.com/63488701/104389509-a66a8f00-5509-11eb-927b-1190231a1ee9.gif)
 
 ### Simplified PID Algorithm
 
@@ -69,6 +45,8 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
  kpd = kp * (1 - pOn) + kd;
 ```
 
+### Functions
+
 #### QuickPID_Constructor
 
 ```c++
@@ -78,7 +56,10 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
-- `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the amount of Proportional on Error and  Proportional on Measurement factor that's used in the compute algorithm.
+- `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the mix of Proportional on Error (PonE) and  Proportional on Measurement (PonM) that's used in the compute algorithm. Note that POn controls the PonE amount, where the remainder (1-PonE) is the PonM amount. Also, the default POn is 0 (100% PonM, 0% PonE).
+
+![POn](https://user-images.githubusercontent.com/63488701/104958919-fe3c4680-599e-11eb-851e-73f26291d3e5.gif)
+
 - `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. DIRECT is most common.
 
 ```c++
@@ -181,6 +162,19 @@ A faster configuration of `analogRead()`where a preset of 32 is used. Works with
 
  If the definition isn't found, normal `analogRead()`is used to return a value.
 
+### Change Log
+
+#### Version 2.0.4
+
+- Added `QuickPID_AdaptiveTunings.ino`, `QuickPID_Basic.ino`, `QuickPID_PonM.ino` and `QuickPID_RelayOutput.ino` to the examples folder.
+- `QuickPID_RelayOutput.ino` has the added feature of `minWindow` setting that sets the minimum on time for the relay.
+
+#### Version 2.0.3
+
+- Initial Version with modifications as listed in [features.](#Features) 
+
+------
+
 ### Original README (Arduino PID)
 
 ```
@@ -196,3 +190,6 @@ A faster configuration of `analogRead()`where a preset of 32 is used. Works with
    http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 
  - For function documentation see:  http://playground.arduino.cc/Code/PIDLibrary
+
+------
+
