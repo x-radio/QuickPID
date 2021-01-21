@@ -69,7 +69,7 @@ class QuickPID
     float dispKi;
     float dispKd;
 
-    float pOn;             // proportional mode (0-1) default 1 (100% on Error, 0% on Measurement)
+    float pOn;             // proportional mode (0-1) default = 1, 100% Proportional on Error
     float kp;              // (P)roportional Tuning Parameter
     float ki;              // (I)ntegral Tuning Parameter
     float kd;              // (D)erivative Tuning Parameter

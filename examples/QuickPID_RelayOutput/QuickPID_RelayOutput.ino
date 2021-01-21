@@ -16,7 +16,7 @@
    be on for a minimum amount of time.
  ********************************************************/
 
-#include <QuickPID.h>
+#include "QuickPID.h"
 
 #define PIN_INPUT 0
 #define RELAY_PIN 6

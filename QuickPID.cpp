@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.0.4
+   QuickPID Library for Arduino - Version 2.0.5
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -19,7 +19,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
-                   float Kp, float Ki, float Kd, float POn, bool ControllerDirection)
+                   float Kp, float Ki, float Kd, float POn = 1, bool ControllerDirection = 0)
 {
   myOutput = Output;
   myInput = Input;
@@ -28,6 +28,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
   QuickPID::SetOutputLimits(0, 255);  // default is same as the arduino PWM limit
   SampleTimeUs = 100000;              // default is 0.1 seconds
+
   QuickPID::SetControllerDirection(ControllerDirection);
   QuickPID::SetTunings(Kp, Ki, Kd, POn);
 
@@ -41,7 +42,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
                    float Kp, float Ki, float Kd, bool ControllerDirection)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, POn, ControllerDirection)
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0)
 {
 
 }
@@ -85,12 +86,11 @@ bool QuickPID::Compute()
    it's called automatically from the constructor, but tunings can also
    be adjusted on the fly during normal operation
  ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1)
 {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
 
   pOn = POn;
-
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
   float SampleTimeSec = (float)SampleTimeUs / 1000000;
@@ -112,7 +112,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
    Set Tunings using the last remembered POn setting.
  ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
-  SetTunings(Kp, Ki, Kd, POn);
+  SetTunings(Kp, Ki, Kd, pOn);
 }
 
 /* SetSampleTime(...) *********************************************************

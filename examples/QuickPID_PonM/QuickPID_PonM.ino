@@ -6,7 +6,7 @@
    in certain processes like sous-vides.
  ********************************************************/
 
-#include <QuickPID.h>
+#include "QuickPID.h"
 
 //Define Variables we'll be connecting to
 int Setpoint, Input, Output;

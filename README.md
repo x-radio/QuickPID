@@ -56,7 +56,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
-- `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the mix of Proportional on Error (PonE) and  Proportional on Measurement (PonM) that's used in the compute algorithm. Note that POn controls the PonE amount, where the remainder (1-PonE) is the PonM amount. Also, the default POn is 0 (100% PonM, 0% PonE).
+- `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the mix of Proportional on Error (PonE) and  Proportional on Measurement (PonM) that's used in the compute algorithm. Note that POn controls the PonE amount, where the remainder (1-PonE) is the PonM amount. Also, the default POn is 1
 
 ![POn](https://user-images.githubusercontent.com/63488701/104958919-fe3c4680-599e-11eb-851e-73f26291d3e5.gif)
 
@@ -163,6 +163,11 @@ A faster configuration of `analogRead()`where a preset of 32 is used. Works with
  If the definition isn't found, normal `analogRead()`is used to return a value.
 
 ### Change Log
+
+#### Version 2.0.5 (latest)
+
+- Added MIT license text file
+- POn defaults to 1
 
 #### Version 2.0.4
 
