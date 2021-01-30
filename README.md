@@ -29,7 +29,7 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 | QuickPID using `analogReadFast()`                            | 2.0  | 5.0  | 0.2  | 96             |
 | Arduino PID using `analogRead()`                             | 2.0  | 5.0  | 0.2  | 224            |
 
-### Self Test Example (RC Filter):
+### AutoTune RC Filter
 
 [This example](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter) allows you to experiment with the AutoTune and POn control on an RC filter.
 
