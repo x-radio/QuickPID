@@ -14,6 +14,7 @@ QuickPID	KEYWORD1
 
 SetMode	KEYWORD2
 Compute	KEYWORD2
+AutoTune	KEYWORD2
 SetOutputLimits	KEYWORD2
 SetTunings	KEYWORD2
 SetControllerDirection	KEYWORD2
@@ -25,6 +26,7 @@ GetMode	KEYWORD2
 GetError	KEYWORD2
 GetDirection	KEYWORD2
 analogReadFast	KEYWORD2
+analogReadAvg	KEYWORD2
 
 ##########################################
 # Constants (LITERAL1)

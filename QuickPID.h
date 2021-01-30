@@ -7,14 +7,13 @@ class QuickPID
   public:
 
     //Constants used in some of the functions below
-#define AUTOMATIC	1
-#define MANUAL	0
+#define AUTOMATIC 1
+#define MANUAL  0
 #define DIRECT  0
 #define REVERSE 1
 
 #define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
 #define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
-
 
     // commonly used functions ************************************************************************************
 
@@ -31,8 +30,13 @@ class QuickPID
     // can be set using SetMode and SetSampleTime respectively.
     bool Compute();
 
-    // Clamps the output to a specific range. 0-255 by default, but it's likely the user will want to change this
-    // depending on the application.
+    // Automatically determines and sets the tuning parameters Kp, Ki and Kd. Use this in the setup loop.
+    void AutoTune(int, int, int, int, uint32_t);
+
+    // Clamps the output to its pre-determined limits.
+    int16_t Saturate(int16_t);
+
+    // Sets and clamps the output to a specific range (0-255 by default).
     void SetOutputLimits(int16_t, int16_t);
 
     // available but not commonly used functions ******************************************************************
@@ -61,6 +65,7 @@ class QuickPID
 
     // Utility functions ******************************************************************************************
     int analogReadFast(int);
+    int analogReadAvg(int);
 
   private:
     void Initialize();
@@ -82,7 +87,7 @@ class QuickPID
     int16_t *myOutput;     // hard link between the variables and the PID, freeing the user from having
     int16_t *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
 
-    uint32_t SampleTimeUs, lastTime;
+    uint32_t sampleTimeUs, lastTime;
     int16_t outMin, outMax, error;
     int16_t lastInput, outputSum;
     bool inAuto;

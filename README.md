@@ -1,6 +1,6 @@
 # QuickPID
 
-A fast hybrid fixed-point and floating-point PID controller for Arduino. 
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in AutoTune function. This controller can automatically determine and set parameters (Kp, Ki, Kd). The POn setting controls the mix of Proportional on Errror to Proportional on Measurement and can be used to set the desired amount of overshoot.
 
 ### About
 
@@ -11,7 +11,8 @@ This PID controller provides a faster *read-compute-write* cycle than alternativ
 Development began with a fork of the Arduino PID Library. Some modifications and new features have been added as follows:
 
 - Quicker hybrid fixed/floating point math in compute function
-- `POn` parameter now controls the setpoint weighting of Proportional on Error and Proportional on Measurement
+- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. Also determines critical gain `Ku` and critical period `Tu` of the control system
+- `POn` parameter now controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
 - Reorganized and more efficient PID algorithm
 - micros() timing resolution
 - Faster analog read function
@@ -30,7 +31,7 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 
 ### Self Test Example (RC Filter):
 
-[This example](https://github.com/Dlloydev/QuickPID/wiki/QuickPID_RC_Filter) allows you to experiment with the four tuning parameters.
+[This example](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter) allows you to experiment with the AutoTune and POn control on an RC filter.
 
 ### Simplified PID Algorithm
 
@@ -38,7 +39,7 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 outputSum += (kpi * error) - (kpd * dInput);
 ```
 
-The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required The pOn variable controls the setpoint weighting of Proportional on Error and Proportional on Measurement. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated as follows:
+The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required. The pOn variable controls the setpoint weighting of Proportional on Error and Proportional on Measurement. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated as follows:
 
 ```c++
  kpi = kp * pOn + ki;
@@ -76,6 +77,33 @@ bool QuickPID::Compute()
 ```
 
 This function contains the PID algorithm and it should be called once every loop(). Most of the time it will just return false without doing anything. However, at a  frequency specified by `SetSampleTime` it will calculate a new Output and return true.
+
+#### AutoTune
+
+```c++
+void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30)
+```
+
+The `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. It also determines the critical gain `Ku` and critical period `Tu` of the control system. 
+
+`int tuningRule = 0; // PID(0), PI(1)`
+
+Selects the appropriate Ziegler–Nichols tuning rule for the PID or PI type controller.
+
+| Controller | Kp          | Ki               | Kd                |
+| ---------- | ----------- | ---------------- | ----------------- |
+| PI         | `0.45 * Ku` | `0.54 * Ku / Tu` | `0`               |
+| PID        | `0.6 * Ku`  | `1.2 * Ku / Tu`  | `0.075 * Ku * Tu` |
+
+`int Print = 0; // on(1), off(0)`
+
+When using Serial Monitor, turn on serial print output to view the AutoTune status and results. When using the Serial Plotter, turn off the AutoTune print output to prevent plot labels from being overwritten.
+
+`uint32_t timeout = 30`
+
+Sets the AutoTune timeout where the default is 30 seconds.
+
+For more inormation, see [QuickPID AutoTune.](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
 #### SetTunings
 
@@ -150,21 +178,16 @@ These functions query the internal state of the PID. They're here for display pu
 int QuickPID::analogReadFast(int ADCpin)
 ```
 
-A faster configuration of `analogRead()`where a preset of 32 is used. Works with the following defines:
-
-`__AVR_ATmega328P__`
-
-`__AVR_ATtiny_Zero_One__`
-
-`__AVR_ATmega_Zero__`
-
-`__AVR_DA__`
-
- If the definition isn't found, normal `analogRead()`is used to return a value.
+A faster configuration of `analogRead()`where a preset of 32 is used.  If the architecture definition isn't found, normal `analogRead()`is used to return a value.
 
 ### Change Log
 
-#### Version 2.0.5 (latest)
+#### Version 2.1.0 (latest)
+
+- Added AutoTune function and documentation
+- Added AutoTune_RC_Filter example and documentation
+
+#### Version 2.0.5
 
 - Added MIT license text file
 - POn defaults to 1
