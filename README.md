@@ -1,5 +1,7 @@
 # QuickPID
 
+[![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
+
 QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in AutoTune function. This controller can automatically determine and set parameters (Kp, Ki, Kd). The POn setting controls the mix of Proportional on Errror to Proportional on Measurement and can be used to set the desired amount of overshoot.
 
 ### About
@@ -29,9 +31,9 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 | QuickPID using `analogReadFast()`                            | 2.0  | 5.0  | 0.2  | 96             |
 | Arduino PID using `analogRead()`                             | 2.0  | 5.0  | 0.2  | 224            |
 
-### AutoTune RC Filter
+### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
-[This example](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter) allows you to experiment with the AutoTune and POn control on an RC filter.
+This example allows you to experiment with the AutoTune and POn control on an RC filter.
 
 ### Simplified PID Algorithm
 
@@ -182,7 +184,7 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 
 ### Change Log
 
-#### Version 2.1.0 (latest)
+#### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
 - Added AutoTune function and documentation
 - Added AutoTune_RC_Filter example and documentation
