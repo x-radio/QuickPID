@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.1.0
+   QuickPID Library for Arduino - Version 2.2.0
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -79,84 +79,78 @@ bool QuickPID::Compute()
 
 /* AutoTune(...)***************************************************************************
    This function uses the Relay Method to tune the loop without operator intervention.
-   It determines the critical gain (Ku) and critical period (Tu) which is used in the
+   It determines the ultimate gain (Ku) and ultimate period (Tu) which is used in the
    Ziegler-Nichols tuning rules to compute Kp, Ki and Kd.
  ******************************************************************************************/
-void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30) {
-  const byte outputStep = 2;                  // ±2 = span of 4
-  const byte hysteresis = 1;                  // ±1 = span of 2
+void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 120) {
 
-  static uint32_t  stepPrevTime, stepTime;
-  int peakHigh = 341, peakLow = 341;          // Why 341? Because its exacly 1/3 of the 10-bit
-  *myInput = 341;                             // ADC max and this perfectly matches the 8-bit
-  *mySetpoint = 341;                          // PWM value (85/255 = 1/3). We need 0% digital bias
-  *myOutput = 85;                             // for a symetrical waveform over the setpoint.
-
+  uint32_t  stepPrevTime, stepTime;
   float Ku, Tu;
-  bool stepDir = true;
 
-  analogWrite(outputPin, 85);
-  if (Print == 1) Serial.print("Settling at 33% for 7 sec ");
-  for (int i = 0; i < 7; i++) {
-    delay(1000);
-    if (Print == 1) Serial.print(".");
-  }
-  if (Print == 1) Serial.println();
-  if (Print == 1) Serial.print("AutoTune:");
-
-  for (int i = 0; i < 16; i++) {                        // fill the rolling average
-    *myInput = analogReadAvg(inputPin);
-  }
-
+  const int Rule[10][3] =
+  { //ckp,  cki, ckd x 1000
+    { 450,  540,   0 },  // ZIEGLER_NICHOLS_PI
+    { 600, 1176,  75 },  // ZIEGLER_NICHOLS_PID
+    { 313,  142,   0 },  // TYREUS_LUYBEN_PI
+    { 454,  206,  72 },  // TYREUS_LUYBEN_PID
+    { 303, 1212,   0 },  // CIANCONE_MARLIN_PI
+    { 303, 1333,  37 },  // CIANCONE_MARLIN_PID
+    {   0,    0,   0 },  // AMIGOF_PI (reserved)
+    { 700, 1750, 105 },  // PESSEN_INTEGRAL_PID
+    { 333,  667, 111 },  // SOME_OVERSHOOT_PID
+    { 200,  400,  67 },  // NO_OVERSHOOT_PID
+  };
+  const byte ckp = 0, cki = 1, ckd = 2; // c = column
+  peakHigh = atSetpoint;
+  peakLow = atSetpoint;
   timeout *= 1000;
-
-  do { //oscillate the output based on the input's relation to the setpoint
-    if (*myInput > *mySetpoint + hysteresis) {          // input passes +'ve hysteresis
-      *myOutput = 85 - outputStep;                      // step down
-      if (*myInput > peakHigh) peakHigh = *myInput;     // update peakHigh
-      if (!stepDir) {                                   // if previous direction was down
-        stepPrevTime = stepTime;                        // update step time variables
-        stepTime = micros();
-        stepDir = true;
-      }
-    }
-    else if (*myInput < *mySetpoint - hysteresis) {     // input passes -'ve hysteresis
-      *myOutput = 85 + outputStep;                      // step up
-      if (stepPrevTime && (*myInput < peakLow)) peakLow = *myInput; // update peakLow only if prev peakHigh timing > 0
-      stepDir = false;
-    }
-    *myInput = analogReadAvg(inputPin);                 // update input (rolling average)
-    analogWrite(outputPin, *myOutput);                  // update output
-    Ku = (float)(4 * outputStep * 2) / (float)(3.14159 * sqrt (sq (peakHigh - peakLow) - sq (hysteresis * 2))); // critical gain
-    Tu = (float)(stepTime - stepPrevTime) / 1000000.0;  // critical period
-    delay(2);                                           // allow some iteration time
-  } while ((isinf(Ku) || isnan(Ku)) && (millis() <= timeout));
-
-  if (tuningRule == 0) {   // Ziegler Nichols PID
-    kp = 0.6 * Ku;
-    ki = 1.2 * Ku / Tu;
-    kd = 0.075 * Ku * Tu;
-  } else {                 // Ziegler Nichols PI
-    kp = 0.45 * Ku;
-    ki = 0.54 * Ku / Tu;
-    kd = 0.0;
-  }
+  if (Print == 1) Serial.println();
+  if (Print == 1) Serial.print("Stabilizing (33%) →");
+  QuickPID::Stabilize(inputPin, outputPin, timeout);
+  if (Print == 1) Serial.print("→ Running AutoTune");
+  QuickPID::StepUp(inputPin, outputPin, timeout);
+  stepPrevTime = micros();
+  if (Print == 1) Serial.print(" ↑");
+  QuickPID::StepDown(inputPin, outputPin, timeout);
+  if (Print == 1) Serial.print(" ↓");
+  QuickPID::StepUp(inputPin, outputPin, timeout);
+  stepTime = micros();
+  if (Print == 1) Serial.print(" ↑");
+  QuickPID::StepDown(inputPin, outputPin, timeout);
+  if (Print == 1) Serial.print(" ↓");
+  QuickPID::StepUp(inputPin, outputPin, timeout);
+  if (Print == 1) Serial.print(" ↑");
+  stepTime = micros();
+  Tu = (float)(stepTime - stepPrevTime) / 2000000.0; // ultimate period based on 2 cycles
+  dispTu = Tu;
+  Ku = (float)(4 * outputStep * 2) / (float)(3.14159 * sqrt (sq (peakHigh - peakLow) - sq (hysteresis))); // ultimate gain
+  dispKu = Ku;
 
   if (Print == 1) {
-    Serial.print("  Ku: "); Serial.print(Ku);
-    Serial.print("  Tu: "); Serial.print(Tu);
-    Serial.print("  Kp: "); Serial.print(kp);
-    Serial.print("  Ki: "); Serial.print(ki);
-    Serial.print("  Kd: "); Serial.println(kd);
+    Serial.println(); Serial.print("Ultimate Period Tu: "); Serial.print(Tu, 3); Serial.println("s");
+    Serial.print("Ultimate Gain Ku: "); Serial.println(Ku, 3);
+
+    Serial.print("peakHigh: "); Serial.println(peakHigh);
+    Serial.print("peakLow: "); Serial.println(peakLow);
+  }
+
+  kp = Rule[tuningRule][ckp] / 1000.0 * Ku;
+  ki = Rule[tuningRule][cki] / 1000.0 * Ku / Tu;
+  kd = Rule[tuningRule][ckd] / 1000.0 * Ku * Tu;
+
+  if (Print == 1) {
+    Serial.print("Kp: "); Serial.print(kp, 3);
+    Serial.print("  Ki: "); Serial.print(ki, 3);
+    Serial.print("  Kd: "); Serial.println(kd, 3);
   }
   SetTunings(kp, ki, kd);
 }
 
 /* SetTunings(....)************************************************************
-   This function allows the controller's dynamic performance to be adjusted.
-   it's called automatically from the constructor, but tunings can also
-   be adjusted on the fly during normal operation
- ******************************************************************************/
+  This function allows the controller's dynamic performance to be adjusted.
+  it's called automatically from the constructor, but tunings can also
+  be adjusted on the fly during normal operation
+******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1)
 {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
@@ -180,15 +174,15 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1)
 }
 
 /* SetTunings(...)*************************************************************
-   Set Tunings using the last remembered POn setting.
- ******************************************************************************/
+  Set Tunings using the last remembered POn setting.
+******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
   SetTunings(Kp, Ki, Kd, pOn);
 }
 
 /* SetSampleTime(...) *********************************************************
-   Sets the period, in microseconds, at which the calculation is performed
- ******************************************************************************/
+  Sets the period, in microseconds, at which the calculation is performed
+******************************************************************************/
 void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
 {
   if (NewSampleTimeUs > 0) {
@@ -199,16 +193,10 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
   }
 }
 
-int16_t QuickPID::Saturate(int16_t Out) {
-  if (Out > outMax) Out = outMax;
-  else if (Out < outMin) Out = outMin;
-  return Out;
-}
-
 /* SetOutputLimits(...)********************************************************
-   The PID controller is designed to vary its output within a given range.
-   By default this range is 0-255, the Arduino PWM range.
- ******************************************************************************/
+  The PID controller is designed to vary its output within a given range.
+  By default this range is 0-255, the Arduino PWM range.
+******************************************************************************/
 void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
 {
   if (Min >= Max) return;
@@ -223,10 +211,10 @@ void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
 }
 
 /* SetMode(...)****************************************************************
-   Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
-   when the transition from manual to auto occurs, the controller is
-   automatically initialized
- ******************************************************************************/
+  Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
+  when the transition from manual to auto occurs, the controller is
+  automatically initialized
+******************************************************************************/
 void QuickPID::SetMode(bool Mode)
 {
   bool newAuto = (Mode == AUTOMATIC);
@@ -238,9 +226,9 @@ void QuickPID::SetMode(bool Mode)
 }
 
 /* Initialize()****************************************************************
-   Does all the things that need to happen to ensure a bumpless transfer
-   from manual to automatic mode.
- ******************************************************************************/
+  Does all the things that need to happen to ensure a bumpless transfer
+  from manual to automatic mode.
+******************************************************************************/
 void QuickPID::Initialize()
 {
   outputSum = *myOutput;
@@ -249,11 +237,11 @@ void QuickPID::Initialize()
 }
 
 /* SetControllerDirection(...)*************************************************
-   The PID will either be connected to a DIRECT acting process (+Output leads
-   to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
-   know which one, because otherwise we may increase the output when we should
-   be decreasing.  This is called from the constructor.
- ******************************************************************************/
+  The PID will either be connected to a DIRECT acting process (+Output leads
+  to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
+  know which one, because otherwise we may increase the output when we should
+  be decreasing.  This is called from the constructor.
+******************************************************************************/
 void QuickPID::SetControllerDirection(bool Direction)
 {
   if (inAuto && Direction != controllerDirection)
@@ -266,10 +254,10 @@ void QuickPID::SetControllerDirection(bool Direction)
 }
 
 /* Status Functions************************************************************
-   Just because you set the Kp=-1 doesn't mean it actually happened. These
-   functions query the internal state of the PID. They're here for display
-   purposes. These are the functions the PID Front-end uses for example.
- ******************************************************************************/
+  Just because you set the Kp=-1 doesn't mean it actually happened. These
+  functions query the internal state of the PID. They're here for display
+  purposes. These are the functions the PID Front-end uses for example.
+******************************************************************************/
 float QuickPID::GetKp() {
   return  dispKp;
 }
@@ -279,14 +267,17 @@ float QuickPID::GetKi() {
 float QuickPID::GetKd() {
   return  dispKd;
 }
+float QuickPID::GetKu() {
+  return  dispKu;
+}
+float QuickPID::GetTu() {
+  return  dispTu;
+}
 bool QuickPID::GetMode() {
   return  inAuto ? AUTOMATIC : MANUAL;
 }
 bool QuickPID::GetDirection() {
   return controllerDirection;
-}
-int16_t QuickPID::GetError() {
-  return  error;
 }
 
 // Utility functions **********************************************************
@@ -315,8 +306,7 @@ int QuickPID::analogReadFast(int ADCpin) {
 # endif
 }
 
-int QuickPID::analogReadAvg(int ADCpin)
-{
+float QuickPID::analogReadAvg(int ADCpin) {
   static int arrDat[16];
   static int dat;
   static int pos;
@@ -326,5 +316,50 @@ int QuickPID::analogReadAvg(int ADCpin)
   if (pos >= 16) pos = 0;
   sum = sum - arrDat[pos] + dat;
   arrDat[pos] = dat;
-  return sum / 16;
+  return (float)sum / 16.0;
+}
+
+int16_t QuickPID::Saturate(int16_t Out) {
+  if (Out > outMax) Out = outMax;
+  else if (Out < outMin) Out = outMin;
+  return Out;
+}
+
+void QuickPID::StepUp(int inputPin, int outputPin, uint32_t timeout) {
+  analogWrite (outputPin, (atOutput + outputStep)); // step up output, wait for input to reach +'ve hysteresis
+  while ((analogReadAvg(inputPin) < (atSetpoint + hysteresis)) && (millis() <= timeout)) {
+    float rdAvg = analogReadAvg(inputPin);
+    if (rdAvg > peakHigh) peakHigh = rdAvg;
+    if ((rdAvg < peakLow) && (peakHigh >= (atSetpoint + hysteresis))) peakLow = rdAvg;
+    delayMicroseconds(readPeriod);
+  }
+}
+
+void QuickPID::StepDown(int inputPin, int outputPin, uint32_t timeout) {
+  analogWrite (outputPin, (atOutput - outputStep)); // step down output, wait for input to reach -'ve hysteresis
+  while ((analogReadAvg(inputPin) > (atSetpoint - hysteresis)) && (millis() <= timeout)) {
+    float rdAvg = analogReadAvg(inputPin);
+    if (rdAvg > peakHigh) peakHigh = rdAvg;
+    if ((rdAvg < peakLow) && (peakHigh >= (atSetpoint + hysteresis))) peakLow = rdAvg;
+    delayMicroseconds(readPeriod);
+  }
+}
+
+void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
+  // initial reading
+  for (int i = 0; i <= 16; i++) {
+    analogReadAvg(inputPin);
+  }
+  // coarse adjust
+  analogWrite (outputPin, 0);
+  while ((analogReadAvg(inputPin) > atSetpoint) && (millis() <= timeout));
+  analogWrite(outputPin, atOutput * 2);
+  while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
+
+  // fine adjust
+  analogWrite (outputPin, atOutput - outputStep - 1);
+  while ((analogReadAvg(inputPin) > atSetpoint) && (millis() <= timeout));
+  analogWrite(outputPin, atOutput + outputStep + 1);
+  while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
+  analogWrite(outputPin, atOutput);
 }

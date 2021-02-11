@@ -33,9 +33,6 @@ class QuickPID
     // Automatically determines and sets the tuning parameters Kp, Ki and Kd. Use this in the setup loop.
     void AutoTune(int, int, int, int, uint32_t);
 
-    // Clamps the output to its pre-determined limits.
-    int16_t Saturate(int16_t);
-
     // Sets and clamps the output to a specific range (0-255 by default).
     void SetOutputLimits(int16_t, int16_t);
 
@@ -59,20 +56,27 @@ class QuickPID
     float GetKp();         // These functions query the pid for interal values. They were created mainly for
     float GetKi();         // the pid front-end, where it's important to know what is actually inside the PID.
     float GetKd();
+    float GetKu();
+    float GetTu();
     bool GetMode();
     bool GetDirection();
-    int16_t GetError();
 
     // Utility functions ******************************************************************************************
     int analogReadFast(int);
-    int analogReadAvg(int);
+    float analogReadAvg(int);
 
   private:
     void Initialize();
+    int16_t Saturate(int16_t);
+    void StepUp(int, int, uint32_t);
+    void StepDown(int, int, uint32_t);
+    void Stabilize(int, int, uint32_t);
 
     float dispKp;          // We'll hold on to the tuning parameters for display purposes.
     float dispKi;
     float dispKd;
+    float dispKu;
+    float dispTu;
 
     float pOn;             // proportional mode (0-1) default = 1, 100% Proportional on Error
     float kp;              // (P)roportional Tuning Parameter
@@ -91,6 +95,15 @@ class QuickPID
     int16_t outMin, outMax, error;
     int16_t lastInput, outputSum;
     bool inAuto;
+
+    // AutoTune
+    float peakHigh, peakLow;
+    const word readPeriod = 250;
+    const byte outputStep = 1;
+    const byte hysteresis = 1;
+    const int atSetpoint = 341;  // 1/3 of 10-bit ADC matches 8-bit PWM value of 85 for symetrical waveform
+    const int atOutput = 85;
+
 };
 
 #endif

@@ -1,8 +1,6 @@
-# QuickPID
+# QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
-
-QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in AutoTune function. This controller can automatically determine and set parameters (Kp, Ki, Kd). The POn setting controls the mix of Proportional on Errror to Proportional on Measurement and can be used to set the desired amount of overshoot.
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd) and additionally determine the ultimate gain `Ku` and ultimate period `Tu`. There are 8 tuning rules available to choose from. Also, there is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.   
 
 ### About
 
@@ -10,15 +8,13 @@ This PID controller provides a faster *read-compute-write* cycle than alternativ
 
 ### Features
 
-Development began with a fork of the Arduino PID Library. Some modifications and new features have been added as follows:
+Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the change log and below:
 
 - Quicker hybrid fixed/floating point math in compute function
-- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. Also determines critical gain `Ku` and critical period `Tu` of the control system
+- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. and also ultimate gain `Ku` and ultimate period `Tu` of the control system. There are 8 tuning rules to choose from
+- [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) uses a precise and low control effort sequence that gets results quickly
 - `POn` parameter now controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
-- Reorganized and more efficient PID algorithm
-- micros() timing resolution
-- Faster analog read function
-- `GetError()` function added
+- Reorganized and more efficient PID algorithm, faster analog read function, micros() timing resolution
 - Runs a complete PID cycle (*read-compute-write*) faster than just an `analogRead()` command  in Arduino
 
 ### Performance
@@ -33,7 +29,9 @@ Development began with a fork of the Arduino PID Library. Some modifications and
 
 ### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
-This example allows you to experiment with the AutoTune and POn control on an RC filter.
+This example allows you to experiment with the AutoTune, various tuning rules and the POn control on an RC filter.
+
+#### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
 
 ### Simplified PID Algorithm
 
@@ -80,7 +78,7 @@ bool QuickPID::Compute()
 
 This function contains the PID algorithm and it should be called once every loop(). Most of the time it will just return false without doing anything. However, at a  frequency specified by `SetSampleTime` it will calculate a new Output and return true.
 
-#### AutoTune
+#### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
 ```c++
 void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30)
@@ -88,24 +86,13 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
 
 The `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. It also determines the critical gain `Ku` and critical period `Tu` of the control system. 
 
-`int tuningRule = 0; // PID(0), PI(1)`
-
-Selects the appropriate Ziegler–Nichols tuning rule for the PID or PI type controller.
-
-| Controller | Kp          | Ki               | Kd                |
-| ---------- | ----------- | ---------------- | ----------------- |
-| PI         | `0.45 * Ku` | `0.54 * Ku / Tu` | `0`               |
-| PID        | `0.6 * Ku`  | `1.2 * Ku / Tu`  | `0.075 * Ku * Tu` |
-
 `int Print = 0; // on(1), off(0)`
 
 When using Serial Monitor, turn on serial print output to view the AutoTune status and results. When using the Serial Plotter, turn off the AutoTune print output to prevent plot labels from being overwritten.
 
-`uint32_t timeout = 30`
+`uint32_t timeout = 120`
 
-Sets the AutoTune timeout where the default is 30 seconds.
-
-For more inormation, see [QuickPID AutoTune.](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
+Sets the AutoTune timeout where the default is 120 seconds.
 
 #### SetTunings
 
@@ -151,7 +138,7 @@ Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (non-zero). 
 void QuickPID::Initialize()
 ```
 
-Does all the things that need to happen to ensure a bumpless transfer from manual to automatic mode.
+Does all the things that need to happen to ensure a bump-less transfer from manual to automatic mode.
 
 #### SetControllerDirection
 
@@ -167,9 +154,10 @@ The PID will either be connected to a DIRECT acting process (+Output leads to +I
 float QuickPID::GetKp()
 float QuickPID::GetKi()
 float QuickPID::GetKd()
+float QuickPID::GetKu()
+float QuickPID::GetTu()
 bool QuickPID::GetMode()
 bool QuickPID::GetDirection()
-int16_t QuickPID::GetError()
 ```
 
 These functions query the internal state of the PID. They're here for display purposes.
@@ -186,7 +174,16 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
+- Improved AutoTune function
+- Added 8 tuning rules
+- Added `GetKu()` function to display ultimate gain
+- Added `GetTu()` function to display ultimate period (time constant)
+- Updated example and documentation
+
+#### Version 2.1.0
+
 - Added AutoTune function and documentation
+
 - Added AutoTune_RC_Filter example and documentation
 
 #### Version 2.0.5

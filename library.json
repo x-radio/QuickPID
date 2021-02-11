@@ -1,7 +1,7 @@
 {
   "name": "QuickPID",
   "keywords": "PID, controller, signal",
-  "description": "QuickPID is a fast fixed/floating point implementation of the Arduino PID library. With a built-in AutoTune function, this controller can automatically determine and set parameters (P,I,D). The POn setting controls the mix of Proportional on Errror to Proportional on Measurement and can be used to set the desired amount of overshoot.",
+  "description": "QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in AutoTune function with 8 tuning rules to choose from. This controller can automatically determine and set parameters (P,I,D). The POn setting controls the mix of Proportional on Error to Proportional on Measurement.",
   "url": "https://github.com/Dlloydev/QuickPID",
   "include": "QuickPID",
   "authors":
