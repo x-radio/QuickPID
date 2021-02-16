@@ -56,8 +56,9 @@ class QuickPID
     float GetKp();         // These functions query the pid for interal values. They were created mainly for
     float GetKi();         // the pid front-end, where it's important to know what is actually inside the PID.
     float GetKd();
-    float GetKu();
-    float GetTu();
+    float GetKu();         // Ultimate Gain
+    float GetTu();         // Ultimate Period
+    float GetTd();         // Dead Time
     bool GetMode();
     bool GetDirection();
 
@@ -68,6 +69,7 @@ class QuickPID
   private:
     void Initialize();
     int16_t Saturate(int16_t);
+    void CheckPeak(int);
     void StepUp(int, int, uint32_t);
     void StepDown(int, int, uint32_t);
     void Stabilize(int, int, uint32_t);
@@ -77,6 +79,7 @@ class QuickPID
     float dispKd;
     float dispKu;
     float dispTu;
+    float dispTd;
 
     float pOn;             // proportional mode (0-1) default = 1, 100% Proportional on Error
     float kp;              // (P)roportional Tuning Parameter
@@ -98,7 +101,7 @@ class QuickPID
 
     // AutoTune
     float peakHigh, peakLow;
-    const word readPeriod = 250;
+    const word readPeriod = 1667;
     const byte outputStep = 1;
     const byte hysteresis = 1;
     const int atSetpoint = 341;  // 1/3 of 10-bit ADC matches 8-bit PWM value of 85 for symetrical waveform

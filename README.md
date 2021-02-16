@@ -1,6 +1,6 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd) and additionally determine the ultimate gain `Ku` and ultimate period `Tu`. There are 8 tuning rules available to choose from. Also, there is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.   
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd). Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and controllability of the process are determined. There are 9 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.   
 
 ### About
 
@@ -11,9 +11,9 @@ This PID controller provides a faster *read-compute-write* cycle than alternativ
 Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the change log and below:
 
 - Quicker hybrid fixed/floating point math in compute function
-- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. and also ultimate gain `Ku` and ultimate period `Tu` of the control system. There are 8 tuning rules to choose from
-- [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) uses a precise and low control effort sequence that gets results quickly
-- `POn` parameter now controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
+- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. and also ultimate gain `Ku` and ultimate period `Tu` of the control system. There are 9 tuning rules to choose from
+- [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) uses a precise and low control effort sequence that gets results quickly. It also determines how difficult the process is to control.
+- `POn` parameter controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
 - Reorganized and more efficient PID algorithm, faster analog read function, micros() timing resolution
 - Runs a complete PID cycle (*read-compute-write*) faster than just an `analogRead()` command  in Arduino
 
@@ -29,7 +29,7 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 
 ### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
-This example allows you to experiment with the AutoTune, various tuning rules and the POn control on an RC filter.
+This example allows you to experiment with the AutoTune, various tuning rules and the POn control on an RC filter. It automatically determines and sets the tuning parameters.
 
 #### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
 
@@ -156,6 +156,7 @@ float QuickPID::GetKi()
 float QuickPID::GetKd()
 float QuickPID::GetKu()
 float QuickPID::GetTu()
+float QuickPID::GetTd()
 bool QuickPID::GetMode()
 bool QuickPID::GetDirection()
 ```
@@ -173,6 +174,13 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 ### Change Log
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
+
+- Even faster AutoTune function
+- AutoTune  now determines the controllability of the process
+- Added AMIGO_PID tuning rule
+- Added `GetTd()` function to display dead time
+
+#### Version 2.2.0
 
 - Improved AutoTune function
 - Added 8 tuning rules

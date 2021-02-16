@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.0
+   QuickPID Library for Arduino - Version 2.2.1
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -84,8 +84,8 @@ bool QuickPID::Compute()
  ******************************************************************************************/
 void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 120) {
 
-  uint32_t  stepPrevTime, stepTime;
-  float Ku, Tu;
+  uint32_t  t0, t1, t2, t3;
+  float Ku, Tu, td;
 
   const int Rule[10][3] =
   { //ckp,  cki, ckd x 1000
@@ -95,7 +95,7 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
     { 454,  206,  72 },  // TYREUS_LUYBEN_PID
     { 303, 1212,   0 },  // CIANCONE_MARLIN_PI
     { 303, 1333,  37 },  // CIANCONE_MARLIN_PID
-    {   0,    0,   0 },  // AMIGOF_PI (reserved)
+    {   0,    0,   0 },  // AMIGOF_PID
     { 700, 1750, 105 },  // PESSEN_INTEGRAL_PID
     { 333,  667, 111 },  // SOME_OVERSHOOT_PID
     { 200,  400,  67 },  // NO_OVERSHOOT_PID
@@ -104,46 +104,53 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
   peakHigh = atSetpoint;
   peakLow = atSetpoint;
   timeout *= 1000;
-  if (Print == 1) Serial.println();
   if (Print == 1) Serial.print("Stabilizing (33%) →");
   QuickPID::Stabilize(inputPin, outputPin, timeout);
-  if (Print == 1) Serial.print("→ Running AutoTune");
-  QuickPID::StepUp(inputPin, outputPin, timeout);
-  stepPrevTime = micros();
-  if (Print == 1) Serial.print(" ↑");
-  QuickPID::StepDown(inputPin, outputPin, timeout);
+  if (Print == 1) Serial.print(" Running AutoTune ↑");
+  t0 = micros();
+
+  analogWrite (outputPin, (atOutput + outputStep)); // step up output, wait for input to reach +'ve hysteresis
+  while ((analogReadAvg(inputPin) < (atSetpoint + 0.2)) && (millis() <= timeout)) QuickPID::CheckPeak(inputPin);
+  t1 = micros();
+
+  while ((analogReadAvg(inputPin) < (atSetpoint + hysteresis)) && (millis() <= timeout)) QuickPID::CheckPeak(inputPin);
+  t2 = micros();
+
   if (Print == 1) Serial.print(" ↓");
-  QuickPID::StepUp(inputPin, outputPin, timeout);
-  stepTime = micros();
+  analogWrite (outputPin, (atOutput - outputStep)); // step down output, wait for input to reach -'ve hysteresis
+  while ((analogReadAvg(inputPin) > (atSetpoint - hysteresis)) && (millis() <= timeout)) QuickPID::CheckPeak(inputPin);
+
   if (Print == 1) Serial.print(" ↑");
-  QuickPID::StepDown(inputPin, outputPin, timeout);
-  if (Print == 1) Serial.print(" ↓");
-  QuickPID::StepUp(inputPin, outputPin, timeout);
-  if (Print == 1) Serial.print(" ↑");
-  stepTime = micros();
-  Tu = (float)(stepTime - stepPrevTime) / 2000000.0; // ultimate period based on 2 cycles
+  analogWrite (outputPin, (atOutput + outputStep)); // step up output, wait for input to reach +'ve hysteresis
+  while ((analogReadAvg(inputPin) < (atSetpoint + hysteresis)) && (millis() <= timeout)) QuickPID::CheckPeak(inputPin);
+  t3 = micros();
+  if (Print == 1) Serial.println(" Done.");
+
+  td = (float)(t1 - t0) / 1000000.0; // dead time (seconds)
+  dispTd = td;
+
+  Tu = (float)(t3 - t2) / 1000000.0; // ultimate period (seconds)
   dispTu = Tu;
+
   Ku = (float)(4 * outputStep * 2) / (float)(3.14159 * sqrt (sq (peakHigh - peakLow) - sq (hysteresis))); // ultimate gain
   dispKu = Ku;
 
-  if (Print == 1) {
-    Serial.println(); Serial.print("Ultimate Period Tu: "); Serial.print(Tu, 3); Serial.println("s");
-    Serial.print("Ultimate Gain Ku: "); Serial.println(Ku, 3);
-
-    Serial.print("peakHigh: "); Serial.println(peakHigh);
-    Serial.print("peakLow: "); Serial.println(peakLow);
+  if (tuningRule == 6) { //AMIGO_PID
+    (td < readPeriod) ? td = readPeriod : td = td;
+    kp = (0.2 + 0.45 * (Tu / td)) / Ku;
+    float Ti = (((0.4 * td) + (0.8 * Tu)) / (td + (0.1 * Tu)) * td);
+    float Td = (0.5 * td * Tu) / ((0.3 * td) + Tu);
+    ki = kp / Ti;
+    kd = Td * kp;
+  } else { //other rules
+    kp = Rule[tuningRule][ckp] / 1000.0 * Ku;
+    ki = Rule[tuningRule][cki] / 1000.0 * Ku / Tu;
+    kd = Rule[tuningRule][ckd] / 1000.0 * Ku * Tu;
   }
 
-  kp = Rule[tuningRule][ckp] / 1000.0 * Ku;
-  ki = Rule[tuningRule][cki] / 1000.0 * Ku / Tu;
-  kd = Rule[tuningRule][ckd] / 1000.0 * Ku * Tu;
-
-  if (Print == 1) {
-    Serial.print("Kp: "); Serial.print(kp, 3);
-    Serial.print("  Ki: "); Serial.print(ki, 3);
-    Serial.print("  Kd: "); Serial.println(kd, 3);
-  }
-  SetTunings(kp, ki, kd);
+  dispKp = kp;
+  dispKi = ki;
+  dispKd = kd;
 }
 
 /* SetTunings(....)************************************************************
@@ -273,6 +280,9 @@ float QuickPID::GetKu() {
 float QuickPID::GetTu() {
   return  dispTu;
 }
+float QuickPID::GetTd() {
+  return  dispTd;
+}
 bool QuickPID::GetMode() {
   return  inAuto ? AUTOMATIC : MANUAL;
 }
@@ -325,24 +335,11 @@ int16_t QuickPID::Saturate(int16_t Out) {
   return Out;
 }
 
-void QuickPID::StepUp(int inputPin, int outputPin, uint32_t timeout) {
-  analogWrite (outputPin, (atOutput + outputStep)); // step up output, wait for input to reach +'ve hysteresis
-  while ((analogReadAvg(inputPin) < (atSetpoint + hysteresis)) && (millis() <= timeout)) {
-    float rdAvg = analogReadAvg(inputPin);
-    if (rdAvg > peakHigh) peakHigh = rdAvg;
-    if ((rdAvg < peakLow) && (peakHigh >= (atSetpoint + hysteresis))) peakLow = rdAvg;
-    delayMicroseconds(readPeriod);
-  }
-}
-
-void QuickPID::StepDown(int inputPin, int outputPin, uint32_t timeout) {
-  analogWrite (outputPin, (atOutput - outputStep)); // step down output, wait for input to reach -'ve hysteresis
-  while ((analogReadAvg(inputPin) > (atSetpoint - hysteresis)) && (millis() <= timeout)) {
-    float rdAvg = analogReadAvg(inputPin);
-    if (rdAvg > peakHigh) peakHigh = rdAvg;
-    if ((rdAvg < peakLow) && (peakHigh >= (atSetpoint + hysteresis))) peakLow = rdAvg;
-    delayMicroseconds(readPeriod);
-  }
+void QuickPID::CheckPeak(int inputPin) {
+  float rdAvg = analogReadAvg(inputPin);
+  if (rdAvg > peakHigh) peakHigh = rdAvg;
+  if ((rdAvg < peakLow) && (peakHigh >= (atSetpoint + hysteresis))) peakLow = rdAvg;
+  delayMicroseconds(readPeriod);
 }
 
 void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
@@ -352,14 +349,14 @@ void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
   }
   // coarse adjust
   analogWrite (outputPin, 0);
-  while ((analogReadAvg(inputPin) > atSetpoint) && (millis() <= timeout));
-  analogWrite(outputPin, atOutput * 2);
+  while ((analogReadAvg(inputPin) > (atSetpoint - hysteresis)) && (millis() <= timeout));
+  analogWrite(outputPin, atOutput + 20);
   while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
 
   // fine adjust
-  analogWrite (outputPin, atOutput - outputStep - 1);
+  analogWrite (outputPin, atOutput - outputStep);
   while ((analogReadAvg(inputPin) > atSetpoint) && (millis() <= timeout));
-  analogWrite(outputPin, atOutput + outputStep + 1);
+  analogWrite(outputPin, atOutput + outputStep);
   while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
   analogWrite(outputPin, atOutput);
 }
