@@ -18,13 +18,13 @@ class QuickPID
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, float, bool);
+    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, float, uint8_t);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, bool);
+    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, uint8_t);
 
     // Sets PID to either Manual (0) or Auto (non-0).
-    void SetMode(bool Mode);
+    void SetMode(uint8_t Mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles. ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
@@ -47,7 +47,7 @@ class QuickPID
 
     // Sets the Direction, or "Action" of control. DIRECT means the output will increase when error is positive.
     // REVERSE means the opposite. It's very unlikely that this will be needed once it is set in the constructor.
-    void SetControllerDirection(bool);
+    void SetControllerDirection(uint8_t);
 
     // Sets the sample time in milliseconds with which each PID calculation is performed. Default is 100.
     void SetSampleTimeUs(uint32_t);
@@ -59,8 +59,8 @@ class QuickPID
     float GetKu();         // Ultimate Gain
     float GetTu();         // Ultimate Period
     float GetTd();         // Dead Time
-    bool GetMode();
-    bool GetDirection();
+    uint8_t GetMode();
+    uint8_t GetDirection();
 
     // Utility functions ******************************************************************************************
     int analogReadFast(int);
@@ -88,7 +88,7 @@ class QuickPID
     float kpi;             // proportional on error amount
     float kpd;             // proportional on measurement amount
 
-    bool controllerDirection;
+    uint8_t controllerDirection;
 
     int16_t *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
     int16_t *myOutput;     // hard link between the variables and the PID, freeing the user from having

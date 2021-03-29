@@ -1,7 +1,7 @@
 {
   "name": "QuickPID",
   "keywords": "PID, controller, signal",
-  "description": "A fast fixed/floating point PID controller with AutoTune and 8 tuning rules to choose from. This controller can automatically determine and set tuning parameters. An added feature is contolling the mix of Proportional on Error to Proportional on Measurement.",
+  "description": "A fast fixed/floating point PID controller with AutoTune and 9 tuning rules to choose from. This controller can automatically determine and set tuning parameters. An added feature is contolling the mix of Proportional on Error to Proportional on Measurement.",
   "url": "https://github.com/Dlloydev/QuickPID",
   "include": "QuickPID",
   "authors":
