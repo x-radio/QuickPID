@@ -19,7 +19,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
-                   float Kp, float Ki, float Kd, float POn = 1, bool ControllerDirection = 0)
+                   float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0)
 {
   myOutput = Output;
   myInput = Input;
@@ -41,7 +41,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
  **********************************************************************************/
 
 QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
-                   float Kp, float Ki, float Kd, bool ControllerDirection)
+                   float Kp, float Ki, float Kd, uint8_t ControllerDirection)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0)
 {
 
@@ -222,7 +222,7 @@ void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
   when the transition from manual to auto occurs, the controller is
   automatically initialized
 ******************************************************************************/
-void QuickPID::SetMode(bool Mode)
+void QuickPID::SetMode(uint8_t Mode)
 {
   bool newAuto = (Mode == AUTOMATIC);
   if (newAuto && !inAuto)
@@ -249,7 +249,7 @@ void QuickPID::Initialize()
   know which one, because otherwise we may increase the output when we should
   be decreasing.  This is called from the constructor.
 ******************************************************************************/
-void QuickPID::SetControllerDirection(bool Direction)
+void QuickPID::SetControllerDirection(uint8_t Direction)
 {
   if (inAuto && Direction != controllerDirection)
   {
@@ -283,10 +283,10 @@ float QuickPID::GetTu() {
 float QuickPID::GetTd() {
   return  dispTd;
 }
-bool QuickPID::GetMode() {
+uint8_t QuickPID::GetMode() {
   return  inAuto ? AUTOMATIC : MANUAL;
 }
-bool QuickPID::GetDirection() {
+uint8_t QuickPID::GetDirection() {
   return controllerDirection;
 }
 
