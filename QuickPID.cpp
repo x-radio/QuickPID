@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.1
+   QuickPID Library for Arduino - Version 2.2.2
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -147,7 +147,6 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
     ki = Rule[tuningRule][cki] / 1000.0 * Ku / Tu;
     kd = Rule[tuningRule][ckd] / 1000.0 * Ku * Tu;
   }
-
   dispKp = kp;
   dispKi = ki;
   dispKd = kd;
@@ -362,7 +361,6 @@ void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
 }
 
 #if defined(ESP32)
-
 // Adds support for analogWrite() for up to 9 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
 // Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
 
@@ -416,7 +414,10 @@ void analogWrite(uint8_t pin, uint32_t value) {
       if (value > valueMax) value = valueMax;
       ledcWrite(i, value);
     }
-    if (pin == DAC1 || pin == DAC2) dacWrite(pin, value & 255);
+    if (pin == DAC1 || pin == DAC2) {
+      if (value > 255) value = 255;
+      dacWrite(pin, value);
+    }
   }
 }
 #endif

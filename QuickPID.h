@@ -110,7 +110,7 @@ class QuickPID
 };
 
 #if defined(ESP32)
-// Adds support for analogWrite() for up to 16 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
+// Adds support for analogWrite() for up to 9 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
 // Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
 
 typedef struct analog_write_channel {
@@ -125,5 +125,4 @@ void analogWriteResolution(uint8_t resolution = 13);
 void analogWriteResolution(uint8_t pin, uint8_t resolution = 13);
 void analogWrite(uint8_t pin, uint32_t value = 0);
 #endif
-
-#endif
+#endif //QuickPID.h
