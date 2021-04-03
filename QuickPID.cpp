@@ -18,7 +18,7 @@
    The parameters specified here are those for for which we can't set up
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
-QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
+QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
                    float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0)
 {
   myOutput = Output;
@@ -40,7 +40,7 @@ QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
    to use Proportional on Error without explicitly saying so.
  **********************************************************************************/
 
-QuickPID::QuickPID(int16_t* Input, int16_t* Output, int16_t* Setpoint,
+QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
                    float Kp, float Ki, float Kd, uint8_t ControllerDirection)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0)
 {
@@ -60,8 +60,8 @@ bool QuickPID::Compute()
   uint32_t timeChange = (now - lastTime);
 
   if (timeChange >= sampleTimeUs) {  // Compute the working error variables
-    int16_t input = *myInput;
-    int16_t dInput = input - lastInput;
+    int input = *myInput;
+    int dInput = input - lastInput;
     error = *mySetpoint - input;
 
     if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed-point
@@ -204,7 +204,7 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
   The PID controller is designed to vary its output within a given range.
   By default this range is 0-255, the Arduino PWM range.
 ******************************************************************************/
-void QuickPID::SetOutputLimits(int16_t Min, int16_t Max)
+void QuickPID::SetOutputLimits(int Min, int Max)
 {
   if (Min >= Max) return;
   outMin = Min;
@@ -329,7 +329,7 @@ float QuickPID::analogReadAvg(int ADCpin) {
   return (float)sum / 16.0;
 }
 
-int16_t QuickPID::Saturate(int16_t Out) {
+int QuickPID::Saturate(int Out) {
   if (Out > outMax) Out = outMax;
   else if (Out < outMin) Out = outMin;
   return Out;
@@ -360,3 +360,63 @@ void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
   while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
   analogWrite(outputPin, atOutput);
 }
+
+#if defined(ESP32)
+
+// Adds support for analogWrite() for up to 9 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
+// Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
+
+analog_write_channel_t _analog_write_channels[9] = { { 2, 5000, 13}, //LED_BUILTIN
+  { 4, 5000, 13}, { 13, 5000, 13}, { 14, 5000, 13}, { 16, 5000, 13}, { 17, 5000, 13}, { 27, 5000, 13}, { 32, 5000, 13}, { 33, 5000, 13}
+};
+
+void analogWriteFrequency(float frequency) {
+  for (uint8_t i = 0; i < 9; i++) {
+    _analog_write_channels[i].frequency = frequency;
+    if (frequency < 0.0001) {
+      ledcDetachPin(_analog_write_channels[i].pin);
+      pinMode(_analog_write_channels[i].pin, INPUT);
+    }
+  }
+}
+
+void analogWriteFrequency(uint8_t pin, float frequency) {
+  for (uint8_t i = 0; i < 9; i++) {
+    if (_analog_write_channels[i].pin == pin) {
+      _analog_write_channels[i].frequency = frequency;
+      if (frequency < 0.0001) {
+        ledcDetachPin(_analog_write_channels[i].pin);
+        pinMode(_analog_write_channels[i].pin, INPUT);
+      }
+    }
+  }
+}
+
+void analogWriteResolution(uint8_t resolution) {
+  for (uint8_t i = 0; i < 9; i++) {
+    _analog_write_channels[i].resolution = resolution;
+  }
+}
+
+void analogWriteResolution(uint8_t pin, uint8_t resolution) {
+  for (uint8_t i = 0; i < 9; i++) {
+    if (_analog_write_channels[i].pin == pin) {
+      _analog_write_channels[i].resolution = resolution;
+      ledcSetup(i, _analog_write_channels[i].frequency, resolution);
+      ledcAttachPin(_analog_write_channels[i].pin, i);
+    }
+  }
+}
+
+void analogWrite(uint8_t pin, uint32_t value) {
+  for (uint8_t i = 0; i < 9; i++) {
+    if (_analog_write_channels[i].pin == pin) {
+      uint8_t resolution = _analog_write_channels[i].resolution;
+      uint32_t valueMax = (pow(2, resolution)) - 1;
+      if (value > valueMax) value = valueMax;
+      ledcWrite(i, value);
+    }
+    if (pin == DAC1 || pin == DAC2) dacWrite(pin, value & 255);
+  }
+}
+#endif

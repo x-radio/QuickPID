@@ -18,10 +18,10 @@ class QuickPID
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, float, uint8_t);
+    QuickPID(int*, int*, int*, float, float, float, float, uint8_t);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(int16_t*, int16_t*, int16_t*, float, float, float, uint8_t);
+    QuickPID(int*, int*, int*, float, float, float, uint8_t);
 
     // Sets PID to either Manual (0) or Auto (non-0).
     void SetMode(uint8_t Mode);
@@ -34,7 +34,7 @@ class QuickPID
     void AutoTune(int, int, int, int, uint32_t);
 
     // Sets and clamps the output to a specific range (0-255 by default).
-    void SetOutputLimits(int16_t, int16_t);
+    void SetOutputLimits(int, int);
 
     // available but not commonly used functions ******************************************************************
 
@@ -68,35 +68,35 @@ class QuickPID
 
   private:
     void Initialize();
-    int16_t Saturate(int16_t);
+    int Saturate(int);
     void CheckPeak(int);
     void StepUp(int, int, uint32_t);
     void StepDown(int, int, uint32_t);
     void Stabilize(int, int, uint32_t);
 
-    float dispKp;          // We'll hold on to the tuning parameters for display purposes.
+    float dispKp;      // We'll hold on to the tuning parameters for display purposes.
     float dispKi;
     float dispKd;
     float dispKu;
     float dispTu;
     float dispTd;
 
-    float pOn;             // proportional mode (0-1) default = 1, 100% Proportional on Error
-    float kp;              // (P)roportional Tuning Parameter
-    float ki;              // (I)ntegral Tuning Parameter
-    float kd;              // (D)erivative Tuning Parameter
-    float kpi;             // proportional on error amount
-    float kpd;             // proportional on measurement amount
+    float pOn;         // proportional mode (0-1) default = 1, 100% Proportional on Error
+    float kp;          // (P)roportional Tuning Parameter
+    float ki;          // (I)ntegral Tuning Parameter
+    float kd;          // (D)erivative Tuning Parameter
+    float kpi;         // proportional on error amount
+    float kpd;         // proportional on measurement amount
 
     uint8_t controllerDirection;
 
-    int16_t *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
-    int16_t *myOutput;     // hard link between the variables and the PID, freeing the user from having
-    int16_t *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
+    int *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
+    int *myOutput;     // hard link between the variables and the PID, freeing the user from having
+    int *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
 
     uint32_t sampleTimeUs, lastTime;
-    int16_t outMin, outMax, error;
-    int16_t lastInput, outputSum;
+    int outMin, outMax, error;
+    int lastInput, outputSum;
     bool inAuto;
 
     // AutoTune
@@ -108,5 +108,22 @@ class QuickPID
     const int atOutput = 85;
 
 };
+
+#if defined(ESP32)
+// Adds support for analogWrite() for up to 16 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
+// Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
+
+typedef struct analog_write_channel {
+  int8_t pin;
+  double frequency;
+  uint8_t resolution;
+} analog_write_channel_t;
+
+void analogWriteFrequency(float frequency = 5000);
+void analogWriteFrequency(uint8_t pin, float frequency = 5000);
+void analogWriteResolution(uint8_t resolution = 13);
+void analogWriteResolution(uint8_t pin, uint8_t resolution = 13);
+void analogWrite(uint8_t pin, uint32_t value = 0);
+#endif
 
 #endif

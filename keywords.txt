@@ -7,6 +7,7 @@
 ##########################################
 
 QuickPID	KEYWORD1
+analog_write_channel_t	KEYWORD1
 
 ##########################################
 # Methods and Functions (KEYWORD2)
@@ -29,6 +30,9 @@ GetMode	KEYWORD2
 GetDirection	KEYWORD2
 analogReadFast	KEYWORD2
 analogReadAvg	KEYWORD2
+analogWrite	KEYWORD2
+analogWriteFrequency	KEYWORD2
+analogWriteResolution	KEYWORD2
 
 ##########################################
 # Constants (LITERAL1)
