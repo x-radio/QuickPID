@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.2
+   QuickPID Library for Arduino - Version 2.2.3
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library by Brett Beauregard
 
@@ -53,8 +53,7 @@ QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
    PID Output needs to be computed. Returns true when the output is computed,
    false when nothing has been done.
  **********************************************************************************/
-bool QuickPID::Compute()
-{
+bool QuickPID::Compute() {
   if (!inAuto) return false;
   uint32_t now = micros();
   uint32_t timeChange = (now - lastTime);
@@ -67,7 +66,7 @@ bool QuickPID::Compute()
     if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed-point
     else outputSum += (kpi * error) - (kpd * dInput); // floating-point
 
-    outputSum = QuickPID::Saturate(outputSum);
+    outputSum = CONSTRAIN(outputSum, outMin, outMax);
     *myOutput = outputSum;
 
     lastInput = input;
@@ -157,10 +156,8 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
   it's called automatically from the constructor, but tunings can also
   be adjusted on the fly during normal operation
 ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1)
-{
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
-
   pOn = POn;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
@@ -171,8 +168,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1)
   kpi = (kp * pOn) + ki;
   kpd = (kp * (1 - pOn)) + kd;
 
-  if (controllerDirection == REVERSE)
-  {
+  if (controllerDirection == REVERSE) {
     kp = (0 - kp);
     ki = (0 - ki);
     kd = (0 - kd);
@@ -189,8 +185,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
 /* SetSampleTime(...) *********************************************************
   Sets the period, in microseconds, at which the calculation is performed
 ******************************************************************************/
-void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
-{
+void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs) {
   if (NewSampleTimeUs > 0) {
     float ratio  = (float)NewSampleTimeUs / (float)sampleTimeUs;
     ki *= ratio;
@@ -203,16 +198,14 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
   The PID controller is designed to vary its output within a given range.
   By default this range is 0-255, the Arduino PWM range.
 ******************************************************************************/
-void QuickPID::SetOutputLimits(int Min, int Max)
-{
+void QuickPID::SetOutputLimits(int Min, int Max) {
   if (Min >= Max) return;
   outMin = Min;
   outMax = Max;
 
-  if (inAuto)
-  {
-    *myOutput = QuickPID::Saturate(*myOutput);
-    outputSum = QuickPID::Saturate(outputSum);
+  if (inAuto) {
+    *myOutput = CONSTRAIN(*myOutput, outMin, outMax);
+    outputSum = CONSTRAIN(outputSum, outMin, outMax);
   }
 }
 
@@ -221,11 +214,9 @@ void QuickPID::SetOutputLimits(int Min, int Max)
   when the transition from manual to auto occurs, the controller is
   automatically initialized
 ******************************************************************************/
-void QuickPID::SetMode(uint8_t Mode)
-{
+void QuickPID::SetMode(uint8_t Mode) {
   bool newAuto = (Mode == AUTOMATIC);
-  if (newAuto && !inAuto)
-  { /*we just went from manual to auto*/
+  if (newAuto && !inAuto) { //we just went from manual to auto
     QuickPID::Initialize();
   }
   inAuto = newAuto;
@@ -235,11 +226,10 @@ void QuickPID::SetMode(uint8_t Mode)
   Does all the things that need to happen to ensure a bumpless transfer
   from manual to automatic mode.
 ******************************************************************************/
-void QuickPID::Initialize()
-{
+void QuickPID::Initialize() {
   outputSum = *myOutput;
   lastInput = *myInput;
-  outputSum = QuickPID::Saturate(outputSum);
+  outputSum = CONSTRAIN(outputSum, outMin, outMax);
 }
 
 /* SetControllerDirection(...)*************************************************
@@ -248,10 +238,8 @@ void QuickPID::Initialize()
   know which one, because otherwise we may increase the output when we should
   be decreasing.  This is called from the constructor.
 ******************************************************************************/
-void QuickPID::SetControllerDirection(uint8_t Direction)
-{
-  if (inAuto && Direction != controllerDirection)
-  {
+void QuickPID::SetControllerDirection(uint8_t Direction) {
+  if (inAuto && Direction != controllerDirection) {
     kp = (0 - kp);
     ki = (0 - ki);
     kd = (0 - kd);
@@ -328,12 +316,6 @@ float QuickPID::analogReadAvg(int ADCpin) {
   return (float)sum / 16.0;
 }
 
-int QuickPID::Saturate(int Out) {
-  if (Out > outMax) Out = outMax;
-  else if (Out < outMin) Out = outMin;
-  return Out;
-}
-
 void QuickPID::CheckPeak(int inputPin) {
   float rdAvg = analogReadAvg(inputPin);
   if (rdAvg > peakHigh) peakHigh = rdAvg;
@@ -359,65 +341,3 @@ void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
   while ((analogReadAvg(inputPin) < atSetpoint) && (millis() <= timeout));
   analogWrite(outputPin, atOutput);
 }
-
-#if defined(ESP32)
-// Adds support for analogWrite() for up to 9 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
-// Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
-
-analog_write_channel_t _analog_write_channels[9] = { { 2, 5000, 13}, //LED_BUILTIN
-  { 4, 5000, 13}, { 13, 5000, 13}, { 14, 5000, 13}, { 16, 5000, 13}, { 17, 5000, 13}, { 27, 5000, 13}, { 32, 5000, 13}, { 33, 5000, 13}
-};
-
-void analogWriteFrequency(float frequency) {
-  for (uint8_t i = 0; i < 9; i++) {
-    _analog_write_channels[i].frequency = frequency;
-    if (frequency < 0.0001) {
-      ledcDetachPin(_analog_write_channels[i].pin);
-      pinMode(_analog_write_channels[i].pin, INPUT);
-    }
-  }
-}
-
-void analogWriteFrequency(uint8_t pin, float frequency) {
-  for (uint8_t i = 0; i < 9; i++) {
-    if (_analog_write_channels[i].pin == pin) {
-      _analog_write_channels[i].frequency = frequency;
-      if (frequency < 0.0001) {
-        ledcDetachPin(_analog_write_channels[i].pin);
-        pinMode(_analog_write_channels[i].pin, INPUT);
-      }
-    }
-  }
-}
-
-void analogWriteResolution(uint8_t resolution) {
-  for (uint8_t i = 0; i < 9; i++) {
-    _analog_write_channels[i].resolution = resolution;
-  }
-}
-
-void analogWriteResolution(uint8_t pin, uint8_t resolution) {
-  for (uint8_t i = 0; i < 9; i++) {
-    if (_analog_write_channels[i].pin == pin) {
-      _analog_write_channels[i].resolution = resolution;
-      ledcSetup(i, _analog_write_channels[i].frequency, resolution);
-      ledcAttachPin(_analog_write_channels[i].pin, i);
-    }
-  }
-}
-
-void analogWrite(uint8_t pin, uint32_t value) {
-  for (uint8_t i = 0; i < 9; i++) {
-    if (_analog_write_channels[i].pin == pin) {
-      uint8_t resolution = _analog_write_channels[i].resolution;
-      uint32_t valueMax = (pow(2, resolution)) - 1;
-      if (value > valueMax) value = valueMax;
-      ledcWrite(i, value);
-    }
-    if (pin == DAC1 || pin == DAC2) {
-      if (value > 255) value = 255;
-      dacWrite(pin, value);
-    }
-  }
-}
-#endif

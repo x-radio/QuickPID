@@ -6,7 +6,7 @@ class QuickPID
 
   public:
 
-    //Constants used in some of the functions below
+    //Constants and macros
 #define AUTOMATIC 1
 #define MANUAL  0
 #define DIRECT  0
@@ -14,6 +14,7 @@ class QuickPID
 
 #define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
 #define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
+#define CONSTRAIN(x,lower,upper)    ((x)<(lower)?(lower):((x)>(upper)?(upper):(x)))
 
     // commonly used functions ************************************************************************************
 
@@ -68,7 +69,6 @@ class QuickPID
 
   private:
     void Initialize();
-    int Saturate(int);
     void CheckPeak(int);
     void StepUp(int, int, uint32_t);
     void StepDown(int, int, uint32_t);
@@ -110,19 +110,7 @@ class QuickPID
 };
 
 #if defined(ESP32)
-// Adds support for analogWrite() for up to 9 PWM pins plus pins DAC1 and DAC2 which are 8-bit true analog outputs.
-// Also adds support for changing the PWM frequency (5000 Hz default) and timer resolution (13-bit default).
-
-typedef struct analog_write_channel {
-  int8_t pin;
-  double frequency;
-  uint8_t resolution;
-} analog_write_channel_t;
-
-void analogWriteFrequency(float frequency = 5000);
-void analogWriteFrequency(uint8_t pin, float frequency = 5000);
-void analogWriteResolution(uint8_t resolution = 13);
-void analogWriteResolution(uint8_t pin, uint8_t resolution = 13);
-void analogWrite(uint8_t pin, uint32_t value = 0);
+#include "utility/analogWrite.h"
 #endif
+
 #endif //QuickPID.h

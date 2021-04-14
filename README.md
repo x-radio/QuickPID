@@ -16,7 +16,7 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 - `POn` parameter controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
 - Reorganized and more efficient PID algorithm, faster analog read function, micros() timing resolution
 - Runs a complete PID cycle (*read-compute-write*) faster than just an `analogRead()` command  in Arduino
-- Includes  a complete`analogWrite()`function for ESP32 boards. This controls up to 9 independent PWM pins and 2 DAC pins.
+- Includes  a complete [analogWrite function for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite) boards. This controls up to 8 independent PWM pins and 2 DAC pins.
 
 ### Performance
 
@@ -172,60 +172,18 @@ int QuickPID::analogReadFast(int ADCpin)
 
 A faster configuration of `analogRead()`where a preset of 32 is used.  If the architecture definition isn't found, normal `analogRead()`is used to return a value.
 
-#### AnalogWrite (PWM and DAC) for ESP32
+#### [AnalogWrite (PWM and DAC) for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
 
-```c++
-void analogWrite(uint8_t pin, uint32_t value)
-```
-
-Call this function just like in the standard Arduino framework. It controls up to 9 independent PWM outputs and 2 DAC outputs.  The controllable GPIO pins are 2, 4, 13, 14, 16, 17, 27, 32 and 33 for PWM and  DAC0 (GPIO25) and DAC1 (GPIO26) for true analog outputs.  The default PWM frequency is 5000 Hz and the default resolution is 13-bit (0-8191).
-
-#### AnalogWrite Configuration Functions for ESP32
-
-```c++
-void analogWriteFrequency(float frequency = 5000);
-void analogWriteFrequency(uint8_t pin, float frequency = 5000);
-void analogWriteResolution(uint8_t resolution = 13);
-void analogWriteResolution(uint8_t pin, uint8_t resolution = 13);
-```
-
-Calling `analogWriteFrequency(frequency)`will set the PWM frequency for all 8 assigned pins. Using `analogWriteFrequency(0)`will detach the 9 assigned pins and set them as input.
-
-To independently assign a  unique frequency to each PWM pin, use the `analogWriteFrequency(pin, frequency)` function. If the frequency is set to 0, this function will detach the referenced pin and configure it as an input.
-
-Calling `analogWriteResolution(resolution)` will set the resolution for all 9 assigned pins. Read more about the [Supported Range of Frequency and Duty Resolution](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/ledc.html#ledc-api-supported-range-frequency-duty-resolution) here.
-
-To independently assign a  unique frequency to each PWM pin, use the `analogWriteResolution(pin, resolution)` function. Note that it is required to call this function once prior to using AnalogWrite as this will automatically setup and attach (initialize) the pin.
-
-#### Fade Example for ESP32
-
-```c++
-#include "QuickPID.h"
-
-#define LED_BUILTIN 2
-int brightness = 0;
-int step = 1;
-
-void setup() {
-  analogWriteResolution(LED_BUILTIN, 10);
-}
-
-void loop() {
-  analogWrite(LED_BUILTIN, brightness);
-
-  brightness += step;
-  if ( brightness >= 1023) step = -1;
-  if ( brightness <= 0) step = 1;
-  delay(1);
-}
-```
-
-### Change Log
+#### Change Log
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
+- Updated compatibility with the ESP32 Arduino framework 
+
+#### Version 2.2.2
+
 - Added compatibility with the ESP32 Arduino framework 
-- Added full featured AnalogWrite methods for ESP32 to control up to 9 PWM and 2 DAC signals
+- Added full featured AnalogWrite methods for ESP32 and ESP32S2
 
 #### Version 2.2.1
 
