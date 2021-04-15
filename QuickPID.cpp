@@ -1,9 +1,7 @@
 /**********************************************************************************
    QuickPID Library for Arduino - Version 2.2.3
    by dlloydev https://github.com/Dlloydev/QuickPID
-   Based on the Arduino PID Library by Brett Beauregard
-
-   This Library is licensed under the MIT License
+   Based on the Arduino PID Library, licensed under the MIT License
  **********************************************************************************/
 
 #if ARDUINO >= 100
@@ -11,7 +9,6 @@
 #else
 #include "WProgram.h"
 #endif
-
 #include "QuickPID.h"
 
 /* Constructor ********************************************************************
@@ -19,16 +16,15 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
-                   float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0)
-{
+                   float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0) {
+
   myOutput = Output;
   myInput = Input;
   mySetpoint = Setpoint;
   inAuto = false;
 
-  QuickPID::SetOutputLimits(0, 255);  // default is same as the arduino PWM limit
-  sampleTimeUs = 100000;              // default is 0.1 seconds
-
+  QuickPID::SetOutputLimits(0, 255);  // same default as Arduino PWM limit
+  sampleTimeUs = 100000;              // 0.1 sec default
   QuickPID::SetControllerDirection(ControllerDirection);
   QuickPID::SetTunings(Kp, Ki, Kd, POn);
 
@@ -39,19 +35,16 @@ QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
    To allow backwards compatability for v1.1, or for people that just want
    to use Proportional on Error without explicitly saying so.
  **********************************************************************************/
-
 QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
                    float Kp, float Ki, float Kd, uint8_t ControllerDirection)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0)
-{
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0) {
 
 }
 
 /* Compute() **********************************************************************
-   This, as they say, is where the magic happens. This function should be called
-   every time "void loop()" executes. The function will decide whether a new
-   PID Output needs to be computed. Returns true when the output is computed,
-   false when nothing has been done.
+   This function should be called every time "void loop()" executes. The function
+   will decide whether a new PID Output needs to be computed. Returns true
+   when the output is computed, false when nothing has been done.
  **********************************************************************************/
 bool QuickPID::Compute() {
   if (!inAuto) return false;
@@ -63,7 +56,7 @@ bool QuickPID::Compute() {
     int dInput = input - lastInput;
     error = *mySetpoint - input;
 
-    if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed-point
+    if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed point
     else outputSum += (kpi * error) - (kpd * dInput); // floating-point
 
     outputSum = CONSTRAIN(outputSum, outMin, outMax);
@@ -99,10 +92,11 @@ void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print =
     { 333,  667, 111 },  // SOME_OVERSHOOT_PID
     { 200,  400,  67 },  // NO_OVERSHOOT_PID
   };
-  const byte ckp = 0, cki = 1, ckd = 2; // c = column
+  const byte ckp = 0, cki = 1, ckd = 2; //c = column
   peakHigh = atSetpoint;
   peakLow = atSetpoint;
   timeout *= 1000;
+
   if (Print == 1) Serial.print("Stabilizing (33%) →");
   QuickPID::Stabilize(inputPin, outputPin, timeout);
   if (Print == 1) Serial.print(" Running AutoTune ↑");
@@ -234,7 +228,7 @@ void QuickPID::Initialize() {
 
 /* SetControllerDirection(...)*************************************************
   The PID will either be connected to a DIRECT acting process (+Output leads
-  to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
+  to +Input) or a REVERSE acting process(+Output leads to -Input.)  We need to
   know which one, because otherwise we may increase the output when we should
   be decreasing.  This is called from the constructor.
 ******************************************************************************/
@@ -282,19 +276,19 @@ uint8_t QuickPID::GetDirection() {
 int QuickPID::analogReadFast(int ADCpin) {
 #if defined(__AVR_ATmega328P__)
   byte ADCregOriginal = ADCSRA;
-  ADCSRA = (ADCSRA & B11111000) | 5; //32 prescaler
+  ADCSRA = (ADCSRA & B11111000) | 5; // 32 prescaler
   int adc = analogRead(ADCpin);
   ADCSRA = ADCregOriginal;
   return adc;
 #elif defined(__AVR_ATtiny_Zero_One__) || defined(__AVR_ATmega_Zero__)
   byte ADCregOriginal = ADC0_CTRLC;
-  ADC0_CTRLC = 0x54; //reduced cap, Vdd ref, 32 prescaler
+  ADC0_CTRLC = 0x54; // reduced cap, Vdd ref, 32 prescaler
   int adc = analogRead(ADCpin);
   ADC0_CTRLC = ADCregOriginal;
   return adc;
 #elif defined(__AVR_DA__)
   byte ADCregOriginal = ADC0.CTRLC;
-  ADC0.CTRLC = ADC_PRESC_DIV32_gc; //32 prescaler
+  ADC0.CTRLC = ADC_PRESC_DIV32_gc; // 32 prescaler
   int adc = analogRead(ADCpin);
   ADC0.CTRLC = ADCregOriginal;
   return adc;
@@ -325,9 +319,7 @@ void QuickPID::CheckPeak(int inputPin) {
 
 void QuickPID::Stabilize(int inputPin, int outputPin, uint32_t timeout) {
   // initial reading
-  for (int i = 0; i <= 16; i++) {
-    analogReadAvg(inputPin);
-  }
+  for (int i = 0; i <= 16; i++) analogReadAvg(inputPin);
   // coarse adjust
   analogWrite (outputPin, 0);
   while ((analogReadAvg(inputPin) > (atSetpoint - hysteresis)) && (millis() <= timeout));

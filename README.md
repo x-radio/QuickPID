@@ -53,20 +53,20 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
 
 ```c++
 QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
-                   float Kp, float Ki, float Kd, float POn, uint8_t ControllerDirection)
+                   float Kp, float Ki, float Kd, float POn, uint8_t ControllerDirection);
 ```
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
 - `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the mix of Proportional on Error (PonE) and  Proportional on Measurement (PonM) that's used in the compute algorithm. Note that POn controls the PonE amount, where the remainder (1-PonE) is the PonM amount. Also, the default POn is 1
 
-![POn](https://user-images.githubusercontent.com/63488701/104958919-fe3c4680-599e-11eb-851e-73f26291d3e5.gif)
+<img src="https://user-images.githubusercontent.com/63488701/104958919-fe3c4680-599e-11eb-851e-73f26291d3e5.gif" alt="POn" style="zoom: 67%;" />
 
 - `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. DIRECT is most common.
 
 ```c++
 QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
-                   float Kp, float Ki, float Kd, uint8_t ControllerDirection)
+                   float Kp, float Ki, float Kd, uint8_t ControllerDirection);
 ```
 
 This allows you to use Proportional on Error without explicitly saying so.
@@ -74,7 +74,7 @@ This allows you to use Proportional on Error without explicitly saying so.
 #### Compute
 
 ```c++
-bool QuickPID::Compute()
+bool QuickPID::Compute();
 ```
 
 This function contains the PID algorithm and it should be called once every loop(). Most of the time it will just return false without doing anything. However, at a  frequency specified by `SetSampleTime` it will calculate a new Output and return true.
@@ -82,7 +82,7 @@ This function contains the PID algorithm and it should be called once every loop
 #### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
 ```c++
-void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30)
+void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30);
 ```
 
 The `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. It also determines the critical gain `Ku` and critical period `Tu` of the control system. 
@@ -98,13 +98,13 @@ Sets the AutoTune timeout where the default is 120 seconds.
 #### SetTunings
 
 ```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn)
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn);
 ```
 
 This function allows the controller's dynamic performance to be adjusted. It's called automatically from the constructor, but tunings can also be adjusted on the fly during normal operation. The parameters are as described in the constructor.
 
 ```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd)
+void QuickPID::SetTunings(float Kp, float Ki, float Kd);
 ```
 
 Set Tunings using the last remembered POn setting.
@@ -112,7 +112,7 @@ Set Tunings using the last remembered POn setting.
 #### SetSampleTime
 
 ```c++
-void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs)
+void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs);
 ```
 
 Sets the period, in microseconds, at which the calculation is performed. The default is 100ms.
@@ -120,7 +120,7 @@ Sets the period, in microseconds, at which the calculation is performed. The def
 #### SetOutputLimits
 
 ```c++
-void QuickPID::SetOutputLimits(int Min, int Max)
+void QuickPID::SetOutputLimits(int Min, int Max);
 ```
 
 The PID controller is designed to vary its output within a given range.  By default this range is 0-255, the Arduino PWM range.
@@ -128,7 +128,7 @@ The PID controller is designed to vary its output within a given range.  By defa
 #### SetMode
 
 ```c++
-void QuickPID::SetMode(uint8_t Mode)
+void QuickPID::SetMode(uint8_t Mode);
 ```
 
 Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (non-zero). when the transition from manual to automatic occurs, the controller is automatically initialized.
@@ -136,7 +136,7 @@ Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (non-zero). 
 #### Initialize
 
 ```c++
-void QuickPID::Initialize()
+void QuickPID::Initialize();
 ```
 
 Does all the things that need to happen to ensure a bump-less transfer from manual to automatic mode.
@@ -152,14 +152,14 @@ The PID will either be connected to a DIRECT acting process (+Output leads to +I
 #### Display_Functions
 
 ```c++
-float QuickPID::GetKp()
-float QuickPID::GetKi()
-float QuickPID::GetKd()
-float QuickPID::GetKu()
-float QuickPID::GetTu()
-float QuickPID::GetTd()
-uint8_t QuickPID::GetMode()
-uint8_t QuickPID::GetDirection()
+float QuickPID::GetKp();
+float QuickPID::GetKi();
+float QuickPID::GetKd();
+float QuickPID::GetKu();
+float QuickPID::GetTu();
+float QuickPID::GetTd();
+uint8_t QuickPID::GetMode();
+uint8_t QuickPID::GetDirection();
 ```
 
 These functions query the internal state of the PID. They're here for display purposes.
@@ -173,6 +173,8 @@ int QuickPID::analogReadFast(int ADCpin)
 A faster configuration of `analogRead()`where a preset of 32 is used.  If the architecture definition isn't found, normal `analogRead()`is used to return a value.
 
 #### [AnalogWrite (PWM and DAC) for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
+
+Use this link for reference. Note that if you're using QuickPID, there's no need to install the AnalogWrite library as this feature is already included.
 
 #### Change Log
 

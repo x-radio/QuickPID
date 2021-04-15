@@ -24,7 +24,7 @@ const byte outputPin = 3;
 
 int Print = 0;                // on(1) monitor, off(0) plotter
 int tuningRule = 1;           // see above table
-float POn = 1.0;              // Mix of PonE to PonM (0.0-1.0)
+float POn = 1.0;              // mix of PonE to PonM (0.0-1.0)
 unsigned long timeout = 120;  // AutoTune timeout (sec)
 
 int Input, Output, Setpoint;
@@ -52,7 +52,7 @@ void setup()
     Serial.print("  Kp: "); Serial.print(myQuickPID.GetKp());
     Serial.print("  Ki: "); Serial.print(myQuickPID.GetKi());
     Serial.print("  Kd: "); Serial.println(myQuickPID.GetKd());
-    delay(6000);
+    delay(3000);
   }
 }
 

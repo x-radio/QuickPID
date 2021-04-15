@@ -1,8 +1,7 @@
 #ifndef QuickPID_h
 #define QuickPID_h
 
-class QuickPID
-{
+class QuickPID {
 
   public:
 
@@ -11,6 +10,9 @@ class QuickPID
 #define MANUAL  0
 #define DIRECT  0
 #define REVERSE 1
+
+static const byte TRY_DIRECT = 0;
+static const byte TRY_AUTOMATIC = 1;
 
 #define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
 #define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
@@ -74,7 +76,7 @@ class QuickPID
     void StepDown(int, int, uint32_t);
     void Stabilize(int, int, uint32_t);
 
-    float dispKp;      // We'll hold on to the tuning parameters for display purposes.
+    float dispKp;      // tuning parameters for display purposes.
     float dispKi;
     float dispKd;
     float dispKu;
@@ -113,4 +115,4 @@ class QuickPID
 #include "utility/analogWrite.h"
 #endif
 
-#endif //QuickPID.h
+#endif // QuickPID.h
