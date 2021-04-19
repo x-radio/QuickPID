@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.3
+   QuickPID Library for Arduino - Version 2.2.4
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library, licensed under the MIT License
  **********************************************************************************/

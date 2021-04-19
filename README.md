@@ -180,6 +180,10 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
+- Added ESP32-S2 support
+
+#### Version 2.2.3
+
 - Updated compatibility with the ESP32 Arduino framework 
 
 #### Version 2.2.2
