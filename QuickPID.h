@@ -111,7 +111,7 @@ static const byte TRY_AUTOMATIC = 1;
 
 };
 
-#if defined(ESP32)
+#if (defined(ESP32) || defined(ARDUINO_ARCH_ESP32))
 #include "utility/analogWrite.h"
 #endif
 
