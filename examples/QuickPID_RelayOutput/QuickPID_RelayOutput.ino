@@ -22,7 +22,7 @@
 #define RELAY_PIN 6
 
 //Define Variables we'll be connecting to
-int Setpoint, Input, Output;
+float Setpoint, Input, Output;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;

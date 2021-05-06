@@ -21,10 +21,10 @@ static const byte TRY_AUTOMATIC = 1;
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(int*, int*, int*, float, float, float, float, uint8_t);
+    QuickPID(float*, float*, float*, float, float, float, float, uint8_t);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(int*, int*, int*, float, float, float, uint8_t);
+    QuickPID(float*, float*, float*, float, float, float, uint8_t);
 
     // Sets PID to either Manual (0) or Auto (non-0).
     void SetMode(uint8_t Mode);
@@ -92,9 +92,9 @@ static const byte TRY_AUTOMATIC = 1;
 
     uint8_t controllerDirection;
 
-    int *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
-    int *myOutput;     // hard link between the variables and the PID, freeing the user from having
-    int *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
+    float *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
+    float *myOutput;     // hard link between the variables and the PID, freeing the user from having
+    float *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
 
     uint32_t sampleTimeUs, lastTime;
     int outMin, outMax, error;
@@ -112,7 +112,7 @@ static const byte TRY_AUTOMATIC = 1;
 };
 
 #if (defined(ESP32) || defined(ARDUINO_ARCH_ESP32))
-#include "utility/analogWrite.h"
+#include "analogWrite.h"
 #endif
 
 #endif // QuickPID.h

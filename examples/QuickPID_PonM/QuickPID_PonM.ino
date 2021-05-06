@@ -9,7 +9,7 @@
 #include "QuickPID.h"
 
 //Define Variables we'll be connecting to
-int Setpoint, Input, Output;
+float Setpoint, Input, Output;
 float POn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
 
 //Specify the links and initial tuning parameters

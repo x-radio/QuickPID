@@ -52,7 +52,7 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
 #### QuickPID_Constructor
 
 ```c++
-QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, float POn, uint8_t ControllerDirection);
 ```
 
@@ -65,7 +65,7 @@ QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
 - `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. DIRECT is most common.
 
 ```c++
-QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, uint8_t ControllerDirection);
 ```
 
@@ -180,11 +180,10 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-- Added ESP32-S2 support
+#### Version 2.2.6
 
-#### Version 2.2.3
-
-- Updated compatibility with the ESP32 Arduino framework 
+- Changed Input, Output and Setpoint parameters to float.
+- Updated compatibility with the ESP32 AnalogWrite 
 
 #### Version 2.2.2
 

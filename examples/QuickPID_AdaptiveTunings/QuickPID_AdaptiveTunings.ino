@@ -15,7 +15,7 @@
 #define PIN_OUTPUT 3
 
 //Define Variables we'll be connecting to
-int Setpoint, Input, Output;
+float Setpoint, Input, Output;
 
 //Define the aggressive and conservative and POn Tuning Parameters
 float aggKp = 4, aggKi = 0.2, aggKd = 1;

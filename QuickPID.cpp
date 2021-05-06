@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.5
+   QuickPID Library for Arduino - Version 2.2.6
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library, licensed under the MIT License
  **********************************************************************************/
@@ -9,13 +9,14 @@
 #else
 #include "WProgram.h"
 #endif
+
 #include "QuickPID.h"
 
 /* Constructor ********************************************************************
    The parameters specified here are those for for which we can't set up
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
-QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0) {
 
   myOutput = Output;
@@ -35,7 +36,7 @@ QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
    To allow backwards compatability for v1.1, or for people that just want
    to use Proportional on Error without explicitly saying so.
  **********************************************************************************/
-QuickPID::QuickPID(int* Input, int* Output, int* Setpoint,
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, uint8_t ControllerDirection)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0) {
 

@@ -27,7 +27,7 @@ int tuningRule = 1;           // see above table
 float POn = 1.0;              // mix of PonE to PonM (0.0-1.0)
 unsigned long timeout = 120;  // AutoTune timeout (sec)
 
-int Input, Output, Setpoint;
+float Input, Output, Setpoint;
 float Kp = 0, Ki = 0, Kd = 0;
 
 QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DIRECT);
@@ -35,6 +35,8 @@ QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DIRECT);
 void setup()
 {
   Serial.begin(115200);
+  Serial.println();
+
   myQuickPID.AutoTune(inputPin, outputPin, tuningRule, Print, timeout);
   myQuickPID.SetTunings(myQuickPID.GetKp(), myQuickPID.GetKi(), myQuickPID.GetKd());
   myQuickPID.SetSampleTimeUs(5000); // recommend 5000µs (5ms) minimum
@@ -52,7 +54,8 @@ void setup()
     Serial.print("  Kp: "); Serial.print(myQuickPID.GetKp());
     Serial.print("  Ki: "); Serial.print(myQuickPID.GetKi());
     Serial.print("  Kd: "); Serial.println(myQuickPID.GetKd());
-    delay(3000);
+    Serial.println();
+    delay(5000); //view results
   }
 }
 
