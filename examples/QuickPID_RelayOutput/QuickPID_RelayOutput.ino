@@ -28,7 +28,7 @@ float Setpoint, Input, Output;
 float Kp = 2, Ki = 5, Kd = 1;
 float POn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
 
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::DIRECT);
 
 unsigned int WindowSize = 5000;
 unsigned int minWindow = 500;
@@ -46,7 +46,7 @@ void setup()
   myQuickPID.SetOutputLimits(0, WindowSize);
 
   //turn the PID on
-  myQuickPID.SetMode(AUTOMATIC);
+  myQuickPID.SetMode(QuickPID::AUTOMATIC);
 }
 
 void loop()

@@ -30,7 +30,11 @@ unsigned long timeout = 120;  // AutoTune timeout (sec)
 float Input, Output, Setpoint;
 float Kp = 0, Ki = 0, Kd = 0;
 
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DIRECT);
+// choose controller direction:
+// DIRECT: Input increases when the output is increased or the error is positive (heating).
+// REVERSE: Input decreases when the output is increased or when the error is positive (cooling).
+QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::DIRECT);
+//QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::REVERSE);
 
 void setup()
 {
@@ -39,8 +43,8 @@ void setup()
 
   myQuickPID.AutoTune(inputPin, outputPin, tuningRule, Print, timeout);
   myQuickPID.SetTunings(myQuickPID.GetKp(), myQuickPID.GetKi(), myQuickPID.GetKd());
-  myQuickPID.SetSampleTimeUs(5000); // recommend 5000µs (5ms) minimum
-  myQuickPID.SetMode(AUTOMATIC);
+  myQuickPID.SetSampleTimeUs(4000); // 4ms
+  myQuickPID.SetMode(QuickPID::AUTOMATIC);
   Setpoint = 700;
 
   if (Print == 1) {
@@ -66,7 +70,11 @@ void loop()
   Serial.print("Output:");    Serial.print(Output);    Serial.print(",");
   Serial.println(",");
 
-  Input = myQuickPID.analogReadFast(inputPin);
+  if (myQuickPID.GetDirection() == QuickPID::REVERSE) {
+    Input = (1023 - myQuickPID.analogReadFast(inputPin)); // simulate reverse acting controller (cooling)
+  } else {
+    Input = (myQuickPID.analogReadFast(inputPin));
+  }
   myQuickPID.Compute();
   analogWrite(outputPin, Output);
 }

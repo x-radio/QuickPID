@@ -47,6 +47,10 @@ The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function
  kpd = kp * (1 - pOn) + kd;
 ```
 
+### Controller Action
+
+If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). Since the PWM and ADC peripherals on microcontrollers only operate with positive values, QuickPID only uses positive values for Input, Output and Setpoint. When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). See the example [AutoTune_RC_Filter.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_RC_Filter/AutoTune_RC_Filter.ino) for details.
+
 ### Functions
 
 #### QuickPID_Constructor
@@ -179,6 +183,12 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 #### Change Log
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
+
+#### Version 2.2.7
+
+- Fixed REVERSE acting controller mode.
+- now using src folder for source code 
+- replaced defines with enumerated types and inline functions
 
 #### Version 2.2.6
 

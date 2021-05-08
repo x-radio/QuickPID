@@ -24,7 +24,7 @@ float aggPOn = 1.0; // Range is 0.0 to 1.0 (1.0 is 100% P on Error, 0% P on Meas
 float consPOn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
 
 //Specify the links and initial tuning parameters
-QuickPID myQuickPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, aggPOn, DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, aggPOn, QuickPID::DIRECT);
 
 void setup()
 {
@@ -33,7 +33,7 @@ void setup()
   Setpoint = 100;
 
   //turn the PID on
-  myQuickPID.SetMode(AUTOMATIC);
+  myQuickPID.SetMode(QuickPID::AUTOMATIC);
 }
 
 void loop()

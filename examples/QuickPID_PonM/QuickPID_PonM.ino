@@ -13,7 +13,7 @@ float Setpoint, Input, Output;
 float POn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
 
 //Specify the links and initial tuning parameters
-QuickPID myQuickPID(&Input, &Output, &Setpoint, 2, 5, 1, POn, DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, 2, 5, 1, POn, QuickPID::DIRECT);
 
 void setup()
 {
@@ -22,7 +22,7 @@ void setup()
   Setpoint = 100;
 
   //turn the PID on
-  myQuickPID.SetMode(AUTOMATIC);
+  myQuickPID.SetMode(QuickPID::AUTOMATIC);
 }
 
 void loop()

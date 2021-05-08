@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.6
+   QuickPID Library for Arduino - Version 2.2.7
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library, licensed under the MIT License
  **********************************************************************************/
@@ -17,7 +17,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, float POn = 1, uint8_t ControllerDirection = 0) {
+                   float Kp, float Ki, float Kd, float POn = 1, QuickPID::direction_t ControllerDirection = DIRECT) {
 
   myOutput = Output;
   myInput = Input;
@@ -37,9 +37,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    to use Proportional on Error without explicitly saying so.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, uint8_t ControllerDirection)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = 0) {
-
+                   float Kp, float Ki, float Kd, direction_t ControllerDirection = DIRECT)
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = DIRECT) {
 }
 
 /* Compute() **********************************************************************
@@ -56,9 +55,12 @@ bool QuickPID::Compute() {
     int input = *myInput;
     int dInput = input - lastInput;
     error = *mySetpoint - input;
-
-    if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed point
-    else outputSum += (kpi * error) - (kpd * dInput); // floating-point
+    if (controllerDirection == REVERSE) {
+      error = -error;
+      dInput = -dInput;
+    }
+      if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), dInput); // fixed point
+      else outputSum += (kpi * error) - (kpd * dInput); // floating-point
 
     outputSum = CONSTRAIN(outputSum, outMin, outMax);
     *myOutput = outputSum;
@@ -162,12 +164,6 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
   kd = Kd / SampleTimeSec;
   kpi = (kp * pOn) + ki;
   kpd = (kp * (1 - pOn)) + kd;
-
-  if (controllerDirection == REVERSE) {
-    kp = (0 - kp);
-    ki = (0 - ki);
-    kd = (0 - kd);
-  }
 }
 
 /* SetTunings(...)*************************************************************
@@ -209,7 +205,7 @@ void QuickPID::SetOutputLimits(int Min, int Max) {
   when the transition from manual to auto occurs, the controller is
   automatically initialized
 ******************************************************************************/
-void QuickPID::SetMode(uint8_t Mode) {
+void QuickPID::SetMode(mode_t Mode) {
   bool newAuto = (Mode == AUTOMATIC);
   if (newAuto && !inAuto) { //we just went from manual to auto
     QuickPID::Initialize();
@@ -229,17 +225,10 @@ void QuickPID::Initialize() {
 
 /* SetControllerDirection(...)*************************************************
   The PID will either be connected to a DIRECT acting process (+Output leads
-  to +Input) or a REVERSE acting process(+Output leads to -Input.)  We need to
-  know which one, because otherwise we may increase the output when we should
-  be decreasing.  This is called from the constructor.
+  to +Input) or a REVERSE acting process(+Output leads to -Input.)
 ******************************************************************************/
-void QuickPID::SetControllerDirection(uint8_t Direction) {
-  if (inAuto && Direction != controllerDirection) {
-    kp = (0 - kp);
-    ki = (0 - ki);
-    kd = (0 - kd);
-  }
-  controllerDirection = Direction;
+void QuickPID::SetControllerDirection(direction_t ControllerDirection) {
+  controllerDirection = ControllerDirection;
 }
 
 /* Status Functions************************************************************
@@ -265,10 +254,11 @@ float QuickPID::GetTu() {
 float QuickPID::GetTd() {
   return  dispTd;
 }
-uint8_t QuickPID::GetMode() {
-  return  inAuto ? AUTOMATIC : MANUAL;
+QuickPID::mode_t QuickPID::GetMode() {
+  return  inAuto ? QuickPID::AUTOMATIC : QuickPID::MANUAL;
 }
-uint8_t QuickPID::GetDirection() {
+
+QuickPID::direction_t QuickPID::GetDirection() {
   return controllerDirection;
 }
 

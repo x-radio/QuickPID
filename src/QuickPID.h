@@ -1,3 +1,4 @@
+#pragma once
 #ifndef QuickPID_h
 #define QuickPID_h
 
@@ -5,55 +6,50 @@ class QuickPID {
 
   public:
 
-    //Constants and macros
-#define AUTOMATIC 1
-#define MANUAL  0
-#define DIRECT  0
-#define REVERSE 1
+    // enumerated types
 
-static const byte TRY_DIRECT = 0;
-static const byte TRY_AUTOMATIC = 1;
+    // controller mode
+    typedef enum { MANUAL = 0, AUTOMATIC = 1 } mode_t;
 
-#define FL_FX(a) (int32_t)(a*256.0)  // float to fixed point
-#define FX_MUL(a,b) ((a*b)>>8)       // fixed point multiply
-#define CONSTRAIN(x,lower,upper)    ((x)<(lower)?(lower):((x)>(upper)?(upper):(x)))
+    // DIRECT: intput increases when the error is positive. REVERSE: intput decreases when the error is positive.
+    typedef enum { DIRECT = 0, REVERSE = 1 } direction_t;
 
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(float*, float*, float*, float, float, float, float, uint8_t);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, float POn, direction_t ControllerDirection);
 
     // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(float*, float*, float*, float, float, float, uint8_t);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, direction_t ControllerDirection);
 
     // Sets PID to either Manual (0) or Auto (non-0).
-    void SetMode(uint8_t Mode);
+    void SetMode(mode_t Mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles. ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
     bool Compute();
 
     // Automatically determines and sets the tuning parameters Kp, Ki and Kd. Use this in the setup loop.
-    void AutoTune(int, int, int, int, uint32_t);
+    void AutoTune(int inputPin, int outputPin, int tuningRule, int Print, uint32_t timeout);
 
     // Sets and clamps the output to a specific range (0-255 by default).
-    void SetOutputLimits(int, int);
+    void SetOutputLimits(int Min, int Max);
 
     // available but not commonly used functions ******************************************************************
 
     // While most users will set the tunings once in the constructor, this function gives the user the option of
     // changing tunings during runtime for Adaptive control.
-    void SetTunings(float, float, float);
+    void SetTunings(float Kp, float Ki, float Kd);
 
     // Overload for specifying proportional mode.
-    void SetTunings(float, float, float, float);
+    void SetTunings(float Kp, float Ki, float Kd, float POn);
 
-    // Sets the Direction, or "Action" of control. DIRECT means the output will increase when error is positive.
-    // REVERSE means the opposite. It's very unlikely that this will be needed once it is set in the constructor.
-    void SetControllerDirection(uint8_t);
+    // Sets the controller Direction or Action. DIRECT means the output will increase when the error is positive.
+    // REVERSE means the output will decrease when the error is positive.
+    void SetControllerDirection(direction_t ControllerDirection);
 
     // Sets the sample time in milliseconds with which each PID calculation is performed. Default is 100.
-    void SetSampleTimeUs(uint32_t);
+    void SetSampleTimeUs(uint32_t NewSampleTimeUs);
 
     //Display functions ******************************************************************************************
     float GetKp();         // These functions query the pid for interal values. They were created mainly for
@@ -62,19 +58,17 @@ static const byte TRY_AUTOMATIC = 1;
     float GetKu();         // Ultimate Gain
     float GetTu();         // Ultimate Period
     float GetTd();         // Dead Time
-    uint8_t GetMode();
-    uint8_t GetDirection();
+    mode_t GetMode();
+    direction_t GetDirection();
 
     // Utility functions ******************************************************************************************
-    int analogReadFast(int);
-    float analogReadAvg(int);
+    int analogReadFast(int ADCpin);
+    float analogReadAvg(int ADCpin);
 
   private:
     void Initialize();
-    void CheckPeak(int);
-    void StepUp(int, int, uint32_t);
-    void StepDown(int, int, uint32_t);
-    void Stabilize(int, int, uint32_t);
+    void CheckPeak(int inputPin);
+    void Stabilize(int inputPin, int outputPin, uint32_t timeout);
 
     float dispKp;      // tuning parameters for display purposes.
     float dispKi;
@@ -90,16 +84,25 @@ static const byte TRY_AUTOMATIC = 1;
     float kpi;         // proportional on error amount
     float kpd;         // proportional on measurement amount
 
-    uint8_t controllerDirection;
-
     float *myInput;      // Pointers to the Input, Output, and Setpoint variables. This creates a
     float *myOutput;     // hard link between the variables and the PID, freeing the user from having
     float *mySetpoint;   // to constantly tell us what these values are. With pointers we'll just know.
 
+    direction_t controllerDirection;
     uint32_t sampleTimeUs, lastTime;
     int outMin, outMax, error;
     int lastInput, outputSum;
     bool inAuto;
+
+    inline int32_t FL_FX(float a) {
+      return (a * 256.0); // float to fixed point
+    }
+    inline int32_t FX_MUL(int32_t a, int32_t b) {
+      return ((a * b) >> 8);  // fixed point multiply
+    }
+    inline int32_t CONSTRAIN(int32_t x, int32_t lower, int32_t upper) {
+      return ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)));
+    }
 
     // AutoTune
     float peakHigh, peakLow;
