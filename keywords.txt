@@ -7,9 +7,7 @@
 ##########################################
 
 QuickPID	KEYWORD1
-mode_t	KEYWORD1
-direction_t	KEYWORD1
-analog_write_channel_t	KEYWORD1
+myQuickPID	KEYWORD1
 
 ##########################################
 # Methods and Functions (KEYWORD2)
@@ -44,3 +42,6 @@ AUTOMATIC	LITERAL1
 MANUAL	LITERAL1
 DIRECT	LITERAL1
 REVERSE	LITERAL1
+mode_t	LITERAL1
+direction_t	LITERAL1
+analog_write_channel_t	LITERAL1

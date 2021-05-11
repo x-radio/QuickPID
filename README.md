@@ -1,6 +1,6 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd). Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and controllability of the process are determined. There are 9 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.   
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd). Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and controllability of the process are determined. There are 9 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.  
 
 ### About
 
@@ -183,6 +183,10 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 #### Change Log
 
 #### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
+
+#### Version 2.2.8
+
+- AutoTune is now independent of the QuickPID library and can be run from a sketch.  AutoTune is now non-blocking, no timeouts are required and it uses Input and Output variables directly. See the example [AutoTune_RC_Filter.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_RC_Filter/AutoTune_RC_Filter.ino) for details.
 
 #### Version 2.2.7
 
