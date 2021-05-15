@@ -10,7 +10,7 @@ class AutoTunePID {
 
     void reset();
     void autoTuneConfig(const byte outputStep, const byte hysteresis, const int setpoint, const int output,
-    const bool dir = 0, const bool printOrPlotter = false);
+    const bool dir = false, const bool printOrPlotter = false);
     byte autoTuneLoop();
     void setAutoTuneConstants(float* kp, float* ki, float* kd);
     enum atStage : byte { STABILIZING, COARSE, FINE, AUTOTUNE, T0, T1, T2, T3, DONE, NEW_TUNINGS, RUN_PID };

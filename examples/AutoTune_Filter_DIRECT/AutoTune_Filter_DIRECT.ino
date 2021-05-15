@@ -34,7 +34,7 @@ void setup() {
     while (1);
   }
   _myPID.AutoTune(tuningRule);
-  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, 85, printOrPlotter);
+  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, printOrPlotter);
 }
 
 void loop() {
