@@ -11,7 +11,7 @@ This PID controller provides a shortened *read-compute-write* cycle by using a r
 Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the change log and below:
 
 - Quicker hybrid fixed/floating point math, efficient PID algorithm and micros() timing resolution.
-- Built-in `AutoTunePID` class as a dynamic object. [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)  automatically determines and applies `Kp`, `Ki` and `Kd` tuning parameters and has 10 tuning rules to choose from.
+- Built-in `AutoTunePID` class as a dynamic object. AutoTune automatically determines and applies `Kp`, `Ki` and `Kd` tuning parameters and has 10 tuning rules to choose from.
 - Variable `POn` parameter controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement.
 - Includes [analogWrite](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite) for ESP32 boards.
 
@@ -166,7 +166,7 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 
 #### Version 2.2.8
 
-- AutoTune is now independent of the QuickPID library and can be run from a sketch.  AutoTune is now non-blocking, no timeouts are required and it uses Input and Output variables directly. See the example [AutoTune_RC_Filter.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_RC_Filter/AutoTune_RC_Filter.ino) for details.
+- AutoTune is now independent of the QuickPID library and can be run from a sketch.  AutoTune is now non-blocking, no timeouts are required and it uses Input and Output variables directly.
 
 #### Version 2.2.7
 
@@ -217,7 +217,7 @@ Use this link for reference. Note that if you're using QuickPID, there's no need
 
 #### Version 2.0.3
 
-- Initial Version with modifications as listed in [features.](#Features) 
+- Initial Version 
 
 ------
 
