@@ -31,7 +31,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   if (constrain(output, outputMin, outputMax - outputStep - 5) < output) {
-    Serial.println(F("AutoTune test exceeds outMax limit, check output, hysteresis and outputStep values"));
+    Serial.println(F("AutoTune test exceeds outMax limit. Check output, hysteresis and outputStep values"));
     while (1);
   }
   _myPID.AutoTune(tuningRule);

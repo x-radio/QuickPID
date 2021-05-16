@@ -1,9 +1,9 @@
 {
   "name": "QuickPID",
   "keywords": "PID, controller, signal",
-  "description": "A fast fixed/floating point PID controller with AutoTune and 9 tuning rules to choose from. This controller can automatically determine and set tuning parameters. Compatible with most Arduino and ESP32 boards.",
+  "description": "A fast fixed/floating point PID controller with AutoTune and 10 tuning rules to choose from. This controller can automatically determine and set tuning parameters. Compatible with most Arduino and ESP32 boards.",
   "license": "MIT",
-  "version": "2.2.8",
+  "version": "2.3.0",
   "url": "https://github.com/Dlloydev/QuickPID",
   "include": "QuickPID",
   "authors":

@@ -30,16 +30,18 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   if (constrain(output, outputMin, outputMax - outputStep - 5) < output) {
-    Serial.println(F("AutoTune test exceeds outMax limit, check output, hysteresis and outputStep values"));
+    Serial.println(F("AutoTune test exceeds outMax limit. Check output, hysteresis and outputStep values"));
     while (1);
   }
   _myPID.AutoTune(tuningRule);
-  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, printOrPlotter);
+  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, QuickPID::DIRECT, printOrPlotter);
 }
 
 void loop() {
 
   if (_myPID.autoTune->autoTuneLoop() != _myPID.autoTune->RUN_PID) { // running autotune
+  Serial.println(F("I'm here!"));
+
     Input = avg(_myPID.analogReadFast(inputPin)); // filtered input
     analogWrite(outputPin, Output);
   }

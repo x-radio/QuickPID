@@ -1,7 +1,8 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.2.8
+   QuickPID Library for Arduino - Version 2.3.0
    by dlloydev https://github.com/Dlloydev/QuickPID
-   Based on the Arduino PID Library, licensed under the MIT License
+   Based on the Arduino PID Library and work on AutoTunePID class
+   by gnalbandian (Gonzalo). Licensed under the MIT License
  **********************************************************************************/
 
 #if ARDUINO >= 100
@@ -337,7 +338,7 @@ byte AutoTunePID::autoTuneLoop()
         _Tu = (float)(_t3 - _t2) / 1000000.0; // ultimate period (seconds)
         _Ku = (float)(4 * _outputStep * 2) / (float)(3.14159 * sqrt (sq (_peakHigh - _peakLow) - sq (_hysteresis))); // ultimate gain
         if (_tuningRule == 6) { //AMIGO_PID
-          (_td < 100) ? _td = 100 : _td = _td; // 100µs minimum
+          (_td < 0.1) ? _td = 0.1 : _td = _td;
           _kp = (0.2 + 0.45 * (_Tu / _td)) / _Ku;
           float Ti = (((0.4 * _td) + (0.8 * _Tu)) / (_td + (0.1 * _Tu)) * _td);
           float Td = (0.5 * _td * _Tu) / ((0.3 * _td) + _Tu);

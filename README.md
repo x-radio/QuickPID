@@ -1,36 +1,30 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) function. This controller can automatically determine and set parameters (Kp, Ki, Kd). Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and controllability of the process are determined. There are 9 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.  
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object to reduce memory if not used. This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.  
 
 ### About
 
-This PID controller provides a faster *read-compute-write* cycle than alternatives as it has a more efficient and reduced algorithm that avoids time consuming partial calculations, it takes advantage of fixed point math and has a faster analog read function. The `Ki` and `Kd` are scaled by time (µs) and the new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required in `Compute()`.
+This PID controller provides a shortened *read-compute-write* cycle by using a reduced PID algorithm, taking advantage of fixed point math and using a fast analog read function. The `Ki` and `Kd` are scaled by time (µs) and the new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function resulting in only two multiply operations required in `Compute()`.
 
 ### Features
 
 Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the change log and below:
 
-- Quicker hybrid fixed/floating point math in compute function
-- Built-in `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. and also ultimate gain `Ku` and ultimate period `Tu` of the control system. There are 9 tuning rules to choose from
-- [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) uses a precise and low control effort sequence that gets results quickly. It also determines how difficult the process is to control.
-- `POn` parameter controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement
-- Reorganized and more efficient PID algorithm, faster analog read function, micros() timing resolution
-- Runs a complete PID cycle (*read-compute-write*) faster than just an `analogRead()` command  in Arduino
-- Includes  a complete [analogWrite function for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite) boards. This controls up to 8 independent PWM pins and 2 DAC pins.
+- Quicker hybrid fixed/floating point math, efficient PID algorithm and micros() timing resolution.
+- Built-in `AutoTunePID` class as a dynamic object. [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)  automatically determines and applies `Kp`, `Ki` and `Kd` tuning parameters and has 10 tuning rules to choose from.
+- Variable `POn` parameter controls the setpoint weighting and mix of Proportional on Error to Proportional on Measurement.
+- Includes [analogWrite](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite) for ESP32 boards.
 
-### Performance
+### Performance (16MHz ATmega328P)
 
-| `Compute()`                                                  | Kp   | Ki   | Kd   | Step Time (µS) |
-| :----------------------------------------------------------- | ---- | ---- | ---- | -------------- |
-| QuickPID                                                     | 2.0  | 15.0 | 0.05 | 72             |
-| Arduino PID                                                  | 2.0  | 15.0 | 0.05 | 104            |
-| **Full PID cycle:** **`analogRead(), Compute(), analogWrite()`** |      |      |      |                |
-| QuickPID using `analogReadFast()`                            | 2.0  | 5.0  | 0.2  | 96             |
-| Arduino PID using `analogRead()`                             | 2.0  | 5.0  | 0.2  | 224            |
+| `Compute()` | Kp   | Ki   | Kd   | Step Time (µS) |
+| :---------- | ---- | ---- | ---- | -------------- |
+| QuickPID    | 2.0  | 5.0  | 1.0  | 72             |
+| Arduino PID | 2.0  | 5.0  | 1.0  | 104            |
 
 ### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
-This example allows you to experiment with the AutoTune, various tuning rules and the POn control on an RC filter. It automatically determines and sets the tuning parameters.
+This example allows you to experiment with the AutoTunePID class, various tuning rules and the POn control using ADC and PWM with RC filter. It automatically determines and sets the tuning parameters and works with both DIRECT and REVERSE acting controllers.
 
 #### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
 
@@ -40,16 +34,16 @@ This example allows you to experiment with the AutoTune, various tuning rules an
 outputSum += (kpi * error) - (kpd * dInput);
 ```
 
-The new `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required. The pOn variable controls the setpoint weighting of Proportional on Error and Proportional on Measurement. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated as follows:
+The `kpi` and `kpd` parameters are calculated in the `SetTunings()` function. This results in a simple and fast algorithm with only two multiply operations required. The gains for `error` (`kpi`) and measurement `dInput` (`kpd`) are calculated as follows:
 
 ```c++
  kpi = kp * pOn + ki;
  kpd = kp * (1 - pOn) + kd;
 ```
 
-### Controller Action
+### Direct and Reverse Controller Action
 
-If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). Since the PWM and ADC peripherals on microcontrollers only operate with positive values, QuickPID only uses positive values for Input, Output and Setpoint. When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). See the example [AutoTune_RC_Filter.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_RC_Filter/AutoTune_RC_Filter.ino) for details.
+If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). See the examples `AutoTune_Filter_DIRECT.ino` and `AutoTune_Filter_REVERSE.ino` for details.
 
 ### Functions
 
@@ -64,7 +58,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
 - `POn` is the Proportional on Error weighting value (0.0-1.0). This controls the mix of Proportional on Error (PonE) and  Proportional on Measurement (PonM) that's used in the compute algorithm. Note that POn controls the PonE amount, where the remainder (1-PonE) is the PonM amount. Also, the default POn is 1
 
-<img src="https://user-images.githubusercontent.com/63488701/104958919-fe3c4680-599e-11eb-851e-73f26291d3e5.gif" alt="POn" style="zoom: 67%;" />
+![image](https://user-images.githubusercontent.com/63488701/118383726-986b6e80-b5ce-11eb-94b8-fdbddd4c914e.png)
 
 - `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. DIRECT is most common.
 
@@ -85,19 +79,7 @@ This function contains the PID algorithm and it should be called once every loop
 
 #### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
-```c++
-void QuickPID::AutoTune(int inputPin, int outputPin, int tuningRule, int Print = 0, uint32_t timeout = 30);
-```
-
-The `AutoTune()` function automatically determines and sets `Kp`, `Ki` and `Kd`. It also determines the critical gain `Ku` and critical period `Tu` of the control system. 
-
-`int Print = 0; // on(1), off(0)`
-
-When using Serial Monitor, turn on serial print output to view the AutoTune status and results. When using the Serial Plotter, turn off the AutoTune print output to prevent plot labels from being overwritten.
-
-`uint32_t timeout = 120`
-
-Sets the AutoTune timeout where the default is 120 seconds.
+For use of AutoTune, refer to the examples `AutoTune_Filter_DIRECT.ino` and `AutoTune_Filter_REVERSE.ino`
 
 #### SetTunings
 
@@ -181,8 +163,6 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 Use this link for reference. Note that if you're using QuickPID, there's no need to install the AnalogWrite library as this feature is already included.
 
 #### Change Log
-
-#### [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
 #### Version 2.2.8
 
