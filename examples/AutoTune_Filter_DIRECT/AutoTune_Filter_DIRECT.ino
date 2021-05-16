@@ -40,7 +40,6 @@ void setup() {
 void loop() {
 
   if (_myPID.autoTune->autoTuneLoop() != _myPID.autoTune->RUN_PID) { // running autotune
-  Serial.println(F("I'm here!"));
 
     Input = avg(_myPID.analogReadFast(inputPin)); // filtered input
     analogWrite(outputPin, Output);
