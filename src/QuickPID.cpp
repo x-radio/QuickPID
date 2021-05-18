@@ -367,10 +367,18 @@ byte AutoTunePID::autoTuneLoop()
     case NEW_TUNINGS: // ready to apply tunings
       *_output = 0;
       _autoTuneStage++;
-      return NEW_TUNINGS;
+      //return NEW_TUNINGS;
       break;
+        
+    case RUN_PID: // ready to apply tunings
+      return RUN_PID;
+     break;
   }
-  return RUN_PID;
+   
+  if(_autoTuneStage < 1) // safety measure to avoid overflow of _autoTuneStage variable if its value is 0, which shouldn't happen never. Nonetheless...
+     return 0
+  else
+     return _autoTuneStage - 1;
 }
 
 void AutoTunePID::setAutoTuneConstants(float* kp, float* ki, float* kd)
