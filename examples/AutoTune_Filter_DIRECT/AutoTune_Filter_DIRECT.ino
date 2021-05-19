@@ -39,30 +39,40 @@ void setup() {
 
 void loop() {
 
-  if (_myPID.autoTune->autoTuneLoop() != _myPID.autoTune->RUN_PID) { // running autotune
-
-    Input = avg(_myPID.analogReadFast(inputPin)); // filtered input
-    analogWrite(outputPin, Output);
-  }
-
-  if (_myPID.autoTune->autoTuneLoop() == _myPID.autoTune->NEW_TUNINGS) { // get new tunings
-    _myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
-    _myPID.clearAutoTune(); // releases memory used by AutoTune object
-    _myPID.SetMode(QuickPID::AUTOMATIC); // setup PID
-    _myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
-    Setpoint = 500;
-  }
-
-  if (_myPID.autoTune->autoTuneLoop() == _myPID.autoTune->RUN_PID) { // running PID
-    if (printOrPlotter == 0) { // plotter
-      Serial.print("Setpoint:");  Serial.print(Setpoint);  Serial.print(",");
-      Serial.print("Input:");     Serial.print(Input);     Serial.print(",");
-      Serial.print("Output:");    Serial.print(Output);    Serial.println();
-    }
-    Input = _myPID.analogReadFast(inputPin);
+if (_myPID.autoTune) // Avoid deferencing nullptr after _myPID.clearAutoTune()
+{	
+	uint8_t autoTuningCurrentStage = autoTuneLoop();
+	if(autoTuningCurrentStage < _myPID.autoTune->RUN_PID)
+	{
+		Input = avg(_myPID.analogReadFast(inputPin)); // filtered input
+		analogWrite(outputPin, Output);
+		
+		if (autoTuningCurrentStage == _myPID.autoTune->NEW_TUNINGS) // get new tunings
+		{
+			_myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
+			_myPID.SetMode(QuickPID::AUTOMATIC); // setup PID
+			_myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
+			Setpoint = 500;
+		}
+	}
+	else // RUN_PID stage
+	{
+		if (printOrPlotter == 0) // plotter
+		{
+			_myPID.clearAutoTune(); // releases memory used by AutoTune object
+			Serial.print("Setpoint:");  Serial.print(Setpoint);  Serial.print(",");
+			Serial.print("Input:");     Serial.print(Input);     Serial.print(",");
+			Serial.print("Output:");    Serial.print(Output);    Serial.println();
+       }
+	}
+	
+}
+else // Autotune already done (or not created)
+{
+	Input = _myPID.analogReadFast(inputPin);
     _myPID.Compute();
     analogWrite(outputPin, Output);
-  }
+}
 }
 
 float avg(int inputVal) {
