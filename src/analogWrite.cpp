@@ -1,5 +1,5 @@
 /**********************************************************************************
-   AnalogWrite Library for ESP32-ESP32S2 Arduino core - Version 2.0.6
+   AnalogWrite Library for ESP32-ESP32S2 Arduino core - Version 2.0.8
    by dlloydev https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite
    This Library is licensed under the MIT License
  **********************************************************************************/
@@ -236,12 +236,14 @@ int32_t analogWriteResolution(int8_t pin, uint8_t resolution) {
   if (ch >= 0) {
     if ((aw::pinsStatus[ch / aw::chd].pin) > 47) return -1;
     if (aw::pinsStatus[ch / aw::chd].resolution != resolution) {
+      ledcDetachPin(pin);
       aw::awLedcSetup(ch, aw::pinsStatus[ch / aw::chd].frequency, resolution & 0xF);
+      ledcAttachPin(pin, ch);
       ledcWrite(ch, aw::pinsStatus[ch / aw::chd].value);
       aw::pinsStatus[ch / aw::chd].resolution = resolution & 0xF;
     }
   }
-  return 1 << resolution & 0xF;
+  return 1 << (resolution & 0xF);
 }
 
 void setPinsStatusDefaults(int32_t value, float frequency, uint8_t resolution, uint32_t phase) {
