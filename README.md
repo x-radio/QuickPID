@@ -1,6 +1,6 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object to reduce memory if not used. This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.  
+QuickPID is a fast fixed/floating point implementation of the Arduino PID library with built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement.  
 
 ### About
 
@@ -163,6 +163,14 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 Use this link for reference. Note that if you're using QuickPID, there's no need to install the AnalogWrite library as this feature is already included.
 
 #### Change Log
+
+#### Version 2.3.0
+
+- New AutoTune class added as a dynamic object to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). 
+- AutoTune now works for a reverse acting controller.
+- AutoTune configuration parameters include outputStep, hysteresis, setpoint, output, direction and printOrPlotter.
+- Defined tuningMethod as an enum.
+- Updated AnalogWrite methods for ESP32/ESP32-S2.
 
 #### Version 2.2.8
 
