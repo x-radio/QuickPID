@@ -2,28 +2,44 @@
 #ifndef QuickPID_h
 #define QuickPID_h
 
+enum class tuningMethod : uint8_t
+{
+  ZIEGLER_NICHOLS_PI,
+  ZIEGLER_NICHOLS_PID,
+  TYREUS_LUYBEN_PI,
+  TYREUS_LUYBEN_PID,
+  CIANCONE_MARLIN_PI,
+  CIANCONE_MARLIN_PID,
+  AMIGOF_PID,
+  PESSEN_INTEGRAL_PID,
+  SOME_OVERSHOOT_PID,
+  NO_OVERSHOOT_PID
+};
+
 class AutoTunePID {
   public:
     AutoTunePID();
-    AutoTunePID(float *input, float *output, uint8_t tuningRule);
+    AutoTunePID(float *input, float *output, tuningMethod tuningRule);
     ~AutoTunePID() {};
 
     void reset();
     void autoTuneConfig(const byte outputStep, const byte hysteresis, const int setpoint, const int output,
-    const bool dir = false, const bool printOrPlotter = false);
+                        const bool dir = false, const bool printOrPlotter = false);
     byte autoTuneLoop();
     void setAutoTuneConstants(float* kp, float* ki, float* kd);
-    enum atStage : byte { STABILIZING, COARSE, FINE, AUTOTUNE, T0, T1, T2, T3, DONE, NEW_TUNINGS, RUN_PID };
+    enum atStage : byte { AUTOTUNE, STABILIZING, COARSE, FINE, TEST, T0, T1, T2, T3L, T3H, CALC, TUNINGS, CLR };
 
   private:
-    float *_input = nullptr;     // Pointers to the Input, Output, and Setpoint variables. This creates a
-    float *_output = nullptr;    // hard link between the variables and the PID, freeing the user from having
 
-    byte _autoTuneStage = 0;
-    byte _tuningRule = 0;
+    float *_input = nullptr;         // Pointers to the Input, Output, and Setpoint variables. This creates a
+    float *_output = nullptr;        // hard link between the variables and the PID, freeing the user from having
+    // float *mySetpoint = nullptr;  // to constantly tell us what these values are. With pointers we'll just know.
+
+    byte _autoTuneStage = 1;
+    tuningMethod _tuningRule;
     byte _outputStep;
     byte _hysteresis;
-    int _atSetpoint;             // 1/3 of 10-bit ADC range for symetrical waveform
+    int _atSetpoint;  // 1/3 of 10-bit ADC range for symetrical waveform
     int _atOutput;
     bool _direction = false;
     bool _printOrPlotter = false;
@@ -73,8 +89,7 @@ class QuickPID {
     bool Compute();
 
     // Automatically determines and sets the tuning parameters Kp, Ki and Kd. Use this in the setup loop.
-    // void AutoTune(int inputPin, int outputPin, int tuningRule, int Print, uint32_t timeout);
-    void AutoTune(uint8_t tuningRule);
+    void AutoTune(tuningMethod tuningRule);
     void clearAutoTune();
 
     // Sets and clamps the output to a specific range (0-255 by default).

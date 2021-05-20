@@ -24,6 +24,7 @@ int output = 85;          // 1/3 of 8-bit PWM range for symetrical waveform
 
 float Input, Output, Setpoint;
 float Kp = 0, Ki = 0, Kd = 0;
+bool pidLoop = false;
 
 QuickPID _myPID = QuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::REVERSE);
 
@@ -34,26 +35,37 @@ void setup() {
     Serial.println(F("AutoTune test exceeds outMax limit. Check output, hysteresis and outputStep values"));
     while (1);
   }
-  _myPID.AutoTune(tuningRule);
+  _myPID.AutoTune(tuningMethod::ZIEGLER_NICHOLS_PID);
   _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, inputMax - setpoint, output, QuickPID::REVERSE, printOrPlotter);
 }
 
 void loop() {
 
-  if (_myPID.autoTune->autoTuneLoop() != _myPID.autoTune->RUN_PID) { // running autotune
-    Input = inputMax - avg(_myPID.analogReadFast(inputPin)); // filtered input (reverse acting)
-    analogWrite(outputPin, Output);
-  }
+  if (_myPID.autoTune) // Avoid dereferencing nullptr after _myPID.clearAutoTune()
+  {
+    switch (_myPID.autoTune->autoTuneLoop()) {
+      case _myPID.autoTune->AUTOTUNE:
+        Input = inputMax - avg(_myPID.analogReadFast(inputPin)); // filtered, reverse acting
+        analogWrite(outputPin, Output);
+        break;
 
-  if (_myPID.autoTune->autoTuneLoop() == _myPID.autoTune->NEW_TUNINGS) { // get new tunings
-    _myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
-    _myPID.clearAutoTune(); // releases memory used by AutoTune object
-    _myPID.SetMode(QuickPID::AUTOMATIC); // setup PID
-    _myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
-    Setpoint = 500;
-  }
+      case _myPID.autoTune->TUNINGS:
+        _myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
+        _myPID.SetMode(QuickPID::AUTOMATIC); // setup PID
+        _myPID.SetSampleTimeUs(10000); // 10ms
+        _myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
+        Setpoint = 500;
+        break;
 
-  if (_myPID.autoTune->autoTuneLoop() == _myPID.autoTune->RUN_PID) { // running PID
+      case _myPID.autoTune->CLR:
+        if (!pidLoop) {
+          _myPID.clearAutoTune(); // releases memory used by AutoTune object
+          pidLoop = true;
+        }
+        break;
+    }
+  }
+  if (pidLoop) {
     if (printOrPlotter == 0) { // plotter
       Serial.print("Setpoint:");  Serial.print(Setpoint);  Serial.print(",");
       Serial.print("Input:");     Serial.print(Input);     Serial.print(",");
@@ -63,6 +75,7 @@ void loop() {
     _myPID.Compute();
     analogWrite(outputPin, Output);
   }
+  //delay(1); // adjust loop speed
 }
 
 float avg(int inputVal) {
