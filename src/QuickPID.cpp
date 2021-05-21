@@ -248,6 +248,7 @@ byte AutoTunePID::autoTuneLoop()
       break;
     case STABILIZING:
       if (_printOrPlotter == 1) Serial.print(F("Stabilizing →"));
+      _t0 = millis();
       _peakHigh = _atSetpoint;
       _peakLow = _atSetpoint;
       (!_direction) ? *_output = 0 : *_output = _atOutput + _outputStep + 5;
@@ -255,7 +256,10 @@ byte AutoTunePID::autoTuneLoop()
       return AUTOTUNE;
       break;
     case COARSE: // coarse adjust
-      delay(2000);
+      if (millis() - _t0 < 2000) {
+        return AUTOTUNE;
+        break;
+      }
       if (*_input < (_atSetpoint - _hysteresis)) {
         (!_direction) ? *_output = _atOutput + _outputStep + 5 : *_output = _atOutput - _outputStep - 5;
         _autoTuneStage = FINE;

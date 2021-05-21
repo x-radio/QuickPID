@@ -75,7 +75,7 @@ void loop() {
     _myPID.Compute();
     analogWrite(outputPin, Output);
   }
-  //delay(1); // adjust loop speed
+  delay(1); // adjust loop speed
 }
 
 float avg(int inputVal) {
