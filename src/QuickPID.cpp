@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.3.0
+   QuickPID Library for Arduino - Version 2.3.1
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License
@@ -53,7 +53,7 @@ bool QuickPID::Compute() {
   uint32_t now = micros();
   uint32_t timeChange = (now - lastTime);
 
-  if (timeChange >= sampleTimeUs) {  // Compute the working error variables
+  if (timeChange >= sampleTimeUs) {  // compute the working errors
     float input = *myInput;
     float dInput = input - lastInput;
     error = *mySetpoint - input;
@@ -61,12 +61,27 @@ bool QuickPID::Compute() {
       error = -error;
       dInput = -dInput;
     }
-    if (kpi < 31 && kpd < 31) outputSum += FX_MUL(FL_FX(kpi) , error) - FX_MUL(FL_FX(kpd), (int)dInput); // fixed point
-    else outputSum += (kpi * error) - (kpd * dInput); // floating-point
+    // add integral error amount
+    if (ki < 31) outputSum += FX_MUL(FL_FX(ki), error);
+    else outputSum += (ki * error);
 
+    // proportional on measurement amount
+    if (kpm < 31) outputSum -= FX_MUL(FL_FX(kpm), dInput);
+    else outputSum -= (kpm * dInput);
     outputSum = CONSTRAIN(outputSum, outMin, outMax);
-    *myOutput = outputSum;
 
+    // proportional on error amount
+    float output;
+    if (kpe < 31) output = FX_MUL(FL_FX(kpe), error);
+    else output = (kpe * error);
+
+    // derivative amount
+    if (kd < 31) output += outputSum - FX_MUL(FL_FX(kd), dInput);
+    else output += outputSum - kd * dInput;
+    output = CONSTRAIN(output, outMin, outMax);
+    *myOutput = output;
+
+    // remember some variables for next time
     lastInput = input;
     lastTime = now;
     return true;
@@ -88,8 +103,8 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
   kp = Kp;
   ki = Ki * SampleTimeSec;
   kd = Kd / SampleTimeSec;
-  kpi = (kp * pOn) + ki;
-  kpd = (kp * (1 - pOn)) + kd;
+  kpe = kp * pOn;
+  kpm = kp * (1 - pOn);
 }
 
 /* SetTunings(...)*************************************************************
@@ -211,7 +226,6 @@ AutoTunePID::AutoTunePID(float *input, float *output, tuningMethod tuningRule)
 
 void AutoTunePID::reset()
 {
-
   _t0 = 0;
   _t1 = 0;
   _t2 = 0;
@@ -248,6 +262,7 @@ byte AutoTunePID::autoTuneLoop()
       break;
     case STABILIZING:
       if (_printOrPlotter == 1) Serial.print(F("Stabilizing →"));
+      _t0 = millis();
       _peakHigh = _atSetpoint;
       _peakLow = _atSetpoint;
       (!_direction) ? *_output = 0 : *_output = _atOutput + _outputStep + 5;
@@ -255,7 +270,10 @@ byte AutoTunePID::autoTuneLoop()
       return AUTOTUNE;
       break;
     case COARSE: // coarse adjust
-      delay(2000);
+      if (millis() - _t0 < 2000) {
+        return AUTOTUNE;
+        break;
+      }
       if (*_input < (_atSetpoint - _hysteresis)) {
         (!_direction) ? *_output = _atOutput + _outputStep + 5 : *_output = _atOutput - _outputStep - 5;
         _autoTuneStage = FINE;
