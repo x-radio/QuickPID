@@ -1,6 +1,5 @@
 /******************************************************************************
    AutoTune Filter REVERSE Example
-   Reference: https://github.com/Dlloydev/QuickPID/wiki/AutoTune
    Circuit: https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter
  ******************************************************************************/
 
@@ -16,8 +15,7 @@ const int outputMin = 0;
 float POn = 1.0;          // mix of PonE to PonM (0.0-1.0)
 
 bool printOrPlotter = 0;  // on(1) monitor, off(0) plotter
-byte tuningRule = 1;      // see reference link
-byte outputStep = 1;
+byte outputStep = 5;
 byte hysteresis = 1;
 int setpoint = 341;       // 1/3 of 10-bit ADC range for symetrical waveform
 int output = 85;          // 1/3 of 8-bit PWM range for symetrical waveform
@@ -35,7 +33,18 @@ void setup() {
     Serial.println(F("AutoTune test exceeds outMax limit. Check output, hysteresis and outputStep values"));
     while (1);
   }
+  // Select one, reference: https://github.com/Dlloydev/QuickPID/wiki
+  //_myPID.AutoTune(tuningMethod::ZIEGLER_NICHOLS_PI);
   _myPID.AutoTune(tuningMethod::ZIEGLER_NICHOLS_PID);
+  //_myPID.AutoTune(tuningMethod::TYREUS_LUYBEN_PI);
+  //_myPID.AutoTune(tuningMethod::TYREUS_LUYBEN_PID);
+  //_myPID.AutoTune(tuningMethod::CIANCONE_MARLIN_PI);
+  //_myPID.AutoTune(tuningMethod::CIANCONE_MARLIN_PID);
+  //_myPID.AutoTune(tuningMethod::AMIGOF_PID);
+  //_myPID.AutoTune(tuningMethod::PESSEN_INTEGRAL_PID);
+  //_myPID.AutoTune(tuningMethod::SOME_OVERSHOOT_PID);
+  //_myPID.AutoTune(tuningMethod::NO_OVERSHOOT_PID);
+
   _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, inputMax - setpoint, output, QuickPID::REVERSE, printOrPlotter);
 }
 

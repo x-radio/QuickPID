@@ -133,8 +133,8 @@ class QuickPID {
     float kp;           // (P)roportional Tuning Parameter
     float ki;           // (I)ntegral Tuning Parameter
     float kd;           // (D)erivative Tuning Parameter
-    float kpi;          // proportional on error amount
-    float kpd;          // proportional on measurement amount
+    float kpe;          // proportional on error amount
+    float kpm;          // proportional on measurement amount
 
     float *myInput;     // Pointers to the Input, Output, and Setpoint variables. This creates a
     float *myOutput;    // hard link between the variables and the PID, freeing the user from having
