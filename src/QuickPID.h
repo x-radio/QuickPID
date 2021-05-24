@@ -111,12 +111,17 @@ class QuickPID {
     // Sets the sample time in microseconds with which each PID calculation is performed. Default is 100000 µs.
     void SetSampleTimeUs(uint32_t NewSampleTimeUs);
 
-    //Display functions ******************************************************************************************
-    float GetKp();         // These functions query the pid for interal values. They were created mainly for
-    float GetKi();         // the pid front-end, where it's important to know what is actually inside the PID.
-    float GetKd();
-    mode_t GetMode();
-    direction_t GetDirection();
+    // PID Query functions ***********************************************************************************
+    float GetKp();               // proportional gain
+    float GetKi();               // integral gain
+    float GetKd();               // derivative gain
+    float GetPeTerm();           // proportional on error component of output 
+    float GetPmTerm();           // proportional on measurement component of output
+    float GetIterm();            // integral component of output
+    float GetDterm();            // derivative component of output
+    mode_t GetMode();            // MANUAL (0) or AUTOMATIC (1)
+    direction_t GetDirection();  // DIRECT (0) or REVERSE (1)
+
     int analogReadFast(int ADCpin);
 
     AutoTunePID *autoTune;
@@ -128,6 +133,11 @@ class QuickPID {
     float dispKp;       // tuning parameters for display purposes.
     float dispKi;
     float dispKd;
+    float peTerm;
+    float pmTerm;
+    float iTerm;
+    float dTerm;
+    
 
     float pOn;          // proportional mode (0-1) default = 1 (100% Proportional on Error)
     float kp;           // (P)roportional Tuning Parameter
@@ -147,12 +157,6 @@ class QuickPID {
     float lastInput;
     bool inAuto;
 
-    inline int32_t FL_FX(float a) {
-      return (a * 256.0); // float to fixed point
-    }
-    inline int32_t FX_MUL(int32_t a, int32_t b) {
-      return ((a * b) >> 8); // fixed point multiply
-    }
     inline int32_t CONSTRAIN(int32_t x, int32_t lower, int32_t upper) {
       return ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)));
     }

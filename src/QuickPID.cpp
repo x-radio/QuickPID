@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.3.1
+   QuickPID Library for Arduino - Version 2.3.2
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License
@@ -34,16 +34,15 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
   lastTime = micros() - sampleTimeUs;
 }
 
-/* Constructor ********************************************************************
-   To allow backwards compatability for v1.1, or for people that just want
-   to use Proportional on Error without explicitly saying so.
+/* Constructor *********************************************************************
+   To allow using Proportional on Error without explicitly saying so.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, direction_t ControllerDirection = DIRECT)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = DIRECT) {
 }
 
-/* Compute() **********************************************************************
+/* Compute() ***********************************************************************
    This function should be called every time "void loop()" executes. The function
    will decide whether a new PID Output needs to be computed. Returns true
    when the output is computed, false when nothing has been done.
@@ -52,8 +51,7 @@ bool QuickPID::Compute() {
   if (!inAuto) return false;
   uint32_t now = micros();
   uint32_t timeChange = (now - lastTime);
-
-  if (timeChange >= sampleTimeUs) {  // compute the working errors
+  if (timeChange >= sampleTimeUs) {
     float input = *myInput;
     float dInput = input - lastInput;
     error = *mySetpoint - input;
@@ -61,27 +59,24 @@ bool QuickPID::Compute() {
       error = -error;
       dInput = -dInput;
     }
-    // add integral error amount
-    if (ki < 31) outputSum += FX_MUL(FL_FX(ki), error);
-    else outputSum += (ki * error);
+    iTerm = ki * error;
+    outputSum += iTerm; // add integral error amount
+    if (outputSum > outMax) iTerm -= outputSum - outMax; // improve integral windup
+    else if (outputSum < outMin) iTerm += outMin - outputSum;
 
-    // proportional on measurement amount
-    if (kpm < 31) outputSum -= FX_MUL(FL_FX(kpm), dInput);
-    else outputSum -= (kpm * dInput);
+    pmTerm = kpm * dInput;
+    outputSum -= (kpm * dInput); // subtract proportional on measurement amount
     outputSum = CONSTRAIN(outputSum, outMin, outMax);
-
-    // proportional on error amount
     float output;
-    if (kpe < 31) output = FX_MUL(FL_FX(kpe), error);
-    else output = (kpe * error);
 
-    // derivative amount
-    if (kd < 31) output += outputSum - FX_MUL(FL_FX(kd), dInput);
-    else output += outputSum - kd * dInput;
+    peTerm = kpe * error;
+    output = peTerm; // add proportional on error amount
+
+    dTerm = kd * dInput;
+    output += outputSum - dTerm; // add derivative amount
     output = CONSTRAIN(output, outMin, outMax);
-    *myOutput = output;
 
-    // remember some variables for next time
+    *myOutput = output;
     lastInput = input;
     lastTime = now;
     return true;
@@ -107,14 +102,14 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
   kpm = kp * (1 - pOn);
 }
 
-/* SetTunings(...)*************************************************************
+/* SetTunings(...)************************************************************
   Set Tunings using the last remembered POn setting.
 ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
   SetTunings(Kp, Ki, Kd, pOn);
 }
 
-/* SetSampleTime(...) *********************************************************
+/* SetSampleTime(.)***********************************************************
   Sets the period, in microseconds, at which the calculation is performed
 ******************************************************************************/
 void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs) {
@@ -126,7 +121,7 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs) {
   }
 }
 
-/* SetOutputLimits(...)********************************************************
+/* SetOutputLimits(..)********************************************************
   The PID controller is designed to vary its output within a given range.
   By default this range is 0-255, the Arduino PWM range.
 ******************************************************************************/
@@ -141,7 +136,7 @@ void QuickPID::SetOutputLimits(int Min, int Max) {
   }
 }
 
-/* SetMode(...)****************************************************************
+/* SetMode(.)*****************************************************************
   Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
   when the transition from manual to auto occurs, the controller is
   automatically initialized
@@ -164,7 +159,7 @@ void QuickPID::Initialize() {
   outputSum = CONSTRAIN(outputSum, outMin, outMax);
 }
 
-/* SetControllerDirection(...)*************************************************
+/* SetControllerDirection(.)**************************************************
   The PID will either be connected to a DIRECT acting process (+Output leads
   to +Input) or a REVERSE acting process(+Output leads to -Input.)
 ******************************************************************************/
@@ -173,18 +168,29 @@ void QuickPID::SetControllerDirection(direction_t ControllerDirection) {
 }
 
 /* Status Functions************************************************************
-  Just because you set the Kp=-1 doesn't mean it actually happened. These
-  functions query the internal state of the PID. They're here for display
+  These functions query the internal state of the PID. They're here for display
   purposes. These are the functions the PID Front-end uses for example.
 ******************************************************************************/
 float QuickPID::GetKp() {
-  return  dispKp;
+  return dispKp;
 }
 float QuickPID::GetKi() {
-  return  dispKi;
+  return dispKi;
 }
 float QuickPID::GetKd() {
-  return  dispKd;
+  return dispKd;
+}
+float QuickPID::GetPeTerm() {
+  return peTerm;
+}
+float QuickPID::GetPmTerm() {
+  return pmTerm;
+}
+float QuickPID::GetIterm() {
+  return iTerm;
+}
+float QuickPID::GetDterm() {
+  return dTerm;
 }
 
 QuickPID::mode_t QuickPID::GetMode() {
@@ -195,37 +201,31 @@ QuickPID::direction_t QuickPID::GetDirection() {
   return controllerDirection;
 }
 
-/* AutoTune Functions************************************************************/
+/* AutoTune Functions*********************************************************/
 
-void QuickPID::AutoTune(tuningMethod tuningRule)
-{
+void QuickPID::AutoTune(tuningMethod tuningRule) {
   autoTune = new AutoTunePID(myInput, myOutput, tuningRule);
 }
 
-void QuickPID::clearAutoTune()
-{
+void QuickPID::clearAutoTune() {
   if (autoTune)
     delete autoTune;
 }
 
-AutoTunePID::AutoTunePID()
-{
+AutoTunePID::AutoTunePID() {
   _input = nullptr;
   _output = nullptr;
-
   reset();
 }
 
-AutoTunePID::AutoTunePID(float *input, float *output, tuningMethod tuningRule)
-{
+AutoTunePID::AutoTunePID(float *input, float *output, tuningMethod tuningRule) {
   AutoTunePID();
   _input = input;
   _output = output;
   _tuningRule = tuningRule;
 }
 
-void AutoTunePID::reset()
-{
+void AutoTunePID::reset() {
   _t0 = 0;
   _t1 = 0;
   _t2 = 0;
@@ -254,8 +254,7 @@ void AutoTunePID::autoTuneConfig(const byte outputStep, const byte hysteresis, c
   _autoTuneStage = STABILIZING;
 }
 
-byte AutoTunePID::autoTuneLoop()
-{
+byte AutoTunePID::autoTuneLoop() {
   switch (_autoTuneStage) {
     case AUTOTUNE:
       return AUTOTUNE;
@@ -390,14 +389,13 @@ byte AutoTunePID::autoTuneLoop()
   return CLR;
 }
 
-void AutoTunePID::setAutoTuneConstants(float* kp, float* ki, float* kd)
-{
+void AutoTunePID::setAutoTuneConstants(float* kp, float* ki, float* kd) {
   *kp = _kp;
   *ki = _ki;
   *kd = _kd;
 }
 
-/* Other Functions************************************************************/
+/* Utility************************************************************/
 
 int QuickPID::analogReadFast(int ADCpin) {
 #if defined(__AVR_ATmega328P__)
