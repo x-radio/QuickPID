@@ -61,7 +61,7 @@ bool QuickPID::Compute() {
     }
     iTerm = ki * error;
     outputSum += iTerm; // add integral error amount
-    if (outputSum > outMax) iTerm -= outputSum - outMax; // improve integral windup
+    if (outputSum > outMax) iTerm -= outputSum - outMax; // prevents integral windup
     else if (outputSum < outMin) iTerm += outMin - outputSum;
 
     pmTerm = kpm * dInput;

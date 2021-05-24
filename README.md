@@ -4,7 +4,22 @@ QuickPID is an updated implementation of the Arduino PID library with a built-in
 
 ### Features
 
-Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the change log.
+Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the [change log](https://github.com/Dlloydev/QuickPID/wiki/Change-Log).
+
+#### New feature Summary
+
+- [x] `analogReadFast()` support for AVR (4x faster)
+- [x] `analogWrite()` support for ESP32 and ESP32-S2 
+- [x] Variable Proportional on Error Proportional on Measurement parameter `POn`
+- [x]  Integral windup prevention when output exceeds limits
+- [x] New PID query functions that return the P, I and D terms of the calculation
+- [x] New AutoTune class added as a dynamic object and includes 10 tuning methods
+- [x] AutoTune is compatible with reverse acting controllers
+- [x] AutoTune's fast, non-blocking tuning sequence completes in only 1.5 oscillations 
+- [x] AutoTune determines how easy the process is to control
+- [x] AutoTune determines ultimate period `Tu`, dead time `td`, ultimate gain `Ku`, and tuning parameters `Kp, Ki, Kd`
+- [x] New REVERSE mode only changes sign of `error` and `dInput`
+- [x] Uses `float` instead of `double`
 
 ### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
@@ -133,23 +148,6 @@ A faster configuration of `analogRead()`where a preset of 32 is used.  If the ar
 #### [AnalogWrite (PWM and DAC) for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
 
 Use this link for reference. Note that if you're using QuickPID, there's no need to install the AnalogWrite library as this feature is already included.
-
-### [Change Log](https://github.com/Dlloydev/QuickPID/wiki/Change-Log)
-
-#### Latest Version 2.3.2
-
-- Removed fixed point calculations as the speed benefit was very minimal.
-- Prevent integral windup if output exceeds limits.
-- Added  the following new functions that return the P, I and D terms of the calculation.
-
-```c++
-    float GetPeTerm();           // proportional on error component of output 
-    float GetPmTerm();           // proportional on measurement component of output
-    float GetIterm();            // integral component of output
-    float GetDterm();            // derivative component of output
-```
-
-------
 
 ### Original README (Arduino PID)
 
