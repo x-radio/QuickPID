@@ -1,4 +1,4 @@
-# QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
+# QuickPID   ![arduino-library-badge](https://camo.githubusercontent.com/989057908f34abd0c8bc2a8d762f86ccebbe377ed9ffef8c3dfdf27a09c6dac9/68747470733a2f2f7777772e617264752d62616467652e636f6d2f62616467652f517569636b5049442e7376673f)
 
 QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement. 
 
@@ -8,6 +8,7 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 
 #### New feature Summary
 
+- [x] `TIMER` mode for calling PID compute by an external timer function or ISR
 - [x] `analogReadFast()` support for AVR (4x faster)
 - [x] `analogWrite()` support for ESP32 and ESP32-S2 
 - [x] Variable Proportional on Error Proportional on Measurement parameter `POn`
@@ -103,7 +104,9 @@ The PID controller is designed to vary its output within a given range.  By defa
 void QuickPID::SetMode(uint8_t Mode);
 ```
 
-Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (non-zero). when the transition from manual to automatic occurs, the controller is automatically initialized.
+Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (1) or `TIMER` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized. 
+
+Timer mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and SetSampleTimeUs use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant. See example [AutoTune_Filter_TIMER_Mode.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_TIMER_Mode/AutoTune_Filter_TIMER_Mode.ino)
 
 #### Initialize
 

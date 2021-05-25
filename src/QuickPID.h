@@ -68,7 +68,7 @@ class QuickPID {
   public:
 
     // controller mode
-    typedef enum { MANUAL = 0, AUTOMATIC = 1 } mode_t;
+    typedef enum { MANUAL = 0, AUTOMATIC = 1, TIMER = 2 } mode_t;
 
     // DIRECT: intput increases when the error is positive. REVERSE: intput decreases when the error is positive.
     typedef enum { DIRECT = 0, REVERSE = 1 } direction_t;
@@ -78,13 +78,13 @@ class QuickPID {
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, float POn, direction_t ControllerDirection);
 
-    // Overload constructor with proportional mode. Links the PID to Input, Output, Setpoint and Tuning Parameters.
+    // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, direction_t ControllerDirection);
 
-    // Sets PID to either Manual (0) or Auto (non-0).
+    // Sets PID mode to MANUAL (0), AUTOMATIC (1) or TIMER (2).
     void SetMode(mode_t Mode);
 
-    // Performs the PID calculation. It should be called every time loop() cycles. ON/OFF and calculation frequency
+    // Performs the PID calculation. It should be called every time loop() cycles ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
     bool Compute();
 
@@ -101,7 +101,7 @@ class QuickPID {
     // changing tunings during runtime for Adaptive control.
     void SetTunings(float Kp, float Ki, float Kd);
 
-    // Overload for specifying proportional mode.
+    // Overload for specifying proportional ratio.
     void SetTunings(float Kp, float Ki, float Kd, float POn);
 
     // Sets the controller Direction or Action. DIRECT means the output will increase when the error is positive.
@@ -115,11 +115,11 @@ class QuickPID {
     float GetKp();               // proportional gain
     float GetKi();               // integral gain
     float GetKd();               // derivative gain
-    float GetPeTerm();           // proportional on error component of output 
+    float GetPeTerm();           // proportional on error component of output
     float GetPmTerm();           // proportional on measurement component of output
     float GetIterm();            // integral component of output
     float GetDterm();            // derivative component of output
-    mode_t GetMode();            // MANUAL (0) or AUTOMATIC (1)
+    mode_t GetMode();            // MANUAL (0), AUTOMATIC (1) or TIMER (2)
     direction_t GetDirection();  // DIRECT (0) or REVERSE (1)
 
     int analogReadFast(int ADCpin);
@@ -137,9 +137,9 @@ class QuickPID {
     float pmTerm;
     float iTerm;
     float dTerm;
-    
 
-    float pOn;          // proportional mode (0-1) default = 1 (100% Proportional on Error)
+
+    float pOn;          // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
     float kp;           // (P)roportional Tuning Parameter
     float ki;           // (I)ntegral Tuning Parameter
     float kd;           // (D)erivative Tuning Parameter
@@ -150,6 +150,7 @@ class QuickPID {
     float *myOutput;    // hard link between the variables and the PID, freeing the user from having
     float *mySetpoint;  // to constantly tell us what these values are. With pointers we'll just know.
 
+    mode_t mode = MANUAL;
     direction_t controllerDirection;
     uint32_t sampleTimeUs, lastTime;
     int outMin, outMax, error;

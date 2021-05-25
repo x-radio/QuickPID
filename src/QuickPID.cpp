@@ -1,8 +1,8 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.3.2
+   QuickPID Library for Arduino - Version 2.3.3
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
-   by gnalbandian (Gonzalo). Licensed under the MIT License
+   by gnalbandian (Gonzalo). Licensed under the MIT License.
  **********************************************************************************/
 
 #if ARDUINO >= 100
@@ -24,7 +24,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
   myOutput = Output;
   myInput = Input;
   mySetpoint = Setpoint;
-  inAuto = false;
+  mode = MANUAL;
 
   QuickPID::SetOutputLimits(0, 255);  // same default as Arduino PWM limit
   sampleTimeUs = 100000;              // 0.1 sec default
@@ -48,10 +48,10 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    when the output is computed, false when nothing has been done.
  **********************************************************************************/
 bool QuickPID::Compute() {
-  if (!inAuto) return false;
-  uint32_t now = micros();
-  uint32_t timeChange = (now - lastTime);
-  if (timeChange >= sampleTimeUs) {
+  if (mode == MANUAL) return false;
+    uint32_t now = micros();
+    uint32_t timeChange = (now - lastTime);
+  if (mode == TIMER || timeChange >= sampleTimeUs) {
     float input = *myInput;
     float dInput = input - lastInput;
     error = *mySetpoint - input;
@@ -87,7 +87,7 @@ bool QuickPID::Compute() {
 /* SetTunings(....)************************************************************
   This function allows the controller's dynamic performance to be adjusted.
   it's called automatically from the constructor, but tunings can also
-  be adjusted on the fly during normal operation
+  be adjusted on the fly during normal operation.
 ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
@@ -110,7 +110,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
 }
 
 /* SetSampleTime(.)***********************************************************
-  Sets the period, in microseconds, at which the calculation is performed
+  Sets the period, in microseconds, at which the calculation is performed.
 ******************************************************************************/
 void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs) {
   if (NewSampleTimeUs > 0) {
@@ -130,23 +130,22 @@ void QuickPID::SetOutputLimits(int Min, int Max) {
   outMin = Min;
   outMax = Max;
 
-  if (inAuto) {
+  if (mode != MANUAL) {
     *myOutput = CONSTRAIN(*myOutput, outMin, outMax);
     outputSum = CONSTRAIN(outputSum, outMin, outMax);
   }
 }
 
 /* SetMode(.)*****************************************************************
-  Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
-  when the transition from manual to auto occurs, the controller is
-  automatically initialized
+  Sets the controller mode to MANUAL (0), AUTOMATIC (1) or TIMER (2)
+  when the transition from MANUAL to AUTOMATIC or TIMER occurs, the
+  controller is automatically initialized.
 ******************************************************************************/
 void QuickPID::SetMode(mode_t Mode) {
-  bool newAuto = (Mode == AUTOMATIC);
-  if (newAuto && !inAuto) { //we just went from manual to auto
+  if (mode == MANUAL && Mode != MANUAL) { // just went from MANUAL to AUTOMATIC or TIMER
     QuickPID::Initialize();
   }
-  inAuto = newAuto;
+  mode = Mode;
 }
 
 /* Initialize()****************************************************************
@@ -161,7 +160,7 @@ void QuickPID::Initialize() {
 
 /* SetControllerDirection(.)**************************************************
   The PID will either be connected to a DIRECT acting process (+Output leads
-  to +Input) or a REVERSE acting process(+Output leads to -Input.)
+  to +Input) or a REVERSE acting process(+Output leads to -Input).
 ******************************************************************************/
 void QuickPID::SetControllerDirection(direction_t ControllerDirection) {
   controllerDirection = ControllerDirection;
@@ -192,11 +191,9 @@ float QuickPID::GetIterm() {
 float QuickPID::GetDterm() {
   return dTerm;
 }
-
 QuickPID::mode_t QuickPID::GetMode() {
-  return  inAuto ? QuickPID::AUTOMATIC : QuickPID::MANUAL;
+  return  mode;
 }
-
 QuickPID::direction_t QuickPID::GetDirection() {
   return controllerDirection;
 }
