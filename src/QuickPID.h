@@ -24,7 +24,7 @@ class AutoTunePID {
 
     void reset();
     void autoTuneConfig(const byte outputStep, const byte hysteresis, const int setpoint, const int output,
-                        const bool dir = false, const bool printOrPlotter = false);
+                        const bool dir = false, const bool printOrPlotter = false, uint32_t sampleTimeUs = 10000);
     byte autoTuneLoop();
     void setAutoTuneConstants(float* kp, float* ki, float* kd);
     enum atStage : byte { AUTOTUNE, STABILIZING, COARSE, FINE, TEST, T0, T1, T2, T3L, T3H, CALC, TUNINGS, CLR };
@@ -43,8 +43,7 @@ class AutoTunePID {
     int _atOutput;
     bool _direction = false;
     bool _printOrPlotter = false;
-
-    uint32_t _t0, _t1, _t2, _t3;
+    uint32_t _tLoop, _t0, _t1, _t2, _t3;
     float _Ku, _Tu, _td, _kp, _ki, _kd, _rdAvg, _peakHigh, _peakLow;
 
     const uint16_t RulesContants[10][3] =
@@ -138,7 +137,6 @@ class QuickPID {
     float iTerm;
     float dTerm;
 
-
     float pOn;          // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
     float kp;           // (P)roportional Tuning Parameter
     float ki;           // (I)ntegral Tuning Parameter
@@ -157,10 +155,6 @@ class QuickPID {
     int outputSum;
     float lastInput;
     bool inAuto;
-
-    inline int32_t CONSTRAIN(int32_t x, int32_t lower, int32_t upper) {
-      return ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)));
-    }
 
 }; // class QuickPID
 

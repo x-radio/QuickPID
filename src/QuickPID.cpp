@@ -49,8 +49,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 bool QuickPID::Compute() {
   if (mode == MANUAL) return false;
-    uint32_t now = micros();
-    uint32_t timeChange = (now - lastTime);
+  uint32_t now = micros();
+  uint32_t timeChange = (now - lastTime);
   if (mode == TIMER || timeChange >= sampleTimeUs) {
     float input = *myInput;
     float dInput = input - lastInput;
@@ -66,15 +66,15 @@ bool QuickPID::Compute() {
 
     pmTerm = kpm * dInput;
     outputSum -= (kpm * dInput); // subtract proportional on measurement amount
-    outputSum = CONSTRAIN(outputSum, outMin, outMax);
+    outputSum = constrain(outputSum, outMin, outMax);
     float output;
 
     peTerm = kpe * error;
     output = peTerm; // add proportional on error amount
 
     dTerm = kd * dInput;
-    output += outputSum - dTerm; // add derivative amount
-    output = CONSTRAIN(output, outMin, outMax);
+    output += outputSum - dTerm; // subtract derivative on input amount
+    output = constrain(output, outMin, outMax);
 
     *myOutput = output;
     lastInput = input;
@@ -131,8 +131,8 @@ void QuickPID::SetOutputLimits(int Min, int Max) {
   outMax = Max;
 
   if (mode != MANUAL) {
-    *myOutput = CONSTRAIN(*myOutput, outMin, outMax);
-    outputSum = CONSTRAIN(outputSum, outMin, outMax);
+    *myOutput = constrain(*myOutput, outMin, outMax);
+    outputSum = constrain(outputSum, outMin, outMax);
   }
 }
 
@@ -155,7 +155,7 @@ void QuickPID::SetMode(mode_t Mode) {
 void QuickPID::Initialize() {
   outputSum = *myOutput;
   lastInput = *myInput;
-  outputSum = CONSTRAIN(outputSum, outMin, outMax);
+  outputSum = constrain(outputSum, outMin, outMax);
 }
 
 /* SetControllerDirection(.)**************************************************
@@ -240,7 +240,7 @@ void AutoTunePID::reset() {
 }
 
 void AutoTunePID::autoTuneConfig(const byte outputStep, const byte hysteresis, const int atSetpoint,
-                                 const int atOutput, const bool dir, const bool printOrPlotter)
+                                 const int atOutput, const bool dir, const bool printOrPlotter, uint32_t sampleTimeUs)
 {
   _outputStep = outputStep;
   _hysteresis = hysteresis;
@@ -248,10 +248,12 @@ void AutoTunePID::autoTuneConfig(const byte outputStep, const byte hysteresis, c
   _atOutput = atOutput;
   _direction = dir;
   _printOrPlotter = printOrPlotter;
+  _tLoop = constrain((sampleTimeUs / 16), 500, 10000);
   _autoTuneStage = STABILIZING;
 }
 
 byte AutoTunePID::autoTuneLoop() {
+  delayMicroseconds(_tLoop); // small delay improves results (0.5-10ms)
   switch (_autoTuneStage) {
     case AUTOTUNE:
       return AUTOTUNE;
@@ -386,7 +388,7 @@ byte AutoTunePID::autoTuneLoop() {
   return CLR;
 }
 
-void AutoTunePID::setAutoTuneConstants(float* kp, float* ki, float* kd) {
+void AutoTunePID::setAutoTuneConstants(float * kp, float * ki, float * kd) {
   *kp = _kp;
   *ki = _ki;
   *kd = _kd;

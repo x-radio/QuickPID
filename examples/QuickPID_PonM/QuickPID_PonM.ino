@@ -1,5 +1,5 @@
 /********************************************************
-   PID Proportional on measurement Example
+   QuickPID Proportional on measurement Example
    Setting the PID to use Proportional on measurement will
    make the output move more smoothly when the setpoint
    is changed.  In addition, it can eliminate overshoot

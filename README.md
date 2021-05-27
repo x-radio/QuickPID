@@ -66,7 +66,7 @@ This function contains the PID algorithm and it should be called once every loop
 
 #### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
-For use of AutoTune, refer to the examples [AutoTune_Filter_DIRECT.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_DIRECT/AutoTune_Filter_DIRECT.ino) and [AutoTune_Filter_REVERSE.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_REVERSE/AutoTune_Filter_REVERSE.ino)
+For examples using AutoTune, please refer to the examples folder.
 
 #### SetTunings
 
@@ -106,7 +106,12 @@ void QuickPID::SetMode(uint8_t Mode);
 
 Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (1) or `TIMER` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized. 
 
-Timer mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and SetSampleTimeUs use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant. See example [AutoTune_Filter_TIMER_Mode.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_TIMER_Mode/AutoTune_Filter_TIMER_Mode.ino)
+`TIMER` mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and SetSampleTimeUs use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant. See examples:
+
+- [AutoTune_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Interrupt_TIMER/AutoTune_Interrupt_TIMER.ino)
+- [AutoTune_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Software_TIMER/AutoTune_Software_TIMER.ino)
+- [Basic_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Basic_Interrupt_TIMER/Basic_Interrupt_TIMER.ino)
+- [Basic_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Basic_Software_TIMER/Basic_Software_TIMER.ino)
 
 #### Initialize
 

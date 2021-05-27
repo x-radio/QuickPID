@@ -1,5 +1,5 @@
 /********************************************************
-   PID Adaptive Tuning Example
+   QuickPID Adaptive Tuning Example
    One of the benefits of the PID library is that you can
    change the tuning parameters at any time.  this can be
    helpful if we want the controller to be agressive at some

@@ -5,9 +5,9 @@
 
 #include "QuickPID.h"
 
+const uint32_t sampleTimeUs = 10000; // 10ms
 const byte inputPin = 0;
 const byte outputPin = 3;
-
 const int outputMax = 255;
 const int outputMin = 0;
 
@@ -44,7 +44,7 @@ void setup() {
   //_myPID.AutoTune(tuningMethod::SOME_OVERSHOOT_PID);
   //_myPID.AutoTune(tuningMethod::NO_OVERSHOOT_PID);
 
-  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, QuickPID::DIRECT, printOrPlotter);
+  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, QuickPID::DIRECT, printOrPlotter, sampleTimeUs);
 }
 
 void loop() {
@@ -60,7 +60,7 @@ void loop() {
       case _myPID.autoTune->TUNINGS:
         _myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
         _myPID.SetMode(QuickPID::AUTOMATIC); // setup PID
-        _myPID.SetSampleTimeUs(10000); // 10ms
+        _myPID.SetSampleTimeUs(sampleTimeUs);
         _myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
         Setpoint = 500;
         break;
@@ -77,13 +77,12 @@ void loop() {
     if (printOrPlotter == 0) { // plotter
       Serial.print("Setpoint:");  Serial.print(Setpoint);  Serial.print(",");
       Serial.print("Input:");     Serial.print(Input);     Serial.print(",");
-      Serial.print("Output:");    Serial.print(Output);    Serial.println();
+      Serial.print("Output:");    Serial.print(Output);    Serial.println(",");
     }
     Input = _myPID.analogReadFast(inputPin);
     _myPID.Compute();
     analogWrite(outputPin, Output);
   }
-  delay(1); // adjust loop speed
 }
 
 float avg(int inputVal) {

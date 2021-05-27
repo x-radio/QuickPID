@@ -1,15 +1,14 @@
 /******************************************************************************
-   AutoTune Filter TIMER Mode Example
+   AutoTune Interrupt TIMER Example
    Circuit: https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter
  ******************************************************************************/
-#include "NoDelay.h" // https://github.com/M-tech-Creations/NoDelay
+#include "TimerOne.h" // https://github.com/PaulStoffregen/TimerOne
 #include "QuickPID.h"
-void runPid(); // declare function before noDelay
-noDelay LEDtime(10, runPid); // creates a noDelay varible set to 10ms, will call runPid function
+void runPid();
 
+const uint32_t sampleTimeUs = 10000; // 10ms
 const byte inputPin = 0;
 const byte outputPin = 3;
-
 const int outputMax = 255;
 const int outputMin = 0;
 
@@ -28,6 +27,9 @@ static boolean computeNow = false;
 QuickPID _myPID = QuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::DIRECT);
 
 void setup() {
+  Timer1.initialize(sampleTimeUs); // initialize timer1, and set the time interval
+  Timer1.attachInterrupt(runPid);  // attaches runPid() as a timer overflow interrupt
+
   Serial.begin(115200);
   Serial.println();
   if (constrain(output, outputMin, outputMax - outputStep - 5) < output) {
@@ -45,13 +47,10 @@ void setup() {
   //_myPID.AutoTune(tuningMethod::PESSEN_INTEGRAL_PID);
   //_myPID.AutoTune(tuningMethod::SOME_OVERSHOOT_PID);
   //_myPID.AutoTune(tuningMethod::NO_OVERSHOOT_PID);
-
-  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, QuickPID::DIRECT, printOrPlotter);
+  _myPID.autoTune->autoTuneConfig(outputStep, hysteresis, setpoint, output, QuickPID::DIRECT, printOrPlotter, sampleTimeUs);
 }
 
 void loop() {
-  LEDtime.update();//will check if set time has past and if so will run set function
-
   if (_myPID.autoTune) // Avoid dereferencing nullptr after _myPID.clearAutoTune()
   {
     switch (_myPID.autoTune->autoTuneLoop()) {
@@ -59,15 +58,13 @@ void loop() {
         Input = avg(_myPID.analogReadFast(inputPin));
         analogWrite(outputPin, Output);
         break;
-
       case _myPID.autoTune->TUNINGS:
         _myPID.autoTune->setAutoTuneConstants(&Kp, &Ki, &Kd); // set new tunings
         _myPID.SetMode(QuickPID::TIMER); // setup PID
-        _myPID.SetSampleTimeUs(10000); // 10ms
+        _myPID.SetSampleTimeUs(sampleTimeUs);
         _myPID.SetTunings(Kp, Ki, Kd, POn); // apply new tunings to PID
         Setpoint = 500;
         break;
-
       case _myPID.autoTune->CLR:
         if (!pidLoop) {
           _myPID.clearAutoTune(); // releases memory used by AutoTune object
@@ -80,8 +77,7 @@ void loop() {
     if (printOrPlotter == 0) { // plotter
       Serial.print("Setpoint:");  Serial.print(Setpoint);  Serial.print(",");
       Serial.print("Input:");     Serial.print(Input);     Serial.print(",");
-      Serial.print("Output:");    Serial.print(Output);    Serial.print(",");
-      Serial.print("iTerm:");    Serial.print(_myPID.GetDterm());    Serial.println();
+      Serial.print("Output:");    Serial.print(Output);    Serial.println(",");
     }
     if (computeNow) {
       Input = _myPID.analogReadFast(inputPin);
@@ -90,7 +86,6 @@ void loop() {
       computeNow = false;
     }
   }
-  delay(1); // adjust loop speed
 }
 
 void runPid() {

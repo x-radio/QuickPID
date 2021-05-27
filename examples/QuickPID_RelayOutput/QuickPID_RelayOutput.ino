@@ -1,5 +1,5 @@
 /********************************************************
-   PID RelayOutput Example
+   QuickPID RelayOutput Example
    Same as basic example, except that this time, the output
    is going to a digital pin which (we presume) is controlling
    a relay.  the pid is designed to Output an analog value,
@@ -56,7 +56,7 @@ void loop()
   /************************************************
      turn the output pin on/off based on pid output
    ************************************************/
-  if (millis() - windowStartTime > WindowSize)
+  if (millis() - windowStartTime >= WindowSize)
   { //time to shift the Relay Window
     windowStartTime += WindowSize;
     myQuickPID.Compute();
