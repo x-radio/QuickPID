@@ -20,11 +20,13 @@ float Setpoint, Input, Output;
 //Define the aggressive and conservative and POn Tuning Parameters
 float aggKp = 4, aggKi = 0.2, aggKd = 1;
 float consKp = 1, consKi = 0.05, consKd = 0.25;
-float aggPOn = 1.0; // Range is 0.0 to 1.0 (1.0 is 100% P on Error, 0% P on Measurement)
-float consPOn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
+float aggPOn =  1.0;  // proportional on Error to Measurement ratio (0.0-1.0)
+float consPOn = 0.0;  // proportional on Error to Measurement ratio (0.0-1.0)
+float aggDOn =  1.0;  // derivative on Error to Measurement ratio (0.0-1.0)
+float consDOn = 0.0;  // derivative on Error to Measurement ratio (0.0-1.0)
 
 //Specify the links and initial tuning parameters
-QuickPID myQuickPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, aggPOn, QuickPID::DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, aggPOn, consDOn, QuickPID::DIRECT);
 
 void setup()
 {
@@ -42,10 +44,10 @@ void loop()
 
   float gap = abs(Setpoint - Input); //distance away from setpoint
   if (gap < 10) { //we're close to setpoint, use conservative tuning parameters
-    myQuickPID.SetTunings(consKp, consKi, consKd, consPOn);
+    myQuickPID.SetTunings(consKp, consKi, consKd, consPOn, consDOn);
   } else {
     //we're far from setpoint, use aggressive tuning parameters
-    myQuickPID.SetTunings(aggKp, aggKi, aggKd, aggPOn);
+    myQuickPID.SetTunings(aggKp, aggKi, aggKd, aggPOn, aggDOn);
   }
   myQuickPID.Compute();
   analogWrite(PIN_OUTPUT, Output);

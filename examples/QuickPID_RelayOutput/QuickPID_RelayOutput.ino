@@ -1,20 +1,19 @@
-/********************************************************
+/*************************************************************
    QuickPID RelayOutput Example
    Same as basic example, except that this time, the output
    is going to a digital pin which (we presume) is controlling
-   a relay.  the pid is designed to Output an analog value,
+   a relay.  The pid is designed to Output an analog value,
    but the relay can only be On/Off.
 
-     to connect them together we use "time proportioning
-   control"  it's essentially a really slow version of PWM.
-   first we decide on a window size (5000mS say.) we then
-   set the pid to adjust its output between 0 and that window
-   size.  lastly, we add some logic that translates the PID
-   output into "Relay On Time" with the remainder of the
-   window being "Relay Off Time"
-   The minWindow setting is a floor so that the relay would
-   be on for a minimum amount of time.
- ********************************************************/
+   To connect them together we use "time proportioning
+   control", essentially a really slow version of PWM.
+   First we decide on a window size (5000mS for example).
+   We then set the pid to adjust its output between 0 and that
+   window size. Lastly, we add some logic that translates the
+   PID output into "Relay On Time" with the remainder of the
+   window being "Relay Off Time". The minWindow setting is a
+   floor (minimum time) the relay would be on.
+ *************************************************************/
 
 #include "QuickPID.h"
 
@@ -26,9 +25,10 @@ float Setpoint, Input, Output;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
-float POn = 0.0; // Range is 0.0 to 1.0 (0.0 is 0% P on Error, 100% P on Measurement)
+float POn = 1.0;   // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
+float DOn = 0.0;   // derivative on Error to Measurement ratio (0.0-1.0), default = 0.0
 
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, QuickPID::DIRECT);
+QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DOn, QuickPID::DIRECT);
 
 unsigned int WindowSize = 5000;
 unsigned int minWindow = 500;

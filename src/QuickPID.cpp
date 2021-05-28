@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.3.3
+   QuickPID Library for Arduino - Version 2.4.0
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -18,7 +18,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, float POn = 1,
+                   float Kp, float Ki, float Kd, float POn = 1.0, float DOn = 0.0,
                    QuickPID::direction_t ControllerDirection = DIRECT) {
 
   myOutput = Output;
@@ -29,7 +29,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
   QuickPID::SetOutputLimits(0, 255);  // same default as Arduino PWM limit
   sampleTimeUs = 100000;              // 0.1 sec default
   QuickPID::SetControllerDirection(ControllerDirection);
-  QuickPID::SetTunings(Kp, Ki, Kd, POn);
+  QuickPID::SetTunings(Kp, Ki, Kd, POn, DOn);
 
   lastTime = micros() - sampleTimeUs;
 }
@@ -39,7 +39,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, direction_t ControllerDirection = DIRECT)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, ControllerDirection = DIRECT) {
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, dOn = 1, ControllerDirection = DIRECT) {
 }
 
 /* Compute() ***********************************************************************
@@ -59,21 +59,21 @@ bool QuickPID::Compute() {
       error = -error;
       dInput = -dInput;
     }
+    pmTerm = kpm * dInput;
+    peTerm = kpe * error;
     iTerm = ki * error;
-    outputSum += iTerm; // add integral error amount
-    if (outputSum > outMax) iTerm -= outputSum - outMax; // prevents integral windup
+    dmTerm = kdm * dInput;
+    deTerm = -kde * error;
+
+    outputSum += iTerm;
+    if (outputSum > outMax) iTerm -= outputSum - outMax; // prevent integral windup
     else if (outputSum < outMin) iTerm += outMin - outputSum;
 
-    pmTerm = kpm * dInput;
-    outputSum -= (kpm * dInput); // subtract proportional on measurement amount
+    float output = peTerm;
+    outputSum -= pmTerm;
     outputSum = constrain(outputSum, outMin, outMax);
-    float output;
 
-    peTerm = kpe * error;
-    output = peTerm; // add proportional on error amount
-
-    dTerm = kd * dInput;
-    output += outputSum - dTerm; // subtract derivative on input amount
+    output += outputSum - deTerm + dmTerm;
     output = constrain(output, outMin, outMax);
 
     *myOutput = output;
@@ -89,24 +89,26 @@ bool QuickPID::Compute() {
   it's called automatically from the constructor, but tunings can also
   be adjusted on the fly during normal operation.
 ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1) {
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1.0, float DOn = 0.0) {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
   pOn = POn;
+  dOn = DOn;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
-
   float SampleTimeSec = (float)sampleTimeUs / 1000000;
   kp = Kp;
   ki = Ki * SampleTimeSec;
   kd = Kd / SampleTimeSec;
   kpe = kp * pOn;
   kpm = kp * (1 - pOn);
+  kde = kp * dOn;
+  kdm = kp * (1 - dOn);
 }
 
 /* SetTunings(...)************************************************************
-  Set Tunings using the last remembered POn setting.
+  Set Tunings using the last remembered POn and DOn setting.
 ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
-  SetTunings(Kp, Ki, Kd, pOn);
+  SetTunings(Kp, Ki, Kd, pOn, dOn);
 }
 
 /* SetSampleTime(.)***********************************************************
@@ -179,17 +181,14 @@ float QuickPID::GetKi() {
 float QuickPID::GetKd() {
   return dispKd;
 }
-float QuickPID::GetPeTerm() {
-  return peTerm;
-}
-float QuickPID::GetPmTerm() {
-  return pmTerm;
+float QuickPID::GetPterm() {
+  return peTerm + pmTerm;
 }
 float QuickPID::GetIterm() {
   return iTerm;
 }
 float QuickPID::GetDterm() {
-  return dTerm;
+  return deTerm + dmTerm;
 }
 QuickPID::mode_t QuickPID::GetMode() {
   return  mode;

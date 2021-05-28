@@ -75,7 +75,7 @@ class QuickPID {
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, float POn, direction_t ControllerDirection);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, float POn, float DOn, direction_t ControllerDirection);
 
     // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, direction_t ControllerDirection);
@@ -101,7 +101,7 @@ class QuickPID {
     void SetTunings(float Kp, float Ki, float Kd);
 
     // Overload for specifying proportional ratio.
-    void SetTunings(float Kp, float Ki, float Kd, float POn);
+    void SetTunings(float Kp, float Ki, float Kd, float POn, float DOn);
 
     // Sets the controller Direction or Action. DIRECT means the output will increase when the error is positive.
     // REVERSE means the output will decrease when the error is positive.
@@ -114,8 +114,7 @@ class QuickPID {
     float GetKp();               // proportional gain
     float GetKi();               // integral gain
     float GetKd();               // derivative gain
-    float GetPeTerm();           // proportional on error component of output
-    float GetPmTerm();           // proportional on measurement component of output
+    float GetPterm();            // proportional component of output
     float GetIterm();            // integral component of output
     float GetDterm();            // derivative component of output
     mode_t GetMode();            // MANUAL (0), AUTOMATIC (1) or TIMER (2)
@@ -135,14 +134,18 @@ class QuickPID {
     float peTerm;
     float pmTerm;
     float iTerm;
-    float dTerm;
+    float deTerm;
+    float dmTerm;
 
     float pOn;          // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
+    float dOn;          // derivative on Error to Measurement ratio (0.0-1.0), default = 0.0
     float kp;           // (P)roportional Tuning Parameter
     float ki;           // (I)ntegral Tuning Parameter
     float kd;           // (D)erivative Tuning Parameter
     float kpe;          // proportional on error amount
     float kpm;          // proportional on measurement amount
+    float kde;          // derivative on error amount
+    float kdm;          // derivative on measurement amount
 
     float *myInput;     // Pointers to the Input, Output, and Setpoint variables. This creates a
     float *myOutput;    // hard link between the variables and the PID, freeing the user from having

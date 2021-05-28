@@ -1,6 +1,6 @@
 # QuickPID   ![arduino-library-badge](https://camo.githubusercontent.com/989057908f34abd0c8bc2a8d762f86ccebbe377ed9ffef8c3dfdf27a09c6dac9/68747470733a2f2f7777772e617264752d62616467652e636f6d2f62616467652f517569636b5049442e7376673f)
 
-QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available is a POn setting that controls the mix of Proportional on Error to Proportional on Measurement. 
+QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available are POn and DOn settings where POn controls the mix of Proportional on Error to Proportional on Measurement and DOn controls the mix of Derivative on Error to Derivative on Measurement.
 
 ### Features
 
@@ -8,23 +8,28 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 
 #### New feature Summary
 
+- [x] Fast PID read-compute-write cycle (Arduino UNO): QuickPID = **51µs**, PID_v1 = **128µs**
 - [x] `TIMER` mode for calling PID compute by an external timer function or ISR
 - [x] `analogReadFast()` support for AVR (4x faster)
 - [x] `analogWrite()` support for ESP32 and ESP32-S2 
-- [x] Variable Proportional on Error Proportional on Measurement parameter `POn`
-- [x]  Integral windup prevention when output exceeds limits
-- [x] New PID query functions that return the P, I and D terms of the calculation
-- [x] New AutoTune class added as a dynamic object and includes 10 tuning methods
-- [x] AutoTune is compatible with reverse acting controllers
-- [x] AutoTune's fast, non-blocking tuning sequence completes in only 1.5 oscillations 
-- [x] AutoTune determines how easy the process is to control
-- [x] AutoTune determines ultimate period `Tu`, dead time `td`, ultimate gain `Ku`, and tuning parameters `Kp, Ki, Kd`
+- [x] Variable Proportional on Error to Proportional on Measurement parameter `POn`
+- [x] Variable Derivative on Error to Derivative on Measurement parameter `DOn`
+- [x] New PID Query Functions: `GetPterm();`  `GetIterm();`  `GetDterm();`
+- [x] Integral windup prevention when output exceeds limits
 - [x] New REVERSE mode only changes sign of `error` and `dInput`
 - [x] Uses `float` instead of `double`
 
+#### AutoTune Features
+
+- [x] New AutoTune class added as a dynamic object and includes 10 tuning methods
+- [x] Compatible with reverse acting controllers
+- [x] Fast, non-blocking tuning sequence completes in only 1.5 oscillations 
+- [x] Determines how easy the process is to control
+- [x] Determines ultimate period `Tu`, dead time `td`, ultimate gain `Ku`, and tuning parameters `Kp, Ki, Kd`
+
 ### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
 
-This example allows you to experiment with the AutoTunePID class, various tuning rules and the POn control using ADC and PWM with RC filter. It automatically determines and sets the tuning parameters and works with both DIRECT and REVERSE acting controllers.
+This example allows you to experiment with the AutoTunePID class, various tuning rules and the POn and DOn controls using ADC and PWM with RC filter. It automatically determines and sets the tuning parameters and works with both DIRECT and REVERSE acting controllers.
 
 #### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
 
@@ -38,14 +43,15 @@ If a positive error increases the controller's output, the controller is said to
 
 ```c++
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, float POn, uint8_t ControllerDirection);
+                   float Kp, float Ki, float Kd, float POn, float DOn, uint8_t ControllerDirection);
 ```
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
-- `POn` is the Proportional on Error weighting value with range 0.0-1.0 and default 1.0 (100% Proportional on Error). This controls the mix of Proportional on Error to Proportional on Measurement.
+- `POn` controls the mix of Proportional on Error to Proportional on Measurement. Range is 0.0-1.0, default = 1.0 
+- `DOn` controls the mix of Derivative on Error to Derivative on Measurement. Range is 0.0-1.0, default = 0.0 
 
-![image](https://user-images.githubusercontent.com/63488701/118383726-986b6e80-b5ce-11eb-94b8-fdbddd4c914e.png)
+![POnDOn](https://user-images.githubusercontent.com/63488701/120000053-68de3e00-bfa0-11eb-9db2-04c2f4be76a2.png)
 
 - `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. 
 
@@ -71,7 +77,7 @@ For examples using AutoTune, please refer to the examples folder.
 #### SetTunings
 
 ```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn);
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn, float DOn);
 ```
 
 This function allows the controller's dynamic performance to be adjusted. It's called automatically from the constructor, but tunings can also be adjusted on the fly during normal operation. The parameters are as described in the constructor.
@@ -80,7 +86,7 @@ This function allows the controller's dynamic performance to be adjusted. It's c
 void QuickPID::SetTunings(float Kp, float Ki, float Kd);
 ```
 
-Set Tunings using the last remembered POn setting.
+Set Tunings using the last remembered POn and DOn settings. See example [QuickPID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/QuickPID_AdaptiveTunings/QuickPID_AdaptiveTunings.ino)
 
 #### SetSampleTime
 
@@ -135,8 +141,7 @@ The PID will either be connected to a DIRECT acting process (+Output leads to +I
     float GetKp();               // proportional gain
     float GetKi();               // integral gain
     float GetKd();               // derivative gain
-    float GetPeTerm();           // proportional on error component of output 
-    float GetPmTerm();           // proportional on measurement component of output
+    float GetPterm();            // proportional component of output 
     float GetIterm();            // integral component of output
     float GetDterm();            // derivative component of output
     mode_t GetMode();            // MANUAL (0) or AUTOMATIC (1)
