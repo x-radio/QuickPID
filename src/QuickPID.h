@@ -27,7 +27,7 @@ class AutoTunePID {
                         const bool dir = false, const bool printOrPlotter = false, uint32_t sampleTimeUs = 10000);
     byte autoTuneLoop();
     void setAutoTuneConstants(float* kp, float* ki, float* kd);
-    enum atStage : byte { AUTOTUNE, STABILIZING, COARSE, FINE, TEST, T0, T1, T2, T3L, T3H, CALC, TUNINGS, CLR };
+    enum atStage : byte { AUTOTUNE, WAIT, STABILIZING, COARSE, FINE, TEST, T0, T1, T2, T3L, T3H, CALC, TUNINGS, CLR };
 
   private:
 
@@ -43,7 +43,7 @@ class AutoTunePID {
     int _atOutput;
     bool _direction = false;
     bool _printOrPlotter = false;
-    uint32_t _tLoop, _t0, _t1, _t2, _t3;
+    uint32_t _tLoop, _tLast, _t0, _t1, _t2, _t3;
     float _Ku, _Tu, _td, _kp, _ki, _kd, _rdAvg, _peakHigh, _peakLow;
 
     const uint16_t RulesContants[10][3] =

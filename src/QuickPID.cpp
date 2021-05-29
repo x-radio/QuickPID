@@ -222,6 +222,7 @@ AutoTunePID::AutoTunePID(float *input, float *output, tuningMethod tuningRule) {
 }
 
 void AutoTunePID::reset() {
+  _tLast = 0;
   _t0 = 0;
   _t1 = 0;
   _t2 = 0;
@@ -247,15 +248,19 @@ void AutoTunePID::autoTuneConfig(const byte outputStep, const byte hysteresis, c
   _atOutput = atOutput;
   _direction = dir;
   _printOrPlotter = printOrPlotter;
-  _tLoop = constrain((sampleTimeUs / 16), 500, 10000);
+  _tLoop = constrain((sampleTimeUs / 8), 500, 16383);
   _autoTuneStage = STABILIZING;
 }
 
 byte AutoTunePID::autoTuneLoop() {
-  delayMicroseconds(_tLoop); // small delay improves results (0.5-10ms)
+  if ((micros() - _tLast) <= _tLoop) return WAIT;
+  else _tLast = micros();
   switch (_autoTuneStage) {
     case AUTOTUNE:
       return AUTOTUNE;
+      break;
+    case WAIT:
+      return WAIT;
       break;
     case STABILIZING:
       if (_printOrPlotter == 1) Serial.print(F("Stabilizing →"));
@@ -353,9 +358,9 @@ byte AutoTunePID::autoTuneLoop() {
         _ki = _kp / Ti;
         _kd = Td * _kp;
       } else { //other rules
-        _kp = RulesContants[(int)_tuningRule][0] / 1000.0 * _Ku;
-        _ki = RulesContants[(int)_tuningRule][1] / 1000.0 * _Ku / _Tu;
-        _kd = RulesContants[(int)_tuningRule][2] / 1000.0 * _Ku * _Tu;
+        _kp = RulesContants[static_cast<uint8_t>(_tuningRule)][0] / 1000.0 * _Ku;
+        _ki = RulesContants[static_cast<uint8_t>(_tuningRule)][1] / 1000.0 * _Ku / _Tu;
+        _kd = RulesContants[static_cast<uint8_t>(_tuningRule)][2] / 1000.0 * _Ku * _Tu;
       }
       if (_printOrPlotter == 1) {
         // Controllability https://blog.opticontrols.com/wp-content/uploads/2011/06/td-versus-tau.png

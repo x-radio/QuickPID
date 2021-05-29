@@ -144,7 +144,7 @@ The PID will either be connected to a DIRECT acting process (+Output leads to +I
     float GetPterm();            // proportional component of output 
     float GetIterm();            // integral component of output
     float GetDterm();            // derivative component of output
-    mode_t GetMode();            // MANUAL (0) or AUTOMATIC (1)
+    mode_t GetMode();            // MANUAL (0) or AUTOMATIC (1) or TIMER (2)
     direction_t GetDirection();  // DIRECT (0) or REVERSE (1)
 ```
 
