@@ -86,7 +86,7 @@ This function allows the controller's dynamic performance to be adjusted. It's c
 void QuickPID::SetTunings(float Kp, float Ki, float Kd);
 ```
 
-Set Tunings using the last remembered POn and DOn settings. See example [QuickPID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/QuickPID_AdaptiveTunings/QuickPID_AdaptiveTunings.ino)
+Set Tunings using the last remembered POn and DOn settings. See example [PID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AdaptiveTunings/PID_AdaptiveTunings.ino)
 
 #### SetSampleTime
 
@@ -114,10 +114,10 @@ Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (1) or `TIME
 
 `TIMER` mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and SetSampleTimeUs use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant. See examples:
 
-- [AutoTune_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Interrupt_TIMER/AutoTune_Interrupt_TIMER.ino)
-- [AutoTune_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Software_TIMER/AutoTune_Software_TIMER.ino)
-- [Basic_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Basic_Interrupt_TIMER/Basic_Interrupt_TIMER.ino)
-- [Basic_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Basic_Software_TIMER/Basic_Software_TIMER.ino)
+- [AutoTune_AVR_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_AVR_Interrupt_TIMER/AutoTune_AVR_Interrupt_TIMER.ino)
+- [AutoTune_AVR_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_AVR_Software_TIMER/AutoTune_AVR_Software_TIMER.ino)
+- [PID_AVR_Basic_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AVR_Basic_Interrupt_TIMER/PID_AVR_Basic_Interrupt_TIMER.ino)
+- [PID_AVR_Basic_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AVR_Basic_Software_TIMER/PID_AVR_Basic_Software_TIMER.ino)
 
 #### Initialize
 
