@@ -3,7 +3,7 @@
   "keywords": "PID, controller, signal",
   "description": "A fast PID controller with AutoTune and 10 tuning rules. Compatible with most Arduino and ESP32 boards.",
   "license": "MIT",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "url": "https://github.com/Dlloydev/QuickPID",
   "include": "QuickPID",
   "authors":
