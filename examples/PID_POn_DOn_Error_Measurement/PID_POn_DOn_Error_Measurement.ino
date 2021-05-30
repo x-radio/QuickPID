@@ -1,5 +1,5 @@
 /**************************************************************************************
-   QuickPID Proportional-Derivative on Measurement Example
+   Proportional and Derivative on the ratio of Error to Measurement Example
    Increasing the proportional on measurement setting will make the output move more
    smoothly when the setpoint is changed. Also, it can eliminate overshoot.
    Decreasing the derivative on measurement adds more derivative on error. This reduces

@@ -1,5 +1,5 @@
 /********************************************************
-   Basic Interrupt TIMER Example
+   PID AVR Basic Interrupt TIMER Example
    Reading analog input 0 to control analog PWM output 3
  ********************************************************/
 #include "TimerOne.h" // https://github.com/PaulStoffregen/TimerOne

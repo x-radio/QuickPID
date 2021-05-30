@@ -1,8 +1,8 @@
 /******************************************************************************
-   AutoTune Interrupt TIMER Example
+   AutoTune AVR Software TIMER Example
    Circuit: https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter
  ******************************************************************************/
-#include "TimerOne.h" // https://github.com/PaulStoffregen/TimerOne
+#include "Ticker.h" // https://github.com/sstaub/Ticker
 #include "QuickPID.h"
 void runPid();
 
@@ -26,12 +26,11 @@ float Kp = 0, Ki = 0, Kd = 0;
 bool pidLoop = false;
 static boolean computeNow = false;
 
+Ticker timer1(runPid, sampleTimeUs, 0, MICROS_MICROS);
 QuickPID _myPID = QuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DOn, QuickPID::DIRECT);
 
 void setup() {
-  Timer1.initialize(sampleTimeUs); // initialize timer1, and set the time interval
-  Timer1.attachInterrupt(runPid);  // attaches runPid() as a timer overflow interrupt
-
+  timer1.start();
   Serial.begin(115200);
   Serial.println();
   if (constrain(output, outputMin, outputMax - outputStep - 5) < output) {
@@ -54,6 +53,7 @@ void setup() {
 }
 
 void loop() {
+  timer1.update();
   if (_myPID.autoTune) // Avoid dereferencing nullptr after _myPID.clearAutoTune()
   {
     switch (_myPID.autoTune->autoTuneLoop()) {

@@ -1,5 +1,5 @@
 /*************************************************************
-   QuickPID RelayOutput Example
+   PID Relay Output Example
    Same as basic example, except that this time, the output
    is going to a digital pin which (we presume) is controlling
    a relay.  The pid is designed to Output an analog value,
