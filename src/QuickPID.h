@@ -57,7 +57,7 @@ class AutoTunePID {
       {   0,    0,   0 },  // AMIGOF_PID
       { 700, 1750, 105 },  // PESSEN_INTEGRAL_PID
       { 333,  667, 111 },  // SOME_OVERSHOOT_PID
-      { 200,  400,  67 },  // NO_OVERSHOOT_PID
+      { 333,  100,  67 }   // NO_OVERSHOOT_PID
     };
 
 }; // class AutoTunePID

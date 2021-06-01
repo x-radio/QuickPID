@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.1
+   QuickPID Library for Arduino - Version 2.4.2
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -66,7 +66,7 @@ bool QuickPID::Compute() {
     deTerm = -kde * error;
 
     outputSum += iTerm;
-    if (outputSum > outMax) iTerm -= outputSum - outMax; // prevent integral windup
+    if (outputSum > outMax) iTerm -= outputSum - outMax; // integral anti-windup
     else if (outputSum < outMin) iTerm += outMin - outputSum;
 
     float output = peTerm;
@@ -358,9 +358,9 @@ byte AutoTunePID::autoTuneLoop() {
         _ki = _kp / Ti;
         _kd = Td * _kp;
       } else { //other rules
-        _kp = RulesContants[static_cast<uint8_t>(_tuningRule)][0] / 1000.0 * _Ku;
-        _ki = RulesContants[static_cast<uint8_t>(_tuningRule)][1] / 1000.0 * _Ku / _Tu;
-        _kd = RulesContants[static_cast<uint8_t>(_tuningRule)][2] / 1000.0 * _Ku * _Tu;
+        _kp = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][0] / 1000.0) * _Ku;
+        _ki = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][1] / 1000.0) * (_Ku / _Tu);
+        _kd = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][2] / 1000.0) * (_Ku * _Tu);
       }
       if (_printOrPlotter == 1) {
         // Controllability https://blog.opticontrols.com/wp-content/uploads/2011/06/td-versus-tau.png

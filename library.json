@@ -1,21 +1,27 @@
 {
   "name": "QuickPID",
+  "version": "2.4.2",
+  "description": "A fast PID controller with an AutoTune dynamic object, 10 tunung rules, Integral anti-windup, TIMER Mode, variable Proportional and Derivative on Error to Measurement and full-featured Arduino analogWrite compatibility for ESP32 and ESP32-S2.",
   "keywords": "PID, controller, signal",
-  "description": "A fast PID controller with AutoTune and 10 tuning rules. Compatible with most Arduino and ESP32 boards.",
-  "license": "MIT",
-  "version": "2.4.1",
-  "url": "https://github.com/Dlloydev/QuickPID",
-  "include": "QuickPID",
-  "authors":
-  [
-    {
-      "name": "David Lloyd"
-    }
-  ],
   "repository":
   {
     "type": "git",
     "url": "https://github.com/Dlloydev/QuickPID"
   },
-  "frameworks": "arduino"
+  "authors":
+  [
+    {
+      "name": "David Lloyd"
+      "email": "dlloydev@testcor.ca",
+      "url": "https://github.com/Dlloydev/QuickPID",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Dlloydev/QuickPID",
+  "dependencies": {
+    "QuickPID": "~2.4.2"
+  },
+  "frameworks": "*",
+  "platforms": "*"
 }

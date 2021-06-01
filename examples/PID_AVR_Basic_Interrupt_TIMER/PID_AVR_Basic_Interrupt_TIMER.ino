@@ -8,7 +8,7 @@
 #define PIN_INPUT 0
 #define PIN_OUTPUT 3
 const uint32_t sampleTimeUs = 100000; // 100ms
-static boolean computeNow = false;
+volatile bool computeNow = false;
 
 //Define Variables we'll be connecting to
 float Setpoint, Input, Output;

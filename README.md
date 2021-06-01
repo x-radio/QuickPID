@@ -2,6 +2,8 @@
 
 QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available are POn and DOn settings where POn controls the mix of Proportional on Error to Proportional on Measurement and DOn controls the mix of Derivative on Error to Derivative on Measurement.
 
+#### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
+
 ### Features
 
 Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the [change log](https://github.com/Dlloydev/QuickPID/wiki/Change-Log).
@@ -27,15 +29,15 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 - [x] Determines how easy the process is to control
 - [x] Determines ultimate period `Tu`, dead time `td`, ultimate gain `Ku`, and tuning parameters `Kp, Ki, Kd`
 
-### [AutoTune RC Filter](https://github.com/Dlloydev/QuickPID/wiki/AutoTune_RC_Filter)
+### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
 
-This example allows you to experiment with the AutoTunePID class, various tuning rules and the POn and DOn controls using ADC and PWM with RC filter. It automatically determines and sets the tuning parameters and works with both DIRECT and REVERSE acting controllers.
+#### [AutoTune Filter Examples](https://github.com/Dlloydev/QuickPID/wiki/AutoTune-Filter-Examples)
 
-#### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
+The examples [AutoTune_Filter_DIRECT.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_DIRECT/AutoTune_Filter_DIRECT.ino) and [AutoTune_Filter_REVERSE.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_REVERSE/AutoTune_Filter_REVERSE.ino) allow you to experiment with the AutoTunePID class, various tuning rules and the POn and DOn controls using ADC and PWM with RC filter. It automatically determines and sets the tuning parameters and works with both `DIRECT` and `REVERSE` acting controllers.
 
-### Direct and Reverse Controller Action
+#### Direct and Reverse Controller Action
 
-If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). See the examples  [AutoTune_Filter_DIRECT.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_DIRECT/AutoTune_Filter_DIRECT.ino) and [AutoTune_Filter_REVERSE.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/AutoTune_Filter_REVERSE/AutoTune_Filter_REVERSE.ino) for details.
+If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). 
 
 ### Functions
 
@@ -69,10 +71,6 @@ bool QuickPID::Compute();
 ```
 
 This function contains the PID algorithm and it should be called once every loop(). Most of the time it will just return false without doing anything. However, at a  frequency specified by `SetSampleTime` it will calculate a new Output and return true.
-
-#### [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune)
-
-For examples using AutoTune, please refer to the examples folder.
 
 #### SetTunings
 

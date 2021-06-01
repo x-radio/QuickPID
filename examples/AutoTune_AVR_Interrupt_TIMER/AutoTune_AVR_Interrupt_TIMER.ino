@@ -24,7 +24,7 @@ int output = 85;          // 1/3 of range for symetrical waveform
 float Input, Output, Setpoint;
 float Kp = 0, Ki = 0, Kd = 0;
 bool pidLoop = false;
-static boolean computeNow = false;
+volatile bool computeNow = false;
 
 QuickPID _myPID = QuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DOn, QuickPID::DIRECT);
 
