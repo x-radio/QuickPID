@@ -17,7 +17,7 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 - [x] Variable Proportional on Error to Proportional on Measurement parameter `POn`
 - [x] Variable Derivative on Error to Derivative on Measurement parameter `DOn`
 - [x] New PID Query Functions: `GetPterm();`  `GetIterm();`  `GetDterm();`
-- [x] Integral windup prevention when output exceeds limits
+- [x] 2-stage Integral windup prevention when output exceeds limits
 - [x] New REVERSE mode only changes sign of `error` and `dInput`
 - [x] Uses `float` instead of `double`
 

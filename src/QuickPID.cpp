@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.3
+   QuickPID Library for Arduino - Version 2.4.4
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -65,18 +65,13 @@ bool QuickPID::Compute() {
     dmTerm = kdm * dInput;
     deTerm = -kde * error;
 
-    outputSum += iTerm;
-    if (outputSum > outMax) iTerm -= outputSum - outMax; // integral anti-windup
-    else if (outputSum < outMin) iTerm += outMin - outputSum;
+    outputSum += iTerm;                                                           // include integral amount
+    if (outputSum > outMax) outputSum -= outputSum - outMax;                      // early integral anti-windup at outMax
+    else if (outputSum < outMin) outputSum += outMin - outputSum;                 // early integral anti-windup at outMin
+    outputSum = constrain(outputSum, outMin, outMax);                             // integral anti-windup clamp
+    outputSum = constrain(outputSum - pmTerm, outMin, outMax);                    // include pmTerm and clamp
+    *myOutput = constrain(outputSum + peTerm + dmTerm - deTerm, outMin, outMax);  // totalize, clamp and drive the output
 
-    float output = peTerm;
-    outputSum -= pmTerm;
-    outputSum = constrain(outputSum, outMin, outMax);
-
-    output += outputSum - deTerm + dmTerm;
-    output = constrain(output, outMin, outMax);
-
-    *myOutput = output;
     lastInput = input;
     lastTime = now;
     return true;
@@ -399,25 +394,13 @@ void AutoTunePID::setAutoTuneConstants(float * kp, float * ki, float * kd) {
 }
 
 /* Utility************************************************************/
-
+// https://github.com/avandalen/avdweb_AnalogReadFast
 int QuickPID::analogReadFast(int ADCpin) {
 #if defined(__AVR_ATmega328P__)
   byte ADCregOriginal = ADCSRA;
   ADCSRA = (ADCSRA & B11111000) | 5; // 32 prescaler
   int adc = analogRead(ADCpin);
   ADCSRA = ADCregOriginal;
-  return adc;
-#elif defined(__AVR_ATtiny_Zero_One__) || defined(__AVR_ATmega_Zero__)
-  byte ADCregOriginal = ADC0_CTRLC;
-  ADC0_CTRLC = 0x54; // reduced cap, Vdd ref, 32 prescaler
-  int adc = analogRead(ADCpin);
-  ADC0_CTRLC = ADCregOriginal;
-  return adc;
-#elif defined(__AVR_DA__)
-  byte ADCregOriginal = ADC0.CTRLC;
-  ADC0.CTRLC = ADC_PRESC_DIV32_gc; // 32 prescaler
-  int adc = analogRead(ADCpin);
-  ADC0.CTRLC = ADCregOriginal;
   return adc;
 #else
   return analogRead(ADCpin);
