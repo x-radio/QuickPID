@@ -23,7 +23,7 @@ class AutoTunePID {
     ~AutoTunePID() {};
 
     void reset();
-    void autoTuneConfig(const byte outputStep, const byte hysteresis, const int setpoint, const int output,
+    void autoTuneConfig(const float outputStep, const float hysteresis, const float setpoint, const float output,
                         const bool dir = false, const bool printOrPlotter = false, uint32_t sampleTimeUs = 10000);
     byte autoTuneLoop();
     void setAutoTuneConstants(float* kp, float* ki, float* kd);
@@ -37,13 +37,10 @@ class AutoTunePID {
 
     byte _autoTuneStage = 1;
     tuningMethod _tuningRule;
-    byte _outputStep;
-    byte _hysteresis;
-    int _atSetpoint;  // 1/3 of 10-bit ADC range for symetrical waveform
-    int _atOutput;
     bool _direction = false;
     bool _printOrPlotter = false;
     uint32_t _tLoop, _tLast, _t0, _t1, _t2, _t3;
+    float _outputStep, _hysteresis, _atSetpoint, _atOutput;
     float _Ku, _Tu, _td, _kp, _ki, _kd, _rdAvg, _peakHigh, _peakLow;
 
     const uint16_t RulesContants[10][3] =

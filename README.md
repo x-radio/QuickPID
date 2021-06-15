@@ -1,4 +1,4 @@
-# QuickPID   ![arduino-library-badge](https://camo.githubusercontent.com/989057908f34abd0c8bc2a8d762f86ccebbe377ed9ffef8c3dfdf27a09c6dac9/68747470733a2f2f7777772e617264752d62616467652e636f6d2f62616467652f517569636b5049442e7376673f)
+# QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
 QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available are POn and DOn settings where POn controls the mix of Proportional on Error to Proportional on Measurement and DOn controls the mix of Derivative on Error to Derivative on Measurement.
 

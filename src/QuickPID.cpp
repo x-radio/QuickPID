@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.4
+   QuickPID Library for Arduino - Version 2.4.5
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -95,8 +95,8 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1.0, float D
   kd = Kd / SampleTimeSec;
   kpe = kp * pOn;
   kpm = kp * (1 - pOn);
-  kde = kp * dOn;
-  kdm = kp * (1 - dOn);
+  kde = kd * dOn;
+  kdm = kd * (1 - dOn);
 }
 
 /* SetTunings(...)************************************************************
@@ -234,8 +234,8 @@ void AutoTunePID::reset() {
   _autoTuneStage = 0;
 }
 
-void AutoTunePID::autoTuneConfig(const byte outputStep, const byte hysteresis, const int atSetpoint,
-                                 const int atOutput, const bool dir, const bool printOrPlotter, uint32_t sampleTimeUs)
+void AutoTunePID::autoTuneConfig(const float outputStep, const float hysteresis, const float atSetpoint,
+                                 const float atOutput, const bool dir, const bool printOrPlotter, uint32_t sampleTimeUs)
 {
   _outputStep = outputStep;
   _hysteresis = hysteresis;
@@ -262,7 +262,7 @@ byte AutoTunePID::autoTuneLoop() {
       _t0 = millis();
       _peakHigh = _atSetpoint;
       _peakLow = _atSetpoint;
-      (!_direction) ? *_output = 0 : *_output = _atOutput + _outputStep + 5;
+      (!_direction) ? *_output = 0 : *_output = _atOutput + (_outputStep * 2);
       _autoTuneStage = COARSE;
       return AUTOTUNE;
       break;
@@ -272,7 +272,7 @@ byte AutoTunePID::autoTuneLoop() {
         break;
       }
       if (*_input < (_atSetpoint - _hysteresis)) {
-        (!_direction) ? *_output = _atOutput + _outputStep + 5 : *_output = _atOutput - _outputStep - 5;
+        (!_direction) ? *_output = _atOutput + (_outputStep * 2) : *_output = _atOutput - (_outputStep * 2);
         _autoTuneStage = FINE;
       }
       return AUTOTUNE;
