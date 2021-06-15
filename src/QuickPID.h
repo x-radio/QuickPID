@@ -41,7 +41,7 @@ class AutoTunePID {
     bool _printOrPlotter = false;
     uint32_t _tLoop, _tLast, _t0, _t1, _t2, _t3;
     float _outputStep, _hysteresis, _atSetpoint, _atOutput;
-    float _Ku, _Tu, _td, _kp, _ki, _kd, _rdAvg, _peakHigh, _peakLow;
+    float _Ku, _Tu, _td, _kp, _ki, _kd, _rdAvg, _peakHigh, _peakLow, _inputLast;
 
     const uint16_t RulesContants[10][3] =
     { //ckp,  cki, ckd x 1000

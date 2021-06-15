@@ -296,12 +296,13 @@ byte AutoTunePID::autoTuneLoop() {
       if (*_input > _atSetpoint) {
         _t0 = micros();
         if (_printOrPlotter == 1) Serial.print(F(" t0 →"));
+        _inputLast = *_input;
         _autoTuneStage = T1;
       }
       return AUTOTUNE;
       break;
     case T1: // get t1
-      if (*_input > _atSetpoint + 0.2) {
+      if ((*_input > _atSetpoint) && (*_input > _inputLast)) {
         _t1 = micros();
         if (_printOrPlotter == 1) Serial.print(F(" t1 →"));
         _autoTuneStage = T2;
