@@ -39,7 +39,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, direction_t ControllerDirection = DIRECT)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1, dOn = 1, ControllerDirection = DIRECT) {
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1.0, dOn = 0.0, ControllerDirection = DIRECT) {
 }
 
 /* Compute() ***********************************************************************
