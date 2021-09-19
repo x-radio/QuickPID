@@ -1,6 +1,6 @@
 {
   "name": "QuickPID",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "A fast PID controller with AutoTune dynamic object, 10 tuning rules, Integral anti-windup, TIMER Mode and mixing of Proportional and Derivative on Error to Measurement. Also includes analogWrite compatibility for ESP32 and ESP32-S2.",
   "keywords": "PID, controller, signal",
   "repository":
@@ -22,6 +22,6 @@
   "dependencies": {
     "QuickPID": "~2.4.6"
   },
-  "frameworks": "*",
+  "frameworks": "arduino",
   "platforms": "*"
 }

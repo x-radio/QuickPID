@@ -151,9 +151,7 @@ class QuickPID {
     mode_t mode = MANUAL;
     direction_t controllerDirection;
     uint32_t sampleTimeUs, lastTime;
-    int outMin, outMax, error;
-    int outputSum;
-    float lastInput;
+    float outputSum, outMin, outMax, error, lastInput;
     bool inAuto;
 
 }; // class QuickPID

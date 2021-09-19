@@ -61,6 +61,6 @@ void loop()
     windowStartTime += WindowSize;
     myQuickPID.Compute();
   }
-  if (((unsigned int)Output > minWindow) && ((unsigned int)Output < (millis() - windowStartTime))) digitalWrite(RELAY_PIN, HIGH);
+  if (((unsigned int)Output > minWindow) && ((unsigned int)Output > (millis() - windowStartTime))) digitalWrite(RELAY_PIN, HIGH);
   else digitalWrite(RELAY_PIN, LOW);
 }
