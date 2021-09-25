@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.7
+   QuickPID Library for Arduino - Version 2.4.8
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -63,14 +63,14 @@ bool QuickPID::Compute() {
     peTerm = kpe * error;
     iTerm = ki * error;
     dmTerm = kdm * dInput;
-    deTerm = -kde * error;
+    deTerm = kde * error;
 
     outputSum += iTerm;                                                           // include integral amount
     if (outputSum > outMax) outputSum -= outputSum - outMax;                      // early integral anti-windup at outMax
     else if (outputSum < outMin) outputSum += outMin - outputSum;                 // early integral anti-windup at outMin
     outputSum = constrain(outputSum, outMin, outMax);                             // integral anti-windup clamp
     outputSum = constrain(outputSum - pmTerm, outMin, outMax);                    // include pmTerm and clamp
-    *myOutput = constrain(outputSum + peTerm + dmTerm - deTerm, outMin, outMax);  // totalize, clamp and drive the output
+    *myOutput = constrain(outputSum + peTerm - dmTerm + deTerm, outMin, outMax);  // totalize, clamp and drive the output
 
     lastInput = input;
     lastTime = now;
