@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.8
+   QuickPID Library for Arduino - Version 2.4.9
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -122,7 +122,7 @@ void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs) {
   The PID controller is designed to vary its output within a given range.
   By default this range is 0-255, the Arduino PWM range.
 ******************************************************************************/
-void QuickPID::SetOutputLimits(int Min, int Max) {
+void QuickPID::SetOutputLimits(float Min, float Max) {
   if (Min >= Max) return;
   outMin = Min;
   outMax = Max;

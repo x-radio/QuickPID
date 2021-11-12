@@ -97,7 +97,7 @@ Sets the period, in microseconds, at which the calculation is performed. The def
 #### SetOutputLimits
 
 ```c++
-void QuickPID::SetOutputLimits(int Min, int Max);
+void QuickPID::SetOutputLimits(float Min, float Max);
 ```
 
 The PID controller is designed to vary its output within a given range.  By default this range is 0-255, the Arduino PWM range.

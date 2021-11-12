@@ -89,7 +89,7 @@ class QuickPID {
     void clearAutoTune();
 
     // Sets and clamps the output to a specific range (0-255 by default).
-    void SetOutputLimits(int Min, int Max);
+    void SetOutputLimits(float Min, float Max);
 
     // available but not commonly used functions ******************************************************************
 
