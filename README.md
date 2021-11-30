@@ -37,7 +37,9 @@ The examples [AutoTune_Filter_DIRECT.ino](https://github.com/Dlloydev/QuickPID/b
 
 #### Direct and Reverse Controller Action
 
-If a positive error increases the controller's output, the controller is said to be direct acting (i.e. heating process). When a positive error decreases the controller's output, the controller is said to be reverse acting (i.e. cooling process). When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). 
+Direct controller action leads the output to increase when the input is larger than the setpoint (i.e. heating process). Reverse controller leads the output to decrease when the input is larger than the setpoint (i.e. cooling process).
+
+When the controller is set to `REVERSE` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `REVERSE` acting process from a process that's  `DIRECT` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading). 
 
 ### Functions
 
@@ -49,13 +51,24 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 ```
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
+
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
+
 - `POn` controls the mix of Proportional on Error to Proportional on Measurement. Range is 0.0-1.0, default = 1.0 
-- `DOn` controls the mix of Derivative on Error to Derivative on Measurement. Range is 0.0-1.0, default = 0.0 
 
-![POnDOn](https://user-images.githubusercontent.com/63488701/120000053-68de3e00-bfa0-11eb-9db2-04c2f4be76a2.png)
+- `DOn` controls the amount of Derivative on Error and the amount of Derivative on Measurement. Range is 0.0-1.0, default = 0.0. Note that Derivative on Error (at any point in time) is opposite and equal to Derivative on Measurement, so equal mixing of both (DOn =0.5) will result in the derivative term being 0. At this point, the controller becomes PI only.
 
-- `ControllerDirection` Either DIRECT or REVERSE determines which direction the output will move for a given error. 
+  | DOn Setting | Description                              |
+  | ----------- | ---------------------------------------- |
+  | 0.0         | 100% Derivative on Measurement (default) |
+  | 0.25        | 50% Derivative on Measurement            |
+  | 0.5         | 0% Derivative (PI control only)          |
+  | 0.75        | 50% Derivative on Error                  |
+  | 1.0         | 100% Derivative on Error                 |
+
+  ![POnDOn](https://user-images.githubusercontent.com/63488701/120000053-68de3e00-bfa0-11eb-9db2-04c2f4be76a2.png)
+
+- `ControllerDirection` Either DIRECT or REVERSE sets how the controller responds to a change in input. DIRECT action will lead the output to increase when the input is larger than the setpoint (i.e. heating process). REVERSE action will lead the output to decrease when the input is larger than the setpoint (i.e. cooling process).
 
 ```c++
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,

@@ -9,17 +9,17 @@ void runPid();
 const uint32_t sampleTimeUs = 10000; // 10ms
 const byte inputPin = 0;
 const byte outputPin = 3;
-const int outputMax = 255;
-const int outputMin = 0;
+const float outputMax = 255;
+const float outputMin = 0;
 
 bool printOrPlotter = 0;  // on(1) monitor, off(0) plotter
 float POn = 1.0;          // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
 float DOn = 0.0;          // derivative on Error to Measurement ratio (0.0-1.0), default = 0.0
 
-byte outputStep = 5;
-byte hysteresis = 1;
-int setpoint = 341;       // 1/3 of range for symetrical waveform
-int output = 85;          // 1/3 of range for symetrical waveform
+float outputStep = 5;
+float hysteresis = 1;
+float setpoint = 341;     // 1/3 of range for symetrical waveform
+float output = 85;        // 1/3 of range for symetrical waveform
 
 float Input, Output, Setpoint;
 float Kp = 0, Ki = 0, Kd = 0;
