@@ -1,6 +1,6 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object  to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available are POn and DOn settings where POn controls the mix of Proportional on Error to Proportional on Measurement and DOn controls the mix of Derivative on Error to Derivative on Measurement.
+QuickPID is an updated implementation of the Arduino PID library with a built-in [AutoTune](https://github.com/Dlloydev/QuickPID/wiki/AutoTune) class as a dynamic object to reduce memory if not used, thanks to contributions by [gnalbandian (Gonzalo)](https://github.com/gnalbandian). This controller can automatically determine and set parameters `Kp, Ki, Kd`. Additionally the Ultimate Gain `Ku`, Ultimate Period `Tu`, Dead Time `td` and determine how easy the process is to control. There are 10 tuning rules available to choose from. Also available are POn and DOn settings where POn controls the mix of Proportional on Error to Proportional on Measurement and DOn controls the mix of Derivative on Error to Derivative on Measurement.
 
 #### [QuickPID WiKi ...](https://github.com/Dlloydev/QuickPID/wiki)
 
@@ -17,13 +17,13 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 - [x] Variable Proportional on Error to Proportional on Measurement parameter `POn`
 - [x] Variable Derivative on Error to Derivative on Measurement parameter `DOn`
 - [x] New PID Query Functions: `GetPterm();`  `GetIterm();`  `GetDterm();`
-- [x] 2-stage Integral windup prevention when output exceeds limits
+- [x] Uses conditional and clamping Integral anti-windup methods
 - [x] New REVERSE mode only changes sign of `error` and `dInput`
 - [x] Uses `float` instead of `double`
 
-#### AutoTune Features
+#### AutoTune Features  (to be updated in upcoming version 3.0.0)
 
-- [x] New AutoTune class added as a dynamic object and includes 10 tuning methods
+- [x] AutoTune class provided as a dynamic object and includes 10 tuning methods
 - [x] Compatible with reverse acting controllers
 - [x] Fast, non-blocking tuning sequence completes in only 1.5 oscillations 
 - [x] Determines how easy the process is to control

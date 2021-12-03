@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.4.10
+   QuickPID Library for Arduino - Version 2.5.0
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID Library and work on AutoTunePID class
    by gnalbandian (Gonzalo). Licensed under the MIT License.
@@ -52,26 +52,32 @@ bool QuickPID::Compute() {
   uint32_t now = micros();
   uint32_t timeChange = (now - lastTime);
   if (mode == TIMER || timeChange >= sampleTimeUs) {
+
     float input = *myInput;
     float dInput = input - lastInput;
+    if (controllerDirection == REVERSE) dInput = -dInput;
+
     error = *mySetpoint - input;
+    if (controllerDirection == REVERSE) error = -error;
     float dError = error - lastError;
-    if (controllerDirection == REVERSE) {
-      error = -error;
-      dInput = -dInput;
-    }
+
     pmTerm = kpm * dInput;
     peTerm = kpe * error;
-    iTerm = ki * error;
+    iTerm =  ki  * error;
     dmTerm = kdm * dInput;
     deTerm = kde * dError;
 
+    //conditional anti-windup
+    bool aw = false;
+    float iTermOut = (peTerm - pmTerm) + ki * (iTerm + error);
+    if (iTermOut > outMax && dError > 0) aw = true;
+    else if (iTermOut < outMin && dError < 0) aw = true;
+    if (aw && ki) iTerm = constrain(iTermOut, -outMax, outMax);
+
+    //compute output as per PID_v1
     outputSum += iTerm;                                                           // include integral amount
-    if (outputSum > outMax) outputSum -= outputSum - outMax;                      // early integral anti-windup at outMax
-    else if (outputSum < outMin) outputSum += outMin - outputSum;                 // early integral anti-windup at outMin
-    outputSum = constrain(outputSum, outMin, outMax);                             // integral anti-windup clamp
     outputSum = constrain(outputSum - pmTerm, outMin, outMax);                    // include pmTerm and clamp
-    *myOutput = constrain(outputSum + peTerm - dmTerm + deTerm, outMin, outMax);  // totalize, clamp and drive the output
+    *myOutput = constrain(outputSum + peTerm - dmTerm + deTerm, outMin, outMax);  // totalize, clamp, drive output
 
     lastError = error;
     lastInput = input;
