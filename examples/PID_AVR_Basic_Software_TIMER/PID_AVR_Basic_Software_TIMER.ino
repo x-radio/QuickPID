@@ -18,24 +18,24 @@ float Setpoint, Input, Output;
 float Kp = 2, Ki = 5, Kd = 1;
 
 Ticker timer1(runPid, sampleTimeUs, 0, MICROS_MICROS);
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, QuickPID::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, QuickPID::DIRECT);
 
 void setup() {
   timer1.start();
 
   //initialize the variables we're linked to
-  Input = myQuickPID.analogReadFast(PIN_INPUT);
+  Input = analogRead(PIN_INPUT);
   Setpoint = 100;
 
   //turn the PID on
-  myQuickPID.SetMode(QuickPID::AUTOMATIC);
+  myPID.SetMode(QuickPID::AUTOMATIC);
 }
 
 void loop() {
   timer1.update();
   if (computeNow) {
-    Input = myQuickPID.analogReadFast(PIN_INPUT);
-    myQuickPID.Compute();
+    Input = analogRead(PIN_INPUT);
+    myPID.Compute();
     analogWrite(PIN_OUTPUT, Output);
     computeNow = false;
   }

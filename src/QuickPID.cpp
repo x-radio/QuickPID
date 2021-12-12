@@ -1,8 +1,7 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 2.5.0
+   QuickPID Library for Arduino - Version 3.0.0
    by dlloydev https://github.com/Dlloydev/QuickPID
-   Based on the Arduino PID Library and work on AutoTunePID class
-   by gnalbandian (Gonzalo). Licensed under the MIT License.
+   Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
 
 #if ARDUINO >= 100
@@ -18,8 +17,8 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, float POn = 1.0, float DOn = 0.0,
-                   QuickPID::direction_t ControllerDirection = DIRECT) {
+                   float Kp, float Ki, float Kd, uint8_t pMode = PE, uint8_t dMode = DM,
+                    uint8_t awMode = CLAMP, uint8_t Action = DIRECT) {
 
   myOutput = Output;
   myInput = Input;
@@ -28,8 +27,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 
   QuickPID::SetOutputLimits(0, 255);  // same default as Arduino PWM limit
   sampleTimeUs = 100000;              // 0.1 sec default
-  QuickPID::SetControllerDirection(ControllerDirection);
-  QuickPID::SetTunings(Kp, Ki, Kd, POn, DOn);
+  QuickPID::SetControllerDirection(Action);
+  QuickPID::SetTunings(Kp, Ki, Kd, pMode, dMode, awMode);
 
   lastTime = micros() - sampleTimeUs;
 }
@@ -38,8 +37,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    To allow using Proportional on Error without explicitly saying so.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, direction_t ControllerDirection = DIRECT)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pOn = 1.0, dOn = 0.0, ControllerDirection = DIRECT) {
+                   float Kp, float Ki, float Kd, uint8_t Action = DIRECT)
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pmode = PE, dmode = DM, awmode = CLAMP, Action = DIRECT) {
 }
 
 /* Compute() ***********************************************************************
@@ -55,29 +54,39 @@ bool QuickPID::Compute() {
 
     float input = *myInput;
     float dInput = input - lastInput;
-    if (controllerDirection == REVERSE) dInput = -dInput;
+    if (action == REVERSE) dInput = -dInput;
 
     error = *mySetpoint - input;
-    if (controllerDirection == REVERSE) error = -error;
+    if (action == REVERSE) error = -error;
     float dError = error - lastError;
 
-    pmTerm = kpm * dInput;
-    peTerm = kpe * error;
+    float peTerm = kp * error;
+    float pmTerm = kp * dInput;
+    if (pmode == PE) pmTerm = 0;
+    else if (pmode == PM) peTerm = 0;
+    else { //PEM
+      peTerm *= 0.5;
+      pmTerm *= 0.5;
+    }
+    pTerm = peTerm - pmTerm; // used by GetDterm()
     iTerm =  ki  * error;
-    dmTerm = kdm * dInput;
-    deTerm = kde * dError;
+    if (dmode == DE) dTerm = kd * dError;
+    else dTerm = -kd * dInput; // DM
 
-    //conditional anti-windup
-    bool aw = false;
-    float iTermOut = (peTerm - pmTerm) + ki * (iTerm + error);
-    if (iTermOut > outMax && dError > 0) aw = true;
-    else if (iTermOut < outMin && dError < 0) aw = true;
-    if (aw && ki) iTerm = constrain(iTermOut, -outMax, outMax);
+    //condition anti-windup
+    if (awmode == CONDITION) {
+      bool aw = false;
+      float iTermOut = (peTerm - pmTerm) + ki * (iTerm + error);
+      if (iTermOut > outMax && dError > 0) aw = true;
+      else if (iTermOut < outMin && dError < 0) aw = true;
+      if (aw && ki) iTerm = constrain(iTermOut, -outMax, outMax);
+    }
 
-    //compute output as per PID_v1
-    outputSum += iTerm;                                                           // include integral amount
-    outputSum = constrain(outputSum - pmTerm, outMin, outMax);                    // include pmTerm and clamp
-    *myOutput = constrain(outputSum + peTerm - dmTerm + deTerm, outMin, outMax);  // totalize, clamp, drive output
+    // by default, compute output as per PID_v1
+    outputSum += iTerm;                                                 // include integral amount
+    if (awmode == OFF) outputSum -= pmTerm;                             // include pmTerm (no anti-windup)
+    else outputSum = constrain(outputSum - pmTerm, outMin, outMax);     // include pmTerm and clamp (default)
+    *myOutput = constrain(outputSum + peTerm + dTerm, outMin, outMax);  // include dTerm, clamp and drive output
 
     lastError = error;
     lastInput = input;
@@ -92,26 +101,21 @@ bool QuickPID::Compute() {
   it's called automatically from the constructor, but tunings can also
   be adjusted on the fly during normal operation.
 ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, float POn = 1.0, float DOn = 0.0) {
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, uint8_t pMode = PE, uint8_t dMode = DM, uint8_t awMode = CLAMP) {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
-  pOn = POn;
-  dOn = DOn;
+  pmode = pMode; dmode = dMode; awmode = awMode;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
   float SampleTimeSec = (float)sampleTimeUs / 1000000;
   kp = Kp;
   ki = Ki * SampleTimeSec;
   kd = Kd / SampleTimeSec;
-  kpe = kp * pOn;
-  kpm = kp * (1 - pOn);
-  kde = kd * dOn;
-  kdm = kd * (1 - dOn);
 }
 
 /* SetTunings(...)************************************************************
-  Set Tunings using the last remembered POn and DOn setting.
+  Set Tunings using the last remembered pMode and dMode setting.
 ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
-  SetTunings(Kp, Ki, Kd, pOn, dOn);
+  SetTunings(Kp, Ki, Kd, pmode, dmode, awmode);
 }
 
 /* SetSampleTime(.)***********************************************************
@@ -146,7 +150,7 @@ void QuickPID::SetOutputLimits(float Min, float Max) {
   when the transition from MANUAL to AUTOMATIC or TIMER occurs, the
   controller is automatically initialized.
 ******************************************************************************/
-void QuickPID::SetMode(mode_t Mode) {
+void QuickPID::SetMode(uint8_t Mode) {
   if (mode == MANUAL && Mode != MANUAL) { // just went from MANUAL to AUTOMATIC or TIMER
     QuickPID::Initialize();
   }
@@ -167,13 +171,12 @@ void QuickPID::Initialize() {
   The PID will either be connected to a DIRECT acting process (+Output leads
   to +Input) or a REVERSE acting process(+Output leads to -Input).
 ******************************************************************************/
-void QuickPID::SetControllerDirection(direction_t ControllerDirection) {
-  controllerDirection = ControllerDirection;
+void QuickPID::SetControllerDirection(uint8_t Action) {
+  action = Action;
 }
 
 /* Status Functions************************************************************
-  These functions query the internal state of the PID. They're here for display
-  purposes. These are the functions the PID Front-end uses for example.
+  These functions query the internal state of the PID.
 ******************************************************************************/
 float QuickPID::GetKp() {
   return dispKp;
@@ -185,233 +188,26 @@ float QuickPID::GetKd() {
   return dispKd;
 }
 float QuickPID::GetPterm() {
-  return peTerm + pmTerm;
+  return pTerm;
 }
 float QuickPID::GetIterm() {
   return iTerm;
 }
 float QuickPID::GetDterm() {
-  return deTerm + dmTerm;
+  return dTerm;
 }
-QuickPID::mode_t QuickPID::GetMode() {
+uint8_t QuickPID::GetMode() {
   return  mode;
 }
-QuickPID::direction_t QuickPID::GetDirection() {
-  return controllerDirection;
+uint8_t QuickPID::GetDirection() {
+  return action;
 }
-
-/* AutoTune Functions*********************************************************/
-
-void QuickPID::AutoTune(tuningMethod tuningRule) {
-  autoTune = new AutoTunePID(myInput, myOutput, tuningRule);
+uint8_t QuickPID::GetPmode() {
+  return pmode;
 }
-
-void QuickPID::clearAutoTune() {
-  if (autoTune)
-    delete autoTune;
+uint8_t QuickPID::GetDmode() {
+  return dmode;
 }
-
-AutoTunePID::AutoTunePID() {
-  _input = nullptr;
-  _output = nullptr;
-  reset();
-}
-
-AutoTunePID::AutoTunePID(float *input, float *output, tuningMethod tuningRule) {
-  AutoTunePID();
-  _input = input;
-  _output = output;
-  _tuningRule = tuningRule;
-}
-
-void AutoTunePID::reset() {
-  _tLast = 0;
-  _t0 = 0;
-  _t1 = 0;
-  _t2 = 0;
-  _t3 = 0;
-  _Ku = 0.0;
-  _Tu = 0.0;
-  _td = 0.0;
-  _kp = 0.0;
-  _ki = 0.0;
-  _kd = 0.0;
-  _rdAvg = 0.0;
-  _peakHigh = 0.0;
-  _peakLow = 0.0;
-  _autoTuneStage = 0;
-}
-
-void AutoTunePID::autoTuneConfig(const float outputStep, const float hysteresis, const float atSetpoint,
-                                 const float atOutput, const bool dir, const bool printOrPlotter, uint32_t sampleTimeUs)
-{
-  _outputStep = outputStep;
-  _hysteresis = hysteresis;
-  _atSetpoint = atSetpoint;
-  _atOutput = atOutput;
-  _direction = dir;
-  _printOrPlotter = printOrPlotter;
-  _tLoop = constrain((sampleTimeUs / 8), 500, 16383);
-  _autoTuneStage = STABILIZING;
-}
-
-byte AutoTunePID::autoTuneLoop() {
-  if ((micros() - _tLast) <= _tLoop) return WAIT;
-  else _tLast = micros();
-  switch (_autoTuneStage) {
-    case AUTOTUNE:
-      return AUTOTUNE;
-      break;
-    case WAIT:
-      return WAIT;
-      break;
-    case STABILIZING:
-      if (_printOrPlotter == 1) Serial.print(F("Stabilizing →"));
-      _t0 = millis();
-      _peakHigh = _atSetpoint;
-      _peakLow = _atSetpoint;
-      (!_direction) ? *_output = 0 : *_output = _atOutput + (_outputStep * 2);
-      _autoTuneStage = COARSE;
-      return AUTOTUNE;
-      break;
-    case COARSE: // coarse adjust
-      if (millis() - _t0 < 2000) {
-        return AUTOTUNE;
-        break;
-      }
-      if (*_input < (_atSetpoint - _hysteresis)) {
-        (!_direction) ? *_output = _atOutput + (_outputStep * 2) : *_output = _atOutput - (_outputStep * 2);
-        _autoTuneStage = FINE;
-      }
-      return AUTOTUNE;
-      break;
-    case FINE: // fine adjust
-      if (*_input > _atSetpoint) {
-        (!_direction) ? *_output = _atOutput - _outputStep : *_output = _atOutput + _outputStep;
-        _autoTuneStage = TEST;
-      }
-      return AUTOTUNE;
-      break;
-    case TEST: // run AutoTune relay method
-      if (*_input < _atSetpoint) {
-        if (_printOrPlotter == 1) Serial.print(F(" AutoTune →"));
-        (!_direction) ? *_output = _atOutput + _outputStep : *_output = _atOutput - _outputStep;
-        _autoTuneStage = T0;
-      }
-      return AUTOTUNE;
-      break;
-    case T0: // get t0
-      if (*_input > _atSetpoint) {
-        _t0 = micros();
-        if (_printOrPlotter == 1) Serial.print(F(" t0 →"));
-        _inputLast = *_input;
-        _autoTuneStage = T1;
-      }
-      return AUTOTUNE;
-      break;
-    case T1: // get t1
-      if ((*_input > _atSetpoint) && (*_input > _inputLast)) {
-        _t1 = micros();
-        if (_printOrPlotter == 1) Serial.print(F(" t1 →"));
-        _autoTuneStage = T2;
-      }
-      return AUTOTUNE;
-      break;
-    case T2: // get t2
-      _rdAvg = *_input;
-      if (_rdAvg > _peakHigh) _peakHigh = _rdAvg;
-      if ((_rdAvg < _peakLow) && (_peakHigh >= (_atSetpoint + _hysteresis))) _peakLow = _rdAvg;
-      if (_rdAvg > _atSetpoint + _hysteresis) {
-        _t2 = micros();
-        if (_printOrPlotter == 1) Serial.print(F(" t2 →"));
-        (!_direction) ? *_output = _atOutput - _outputStep : *_output = _atOutput + _outputStep;
-        _autoTuneStage = T3L;
-      }
-      return AUTOTUNE;
-      break;
-    case T3L: // t3 low cycle
-      _rdAvg = *_input;
-      if (_rdAvg > _peakHigh) _peakHigh = _rdAvg;
-      if ((_rdAvg < _peakLow) && (_peakHigh >= (_atSetpoint + _hysteresis))) _peakLow = _rdAvg;
-      if (_rdAvg < _atSetpoint - _hysteresis) {
-        (!_direction) ? *_output = _atOutput + _outputStep : *_output = _atOutput - _outputStep;
-        _autoTuneStage = T3H;
-      }
-      return AUTOTUNE;
-      break;
-    case T3H: // t3 high cycle, relay test done
-      _rdAvg = *_input;
-      if (_rdAvg > _peakHigh) _peakHigh = _rdAvg;
-      if ((_rdAvg < _peakLow) && (_peakHigh >= (_atSetpoint + _hysteresis))) _peakLow = _rdAvg;
-      if (_rdAvg > _atSetpoint + _hysteresis) {
-        _t3 = micros();
-        if (_printOrPlotter == 1) Serial.println(F(" t3 → done."));
-        _autoTuneStage = CALC;
-      }
-      return AUTOTUNE;
-      break;
-    case CALC: // calculations
-      _td = (float)(_t1 - _t0) / 1000000.0; // dead time (seconds)
-      _Tu = (float)(_t3 - _t2) / 1000000.0; // ultimate period (seconds)
-      _Ku = (float)(4 * _outputStep * 2) / (float)(3.14159 * sqrt (sq (_peakHigh - _peakLow) - sq (_hysteresis))); // ultimate gain
-      if (_tuningRule == tuningMethod::AMIGOF_PID) {
-        (_td < 0.1) ? _td = 0.1 : _td = _td;
-        _kp = (0.2 + 0.45 * (_Tu / _td)) / _Ku;
-        float Ti = (((0.4 * _td) + (0.8 * _Tu)) / (_td + (0.1 * _Tu)) * _td);
-        float Td = (0.5 * _td * _Tu) / ((0.3 * _td) + _Tu);
-        _ki = _kp / Ti;
-        _kd = Td * _kp;
-      } else { //other rules
-        _kp = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][0] / 1000.0) * _Ku;
-        _ki = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][1] / 1000.0) * (_Ku / _Tu);
-        _kd = (float)(RulesContants[static_cast<uint8_t>(_tuningRule)][2] / 1000.0) * (_Ku * _Tu);
-      }
-      if (_printOrPlotter == 1) {
-        // Controllability https://blog.opticontrols.com/wp-content/uploads/2011/06/td-versus-tau.png
-        if ((_Tu / _td + 0.0001) > 0.75) Serial.println(F("This process is easy to control."));
-        else if ((_Tu / _td + 0.0001) > 0.25) Serial.println(F("This process has average controllability."));
-        else Serial.println(F("This process is difficult to control."));
-        Serial.print(F("Tu: ")); Serial.print(_Tu);    // Ultimate Period (sec)
-        Serial.print(F("  td: ")); Serial.print(_td);  // Dead Time (sec)
-        Serial.print(F("  Ku: ")); Serial.print(_Ku);  // Ultimate Gain
-        Serial.print(F("  Kp: ")); Serial.print(_kp);
-        Serial.print(F("  Ki: ")); Serial.print(_ki);
-        Serial.print(F("  Kd: ")); Serial.println(_kd);
-        Serial.println();
-      }
-      _autoTuneStage = TUNINGS;
-      return AUTOTUNE;
-      break;
-    case TUNINGS:
-      _autoTuneStage = CLR;
-      return TUNINGS;
-      break;
-    case CLR:
-      return CLR;
-      break;
-    default:
-      return CLR;
-      break;
-  }
-  return CLR;
-}
-
-void AutoTunePID::setAutoTuneConstants(float * kp, float * ki, float * kd) {
-  *kp = _kp;
-  *ki = _ki;
-  *kd = _kd;
-}
-
-/* Utility************************************************************/
-// https://github.com/avandalen/avdweb_AnalogReadFast
-int QuickPID::analogReadFast(int ADCpin) {
-#if defined(__AVR_ATmega328P__)
-  byte ADCregOriginal = ADCSRA;
-  ADCSRA = (ADCSRA & B11111000) | 5; // 32 prescaler
-  int adc = analogRead(ADCpin);
-  ADCSRA = ADCregOriginal;
-  return adc;
-#else
-  return analogRead(ADCpin);
-# endif
+uint8_t QuickPID::GetAwMode() {
+  return awmode;
 }

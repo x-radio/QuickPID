@@ -25,10 +25,8 @@ float Setpoint, Input, Output;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
-float POn = 1.0;   // proportional on Error to Measurement ratio (0.0-1.0), default = 1.0
-float DOn = 0.0;   // derivative on Error to Measurement ratio (0.0-1.0), default = 0.0
 
-QuickPID myQuickPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, POn, DOn, QuickPID::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, QuickPID::DIRECT);
 
 unsigned int WindowSize = 5000;
 unsigned int minWindow = 500;
@@ -43,10 +41,10 @@ void setup()
   Setpoint = 100;
 
   //tell the PID to range between 0 and the full window size
-  myQuickPID.SetOutputLimits(0, WindowSize);
+  myPID.SetOutputLimits(0, WindowSize);
 
   //turn the PID on
-  myQuickPID.SetMode(QuickPID::AUTOMATIC);
+  myPID.SetMode(QuickPID::AUTOMATIC);
 }
 
 void loop()
@@ -59,7 +57,7 @@ void loop()
   if (millis() - windowStartTime >= WindowSize)
   { //time to shift the Relay Window
     windowStartTime += WindowSize;
-    myQuickPID.Compute();
+    myPID.Compute();
   }
   if (((unsigned int)Output > minWindow) && ((unsigned int)Output > (millis() - windowStartTime))) digitalWrite(RELAY_PIN, HIGH);
   else digitalWrite(RELAY_PIN, LOW);
