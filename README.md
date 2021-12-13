@@ -1,6 +1,6 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID)
 
-QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library. However, the additional features like integral anti-windup based on conditional-conditioning, clamping, or turning it off completely. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  The controller modes includes `TIMER`, which allows external timer or ISR timing control.
+QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library. One of the additional features includes integral anti-windup which can be based on conditionally using PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. Anti-windup can also be based on clamping only, or it can be turned completely off. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  PID controller modes include `TIMER`, which allows external timer or ISR timing control.
 
 ### Features
 
@@ -37,8 +37,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
 - `pMode` is the proportional mode parameter with options for `PE` proportional on error (default), `PM`  proportional on measurement and `PEM` which is 0.5 `PE` + 0.5 `PM`. 
 - `dMode` is the derivative mode parameter with options for `DE` derivative on error (default), `DM` derivative on measurement (default).
-- `awMode` is the integral anti-windup parameter with options for `CONDITION` which is based on PI terms to provide some integral correction and prevent deep saturation, `CLAMP` (default) which clamps the summation of the pmTerm and iTerm. The `OFF` option turns off all anti-windup.
-- `Action` is the controller action parameter which has `DIRECT` (default)  and `REVERSE` options. These options set how the controller responds to a change in input. `DIRECT` action will lead the output to increase when the input is larger than the setpoint (i.e. heating process). `REVERSE` action will lead the output to decrease when the input is larger than the setpoint (i.e. cooling process).
+- `awMode` is the integral anti-windup parameter with an option for `CONDITION` which is based on PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. The`CLAMP` option (default), clamps the summation of the pmTerm and iTerm. The `OFF` option turns off all anti-windup.
+- `Action` is the controller action parameter which has `DIRECT` (default)  and `REVERSE` options. These options set how the controller responds to a change in input.  `DIRECT` action is used if the input moves in the same direction as the controller output (i.e. heating process). `REVERSE` action is used if the input moves in the opposite direction as the controller output (i.e. cooling process).
 
 ```c++
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
@@ -67,7 +67,7 @@ This function allows the controller's dynamic performance to be adjusted. It's c
 void QuickPID::SetTunings(float Kp, float Ki, float Kd);
 ```
 
-Set Tunings using the last remembered POn and DOn settings. See example [PID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AdaptiveTunings/PID_AdaptiveTunings.ino)
+Set Tunings using the last remembered `pMode`, `dMode` and `awMode` settings. See example [PID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AdaptiveTunings/PID_AdaptiveTunings.ino)
 
 #### SetSampleTime
 
@@ -75,7 +75,7 @@ Set Tunings using the last remembered POn and DOn settings. See example [PID_Ada
 void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs);
 ```
 
-Sets the period, in microseconds, at which the calculation is performed. The default is 100ms.
+Sets the period, in microseconds, at which the calculation is performed. The default is 100000µs (100ms).
 
 #### SetOutputLimits
 
@@ -127,14 +127,14 @@ The PID will either be connected to a `DIRECT` acting process (+Output leads to 
     uint8_t GetDirection();   // DIRECT (0), REVERSE (1)
     uint8_t GetPmode();       // PE (0), PM (1), PEM (2)
     uint8_t GetDmode();       // DE (0), DM (1)
-    uint8_t GetAwMode();      // CONDITION (0, CLAMP (1), OFF (2)
+    uint8_t GetAwMode();      // CONDITION (0), CLAMP (1), OFF (2)
 ```
 
 These functions query the internal state of the PID.
 
 #### [AnalogWrite (PWM and DAC) for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
 
-Use this link for reference. Note that if you're using QuickPID, there's no need to install the AnalogWrite library as this feature is already included.
+If you're using QuickPID with an ESP32 and need analogWrite compatibility, there's no need to install a library as this feature is already included.
 
 ### Original README (Arduino PID)
 
