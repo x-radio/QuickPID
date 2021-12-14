@@ -29,8 +29,8 @@ When the controller is set to `REVERSE` acting, the sign of the `error` and `dIn
 
 ```c++
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, uint8_t pMode = PE, uint8_t dMode = DM,
-                   uint8_t awMode = CLAMP, uint8_t Action = DIRECT)
+                   float Kp, float Ki, float Kd, pMode pMode = pMode::PE, dMode dMode = dMode::DM,
+                   awMode awMode = awMode::CONDITION, Action action = Action::DIRECT);
 ```
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
@@ -41,8 +41,8 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 - `Action` is the controller action parameter which has `DIRECT` (default)  and `REVERSE` options. These options set how the controller responds to a change in input.  `DIRECT` action is used if the input moves in the same direction as the controller output (i.e. heating process). `REVERSE` action is used if the input moves in the opposite direction as the controller output (i.e. cooling process).
 
 ```c++
-QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, uint8_t Action = DIRECT)
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint, float Kp, float Ki, float Kd,
+                   Action action);
 ```
 
 This allows you to use Proportional on Error without explicitly saying so.
@@ -58,7 +58,8 @@ This function contains the PID algorithm and it should be called once every loop
 #### SetTunings
 
 ```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, uint8_t pMode = PE, uint8_t dMode = DM, uint8_t awMode = CLAMP)
+void QuickPID::SetTunings(float Kp, float Ki, float Kd, pMode pMode = pMode::PE, dMode dMode = dMode::DM,
+                          awMode awMode = awMode::CONDITION);
 ```
 
 This function allows the controller's dynamic performance to be adjusted. It's called automatically from the constructor, but tunings can also be adjusted on the fly during normal operation. The parameters are as described in the constructor.
@@ -88,7 +89,7 @@ The PID controller is designed to vary its output within a given range.  By defa
 #### SetMode
 
 ```c++
-void QuickPID::SetMode(uint8_t Mode)
+void QuickPID::SetMode(Control Mode);
 ```
 
 Allows the controller Mode to be set to `MANUAL` (0) or `AUTOMATIC` (1) or `TIMER` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized. 
@@ -109,7 +110,7 @@ Does all the things that need to happen to ensure a bump-less transfer from manu
 #### SetControllerDirection
 
 ```c++
-void QuickPID::SetControllerDirection(uint8_t Action)
+void QuickPID::SetControllerDirection(Action Action);
 ```
 
 The PID will either be connected to a `DIRECT` acting process (+Output leads to +Input) or a `REVERSE` acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.

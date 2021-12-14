@@ -18,7 +18,7 @@ float Setpoint, Input, Output;
 float Kp = 2, Ki = 5, Kd = 1;
 
 Ticker timer1(runPid, sampleTimeUs, 0, MICROS_MICROS);
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, QuickPID::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::DIRECT);
 
 void setup() {
   timer1.start();
@@ -28,7 +28,7 @@ void setup() {
   Setpoint = 100;
 
   //turn the PID on
-  myPID.SetMode(QuickPID::AUTOMATIC);
+  myPID.SetMode(myPID.Control::AUTOMATIC);
 }
 
 void loop() {

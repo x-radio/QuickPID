@@ -16,7 +16,7 @@ float Setpoint, Input, Output;
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, QuickPID::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::DIRECT);
 
 void setup() {
   Timer1.initialize(sampleTimeUs); // initialize timer1, and set the time interval
@@ -27,7 +27,7 @@ void setup() {
   Setpoint = 100;
 
   //turn the PID on
-  myPID.SetMode(QuickPID::AUTOMATIC);
+  myPID.SetMode(myPID.Control::AUTOMATIC);
 }
 
 void loop() {

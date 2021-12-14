@@ -6,22 +6,22 @@ class QuickPID {
 
   public:
 
-    enum Mode : uint8_t {MANUAL, AUTOMATIC, TIMER}; // controller modes
-    enum Action : uint8_t {DIRECT, REVERSE};        // controller actions
-    enum pMode : uint8_t {PE, PM, PEM};             // proportional modes
-    enum dMode : uint8_t {DE, DM};                  // derivative modes
-    enum awMode : uint8_t {CONDITION, CLAMP, OFF};  // integral anti-windup modes
+    enum class Control : uint8_t {MANUAL, AUTOMATIC, TIMER};  // controller mode
+    enum class Action : uint8_t {DIRECT, REVERSE};            // controller action
+    enum class pMode : uint8_t {PE, PM, PEM};                 // proportional mode
+    enum class dMode : uint8_t {DE, DM};                      // derivative mode
+    enum class awMode : uint8_t {CONDITION, CLAMP, OFF};      // integral anti-windup mode
 
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, uint8_t pMode, uint8_t dMode, uint8_t awMode, uint8_t Action);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, pMode pMode, dMode dMode, awMode awMode, Action Action);
 
     // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
-    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, uint8_t Action);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, Action Action);
 
     // Sets PID mode to MANUAL (0), AUTOMATIC (1) or TIMER (2).
-    void SetMode(uint8_t Mode);
+    void SetMode(Control mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
@@ -37,16 +37,16 @@ class QuickPID {
     void SetTunings(float Kp, float Ki, float Kd);
 
     // Overload for specifying proportional ratio.
-    void SetTunings(float Kp, float Ki, float Kd, uint8_t pMode, uint8_t dMode, uint8_t awMode);
+    void SetTunings(float Kp, float Ki, float Kd, pMode pMode, dMode dMode, awMode awMode);
 
     // Sets the controller Direction or Action. DIRECT means the output will increase when the error is positive.
     // REVERSE means the output will decrease when the error is positive.
-    void SetControllerDirection(uint8_t Action);
+    void SetControllerDirection(Action Action);
 
     // Sets the sample time in microseconds with which each PID calculation is performed. Default is 100000 µs.
     void SetSampleTimeUs(uint32_t NewSampleTimeUs);
 
-    // PID Query functions ***********************************************************************************
+    // PID Query functions ****************************************************************************************
     float GetKp();            // proportional gain
     float GetKi();            // integral gain
     float GetKd();            // derivative gain
@@ -78,11 +78,11 @@ class QuickPID {
     float *myOutput;    // hard link between the variables and the PID, freeing the user from having
     float *mySetpoint;  // to constantly tell us what these values are. With pointers we'll just know.
 
-    uint8_t mode = MANUAL;
-    uint8_t action = DIRECT;
-    uint8_t pmode = PE;
-    uint8_t dmode = DM;
-    uint8_t awmode = CONDITION;
+    Control mode = Control::MANUAL;
+    Action action = Action::DIRECT;
+    pMode pmode = pMode::PE;
+    dMode dmode = dMode::DM;
+    awMode awmode = awMode::CONDITION;
 
     uint32_t sampleTimeUs, lastTime;
     float outputSum, outMin, outMax, error, lastError, lastInput;
