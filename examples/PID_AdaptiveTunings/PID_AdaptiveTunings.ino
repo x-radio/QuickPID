@@ -22,7 +22,7 @@ float aggKp = 4, aggKi = 0.2, aggKd = 1;
 float consKp = 1, consKi = 0.05, consKd = 0.25;
 
 //Specify the links and initial tuning parameters
-QuickPID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, myPID.Action::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, myPID.Action::direct);
 
 void setup()
 {
@@ -31,7 +31,7 @@ void setup()
   Setpoint = 100;
 
   //turn the PID on
-  myPID.SetMode(myPID.Control::AUTOMATIC);
+  myPID.SetMode(myPID.Control::automatic);
 }
 
 void loop()

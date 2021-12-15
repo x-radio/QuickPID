@@ -14,7 +14,7 @@ float Setpoint, Input, Output;
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::DIRECT);
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::direct);
 
 void setup()
 {
@@ -23,7 +23,7 @@ void setup()
   Setpoint = 100;
 
   //turn the PID on
-  myPID.SetMode(myPID.Control::AUTOMATIC);
+  myPID.SetMode(myPID.Control::automatic);
 }
 
 void loop()

@@ -6,21 +6,21 @@ class QuickPID {
 
   public:
 
-    enum class Control : uint8_t {MANUAL, AUTOMATIC, TIMER};  // controller mode
-    enum class Action : uint8_t {DIRECT, REVERSE};            // controller action
-    enum class pMode : uint8_t {PE, PM, PEM};                 // proportional mode
-    enum class dMode : uint8_t {DE, DM};                      // derivative mode
-    enum class awMode : uint8_t {CONDITION, CLAMP, OFF};      // integral anti-windup mode
+    enum class Control : uint8_t {manual, automatic, timer};        // controller mode
+    enum class Action : uint8_t {direct, reverse};                  // controller action
+    enum class pMode : uint8_t {pOnError, pOnMeas, pOnErrorMeas};   // proportional mode
+    enum class dMode : uint8_t {dOnError, dOnMeas};                 // derivative mode
+    enum class iAwMode : uint8_t {iAwCondition, iAwClamp, iAwOff};  // integral anti-windup mode
 
     // commonly used functions ************************************************************************************
 
     // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, pMode pMode, dMode dMode, awMode awMode, Action Action);
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, pMode pMode, dMode dMode, iAwMode iAwMode, Action Action);
 
     // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, Action Action);
 
-    // Sets PID mode to MANUAL (0), AUTOMATIC (1) or TIMER (2).
+    // Sets PID mode to manual (0), automatic (1) or timer (2).
     void SetMode(Control mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles ON/OFF and calculation frequency
@@ -37,10 +37,10 @@ class QuickPID {
     void SetTunings(float Kp, float Ki, float Kd);
 
     // Overload for specifying proportional ratio.
-    void SetTunings(float Kp, float Ki, float Kd, pMode pMode, dMode dMode, awMode awMode);
+    void SetTunings(float Kp, float Ki, float Kd, pMode pMode, dMode dMode, iAwMode iAwMode);
 
-    // Sets the controller Direction or Action. DIRECT means the output will increase when the error is positive.
-    // REVERSE means the output will decrease when the error is positive.
+    // Sets the controller direction or action. Direct means the output will increase when the error is positive.
+    // Reverse means the output will decrease when the error is positive.
     void SetControllerDirection(Action Action);
 
     // Sets the sample time in microseconds with which each PID calculation is performed. Default is 100000 µs.
@@ -53,11 +53,11 @@ class QuickPID {
     float GetPterm();         // proportional component of output
     float GetIterm();         // integral component of output
     float GetDterm();         // derivative component of output
-    uint8_t GetMode();        // MANUAL (0), AUTOMATIC (1) or TIMER (2)
-    uint8_t GetDirection();   // DIRECT (0), REVERSE (1)
-    uint8_t GetPmode();       // PE (0), PM (1), PEM (2)
-    uint8_t GetDmode();       // DE (0), DM (1)
-    uint8_t GetAwMode();      // CONDITION (0, CLAMP (1), OFF (2)
+    uint8_t GetMode();        // manual (0), automatic (1) or timer (2)
+    uint8_t GetDirection();   // direct (0), reverse (1)
+    uint8_t GetPmode();       // pOnError (0), pOnMeas (1), pOnErrorMeas (2)
+    uint8_t GetDmode();       // dOnError (0), dOnMeas (1)
+    uint8_t GetAwMode();      // iAwCondition (0, iAwClamp (1), iAwOff (2)
 
   private:
 
@@ -78,11 +78,11 @@ class QuickPID {
     float *myOutput;    // hard link between the variables and the PID, freeing the user from having
     float *mySetpoint;  // to constantly tell us what these values are. With pointers we'll just know.
 
-    Control mode = Control::MANUAL;
-    Action action = Action::DIRECT;
-    pMode pmode = pMode::PE;
-    dMode dmode = dMode::DM;
-    awMode awmode = awMode::CONDITION;
+    Control mode = Control::manual;
+    Action action = Action::direct;
+    pMode pmode = pMode::pOnError;
+    dMode dmode = dMode::dOnMeas;
+    iAwMode iawmode = iAwMode::iAwCondition;
 
     uint32_t sampleTimeUs, lastTime;
     float outputSum, outMin, outMax, error, lastError, lastInput;
