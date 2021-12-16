@@ -42,6 +42,15 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                        iawmode = iAwMode::iAwCondition, action = Action::direct) {
 }
 
+/* Constructor *********************************************************************
+   Simplified constructor which uses defaults for remaining parameters.
+ **********************************************************************************/
+QuickPID::QuickPID(float* Input, float* Output, float* Setpoint)
+  : QuickPID::QuickPID(Input, Output, Setpoint, defKp, defKi, defKd,
+                       pmode = pMode::pOnError, dmode = dMode::dOnMeas,
+                       iawmode = iAwMode::iAwCondition, action = Action::direct) {
+}
+
 /* Compute() ***********************************************************************
    This function should be called every time "void loop()" executes. The function
    will decide whether a new PID Output needs to be computed. Returns true
@@ -174,6 +183,33 @@ void QuickPID::Initialize() {
 ******************************************************************************/
 void QuickPID::SetControllerDirection(Action Action) {
   action = Action;
+}
+
+/* SetProportionalMode(.)*****************************************************
+  Sets the computation method for the proportional term, to compute based
+  either on error (default), on measurement, or the average of both.
+******************************************************************************/
+void QuickPID::SetProportionalMode(pMode pMode) {
+  pmode = pMode;
+}
+
+/* SetDerivativeMode(.)*******************************************************
+  Sets the computation method for the derivative term, to compute based
+  either on error (default), or on measurement.
+******************************************************************************/
+void QuickPID::SetDerivativeMode(dMode dMode) {
+  dmode = dMode;
+}
+
+/* SetAntiWindupMode(.)*******************************************************
+  Sets the integral anti-windup mode to one of iAwClamp, which clamps
+  the output after adding integral and proportional (on measurement) terms,
+  or iAwCondition, which provides some integral correction, prevents
+  deep saturation and reduces overshoot.
+  Option iAwOff disables anti-windup altogether.
+******************************************************************************/
+void QuickPID::SetAntiWindupMode(iAwMode iAwMode) {
+  iawmode = iAwMode;
 }
 
 /* Status Functions************************************************************
