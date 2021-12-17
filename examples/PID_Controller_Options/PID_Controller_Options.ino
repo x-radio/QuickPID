@@ -13,7 +13,7 @@
     float GetPterm();         // proportional component of output
     float GetIterm();         // integral component of output
     float GetDterm();         // derivative component of output
-    uint8_t GetMode();        // manual (0), automatic (1) or TIMER (2)
+    uint8_t GetMode();        // manual (0), automatic (1) or timer (2)
     uint8_t GetDirection();   // direct (0), reverse (1)
     uint8_t GetPmode();       // pOnError (0), pOnMeas (1), pOnErrorMeas (2)
     uint8_t GetDmode();       // dOnError (0), dOnMeas (1)

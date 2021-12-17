@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.0.2
+   QuickPID Library for Arduino - Version 3.0.3
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -17,8 +17,11 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, pMode pMode = pMode::pOnError, dMode dMode = dMode::dOnMeas,
-                   iAwMode iAwMode = iAwMode::iAwCondition, Action action = Action::direct) {
+                   float Kp, float Ki, float Kd,
+                   pMode pMode = pMode::pOnError,
+                   dMode dMode = dMode::dOnMeas,
+                   iAwMode iAwMode = iAwMode::iAwCondition,
+                   Action action = Action::direct) {
 
   myOutput = Output;
   myInput = Input;
@@ -38,8 +41,11 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, Action action)
-  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd, pmode = pMode::pOnError, dmode = dMode::dOnMeas,
-                       iawmode = iAwMode::iAwCondition, action = Action::direct) {
+  : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd,
+                       pmode = pMode::pOnError,
+                       dmode = dMode::dOnMeas,
+                       iawmode = iAwMode::iAwCondition,
+                       action = Action::direct) {
 }
 
 /* Constructor *********************************************************************
@@ -47,8 +53,10 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint)
   : QuickPID::QuickPID(Input, Output, Setpoint, defKp, defKi, defKd,
-                       pmode = pMode::pOnError, dmode = dMode::dOnMeas,
-                       iawmode = iAwMode::iAwCondition, action = Action::direct) {
+                       pmode = pMode::pOnError,
+                       dmode = dMode::dOnMeas,
+                       iawmode = iAwMode::iAwCondition,
+                       action = Action::direct) {
 }
 
 /* Compute() ***********************************************************************
@@ -111,7 +119,11 @@ bool QuickPID::Compute() {
   it's called automatically from the constructor, but tunings can also
   be adjusted on the fly during normal operation.
 ******************************************************************************/
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, pMode pMode = pMode::pOnError, dMode dMode = dMode::dOnMeas, iAwMode iAwMode = iAwMode::iAwCondition) {
+void QuickPID::SetTunings(float Kp, float Ki, float Kd,
+                          pMode pMode = pMode::pOnError,
+                          dMode dMode = dMode::dOnMeas,
+                          iAwMode iAwMode = iAwMode::iAwCondition) {
+
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
   pmode = pMode; dmode = dMode; iawmode = iAwMode;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
@@ -122,7 +134,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd, pMode pMode = pMode::pOn
 }
 
 /* SetTunings(...)************************************************************
-  Set Tunings using the last remembered pMode and dMode setting.
+  Set Tunings using the last remembered pMode, dMode and iAwMode settings.
 ******************************************************************************/
 void QuickPID::SetTunings(float Kp, float Ki, float Kd) {
   SetTunings(Kp, Ki, Kd, pmode, dmode, iawmode);
@@ -195,7 +207,7 @@ void QuickPID::SetProportionalMode(pMode pMode) {
 
 /* SetDerivativeMode(.)*******************************************************
   Sets the computation method for the derivative term, to compute based
-  either on error (default), or on measurement.
+  either on error or on measurement (default).
 ******************************************************************************/
 void QuickPID::SetDerivativeMode(dMode dMode) {
   dmode = dMode;
@@ -204,7 +216,7 @@ void QuickPID::SetDerivativeMode(dMode dMode) {
 /* SetAntiWindupMode(.)*******************************************************
   Sets the integral anti-windup mode to one of iAwClamp, which clamps
   the output after adding integral and proportional (on measurement) terms,
-  or iAwCondition, which provides some integral correction, prevents
+  or iAwCondition (default), which provides some integral correction, prevents
   deep saturation and reduces overshoot.
   Option iAwOff disables anti-windup altogether.
 ******************************************************************************/

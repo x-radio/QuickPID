@@ -14,10 +14,12 @@ class QuickPID {
 
     // commonly used functions ************************************************************************************
 
-    // Constructor. Links the PID to Input, Output, Setpoint and initial Tuning Parameters.
-    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, pMode pMode, dMode dMode, iAwMode iAwMode, Action Action);
+    // Constructor. Links the PID to Input, Output, Setpoint, initial tuning parameters and control modes.
+    QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd,
+             pMode pMode, dMode dMode, iAwMode iAwMode, Action Action);
 
-    // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
+    // Overload constructor links the PID to Input, Output, Setpoint, tuning parameters and control Action.
+    // Uses defaults for remaining parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, Action Action);
 
     // Simplified constructor which uses defaults for remaining parameters.
@@ -53,12 +55,11 @@ class QuickPID {
     // on measurement, or the average of both.
     void SetProportionalMode(pMode pMode);
 
-    // Sets the computation method for the derivative term, to compute based either on error (default),
-    // or measurement.
+    // Sets the computation method for the derivative term, to compute based either on error or measurement (default).
     void SetDerivativeMode(dMode dMode);
 
     // Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after
-    // adding integral and proportional (on measurement) terms, or iAwCondition, which
+    // adding integral and proportional (on measurement) terms, or iAwCondition (default), which
     // provides some integral correction, prevents deep saturation and reduces overshoot.
     // Option iAwOff disables anti-windup altogether.
     void SetAntiWindupMode(iAwMode iAwMode);

@@ -8,6 +8,7 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 
 #### New feature Summary
 
+- [x] New functions added: `SetProportionalMode`, `SetDerivativeMode` and `SetAntiWindupMode`
 - [x] `timer` mode for calling PID compute by an external timer function or ISR
 - [x] `analogWrite()` support for ESP32 and ESP32-S2
 - [x] Proportional on error `pOnError`, measurement `pOnMeas` or both `pOnErrorMeas` options
@@ -119,7 +120,7 @@ Does all the things that need to happen to ensure a bump-less transfer from manu
 void QuickPID::SetControllerDirection(Action Action);
 ```
 
-The PID will either be connected to a `DIRECT` acting process (+Output leads to +Input) or a `reverse` acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.
+The PID will either be connected to a `direct` acting process (+Output leads to +Input) or a `reverse` acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.
 
 #### SetProportionalMode
 
@@ -135,7 +136,7 @@ Sets the computation method for the proportional term, to compute based either o
 void QuickPID::SetDerivativeMode(dMode dMode);
 ```
 
-Sets the computation method for the derivative term, to compute based either on error (default), or on measurement.
+Sets the computation method for the derivative term, to compute based either on error or on measurement (default).
 
 #### SetAntiWindupMode
 
@@ -143,7 +144,7 @@ Sets the computation method for the derivative term, to compute based either on 
 void QuickPID::SetAntiWindupMode(iAwMode iAwMode);
 ```
 
-Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after adding integral and proportional (on measurement) terms, or iAwCondition, which provides some integral correction, prevents deep saturation and reduces overshoot. Option iAwOff disables anti-windup altogether.
+Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after adding integral and proportional (on measurement) terms, or iAwCondition (default), which provides some integral correction, prevents deep saturation and reduces overshoot. Option iAwOff disables anti-windup altogether.
 
 #### PID Query Functions
 
@@ -163,9 +164,9 @@ Sets the integral anti-windup mode to one of iAwClamp, which clamps the output a
 
 These functions query the internal state of the PID.
 
-#### [AnalogWrite (PWM and DAC) for ESP32](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
+#### AnalogWrite (PWM and DAC) for ESP32
 
-If you're using QuickPID with an ESP32 and need analogWrite compatibility, there's no need to install a library as this feature is already included.
+If you're using QuickPID with an ESP32 and need analogWrite compatibility, there's no need to install a library as this feature is already included. AnalogWrite [documentation](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
 
 ### Original README (Arduino PID)
 
@@ -178,7 +179,7 @@ If you're using QuickPID with an ESP32 and need analogWrite compatibility, there
 ***************************************************************
 ```
 
- - For an ultra-detailed explanation of the original code, please visit:
+ - For a detailed explanation of the original code, please visit:
    http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 
  - For function documentation see:  http://playground.arduino.cc/Code/PIDLibrary

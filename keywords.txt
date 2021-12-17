@@ -19,6 +19,9 @@ SetOutputLimits	KEYWORD2
 SetTunings	KEYWORD2
 SetControllerDirection	KEYWORD2
 SetSampleTimeUs	KEYWORD2
+SetProportionalMode	KEYWORD2
+SetDerivativeMode	KEYWORD2
+SetAntiWindupMode	KEYWORD2
 GetKp	KEYWORD2
 GetKi	KEYWORD2
 GetKd	KEYWORD2
