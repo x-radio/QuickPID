@@ -20,6 +20,9 @@ class QuickPID {
     // Overload constructor with proportional ratio. Links the PID to Input, Output, Setpoint and Tuning Parameters.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd, Action Action);
 
+    // Simplified constructor which uses defaults for remaining parameters.
+    QuickPID(float *Input, float *Output, float *Setpoint);
+
     // Sets PID mode to manual (0), automatic (1) or timer (2).
     void SetMode(Control mode);
 
@@ -46,6 +49,20 @@ class QuickPID {
     // Sets the sample time in microseconds with which each PID calculation is performed. Default is 100000 µs.
     void SetSampleTimeUs(uint32_t NewSampleTimeUs);
 
+    // Sets the computation method for the proportional term, to compute based either on error (default),
+    // on measurement, or the average of both.
+    void SetProportionalMode(pMode pMode);
+
+    // Sets the computation method for the derivative term, to compute based either on error (default),
+    // or measurement.
+    void SetDerivativeMode(dMode dMode);
+
+    // Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after
+    // adding integral and proportional (on measurement) terms, or iAwCondition, which
+    // provides some integral correction, prevents deep saturation and reduces overshoot.
+    // Option iAwOff disables anti-windup altogether.
+    void SetAntiWindupMode(iAwMode iAwMode);
+
     // PID Query functions ****************************************************************************************
     float GetKp();            // proportional gain
     float GetKi();            // integral gain
@@ -62,6 +79,10 @@ class QuickPID {
   private:
 
     void Initialize();
+
+    static constexpr float defKp = 0;  // default controller gains
+    static constexpr float defKi = 0;
+    static constexpr float defKd = 0;
 
     float dispKp;       // tuning parameters for display purposes.
     float dispKi;

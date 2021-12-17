@@ -9,11 +9,11 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 #### New feature Summary
 
 - [x] `timer` mode for calling PID compute by an external timer function or ISR
-- [x] `analogWrite()` support for ESP32 and ESP32-S2 
+- [x] `analogWrite()` support for ESP32 and ESP32-S2
 - [x] Proportional on error `pOnError`, measurement `pOnMeas` or both `pOnErrorMeas` options
 - [x] Derivative on error `dOnError` and measurement `dOnMeas` options
 - [x] New PID Query Functions `GetPterm`, `GetIterm`, `GetDterm`, `GetPmode`, `GetDmode` and `GetAwMode`
-- [x] New integral anti-windup options `iAwCondition`, `iAwClamp` and `iAwOff` 
+- [x] New integral anti-windup options `iAwCondition`, `iAwClamp` and `iAwOff`
 - [x] New `reverse` mode only changes sign of `error` and `dInput`
 - [x] Uses `float` instead of `double`
 
@@ -35,9 +35,9 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint, float Kp, float
 
 - `Input`, `Output`, and `Setpoint` are pointers to the variables holding these values.
 - `Kp`, `Ki`, and `Kd` are the PID proportional, integral, and derivative gains.
-- `pMode` is the proportional mode parameter with options for `pOnError` proportional on error (default), `pOnMeas`  proportional on measurement and `pOnErrorMeas` which is 0.5 `pOnError` + 0.5 `pOnMeas`. 
-- `dMode` is the derivative mode parameter with options for `dOnError` derivative on error (default), `dOnMeas` derivative on measurement (default).
-- `awMode` is the integral anti-windup parameter with an option for `iAwCondition` which is based on PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. The`iAwClamp` option (default), clamps the summation of the pmTerm and iTerm. The `OFF` option turns off all anti-windup.
+- `pMode` is the proportional mode parameter with options for `pOnError` proportional on error (default), `pOnMeas`  proportional on measurement and `pOnErrorMeas` which is 0.5 `pOnError` + 0.5 `pOnMeas`.
+- `dMode` is the derivative mode parameter with options for `dOnError` derivative on error, `dOnMeas` derivative on measurement (default).
+- `awMode` is the integral anti-windup parameter with an option for `iAwCondition` which is based on PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. The`iAwClamp` option (default), clamps the summation of the pmTerm and iTerm. The `iAwOff` option turns off all anti-windup.
 - `Action` is the controller action parameter which has `direct` (default)  and `reverse` options. These options set how the controller responds to a change in input.  `direct` action is used if the input moves in the same direction as the controller output (i.e. heating process). `reverse` action is used if the input moves in the opposite direction as the controller output (i.e. cooling process).
 
 ```c++
@@ -46,6 +46,12 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 ```
 
 This allows you to use Proportional on Error without explicitly saying so.
+
+```c++
+QuickPID::QuickPID(float *Input, float *Output, float *Setpoint)
+```
+
+This simplified version allows you to define the remaining parameters later via specific setter functions. By default, Kp, Ki, and Kd will be initialized to zero, and should be later set via `SetTunings` to relevant values.
 
 #### Compute
 
@@ -92,7 +98,7 @@ The PID controller is designed to vary its output within a given range.  By defa
 void QuickPID::SetMode(Control Mode);
 ```
 
-Allows the controller Mode to be set to `manual` (0) or `automatic` (1) or `timer` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized. 
+Allows the controller Mode to be set to `manual` (0) or `automatic` (1) or `timer` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized.
 
 `timer` mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and SetSampleTimeUs use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant. See examples:
 
@@ -114,6 +120,30 @@ void QuickPID::SetControllerDirection(Action Action);
 ```
 
 The PID will either be connected to a `DIRECT` acting process (+Output leads to +Input) or a `reverse` acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.
+
+#### SetProportionalMode
+
+```c++
+void QuickPID::SetProportionalMode(pMode pMode);
+```
+
+Sets the computation method for the proportional term, to compute based either on error (default), on measurement, or the average of both.
+
+#### SetDerivativeMode
+
+```c++
+void QuickPID::SetDerivativeMode(dMode dMode);
+```
+
+Sets the computation method for the derivative term, to compute based either on error (default), or on measurement.
+
+#### SetAntiWindupMode
+
+```c++
+void QuickPID::SetAntiWindupMode(iAwMode iAwMode);
+```
+
+Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after adding integral and proportional (on measurement) terms, or iAwCondition, which provides some integral correction, prevents deep saturation and reduces overshoot. Option iAwOff disables anti-windup altogether.
 
 #### PID Query Functions
 
@@ -154,4 +184,3 @@ If you're using QuickPID with an ESP32 and need analogWrite compatibility, there
  - For function documentation see:  http://playground.arduino.cc/Code/PIDLibrary
 
 ------
-
