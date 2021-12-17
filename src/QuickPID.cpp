@@ -83,8 +83,8 @@ bool QuickPID::Compute() {
     if (pmode == pMode::pOnError) pmTerm = 0;
     else if (pmode == pMode::pOnMeas) peTerm = 0;
     else { //pOnErrorMeas
-      peTerm *= 0.5;
-      pmTerm *= 0.5;
+      peTerm *= 0.5f;
+      pmTerm *= 0.5f;
     }
     pTerm = peTerm - pmTerm; // used by GetDterm()
     iTerm =  ki  * error;
