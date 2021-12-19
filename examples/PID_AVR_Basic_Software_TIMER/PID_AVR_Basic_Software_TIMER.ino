@@ -18,7 +18,7 @@ float Setpoint, Input, Output;
 float Kp = 2, Ki = 5, Kd = 1;
 
 Ticker timer1(runPid, sampleTimeUs, 0, MICROS_MICROS);
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::direct);
+QuickPID myPID(&Input, &Output, &Setpoint);
 
 void setup() {
   timer1.start();
@@ -26,6 +26,9 @@ void setup() {
   //initialize the variables we're linked to
   Input = analogRead(PIN_INPUT);
   Setpoint = 100;
+
+  //apply PID gains
+  myPID.SetTunings(Kp, Ki, Kd);
 
   //turn the PID on
   myPID.SetMode(myPID.Control::automatic);

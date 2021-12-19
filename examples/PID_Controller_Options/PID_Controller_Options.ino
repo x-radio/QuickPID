@@ -1,24 +1,5 @@
 /**************************************************************************************
   For testing and checking parameter options. From QuickPID.h:
-
-    enum class Mode : uint8_t {manual, automatic, timer};           // controller modes
-    enum class Action : uint8_t {direct, reverse};                  // controller actions
-    enum class pMode : uint8_t {pOnError, pOnMeas, pOnErrorMeas};   // proportional modes
-    enum class dMode : uint8_t {dOnError, dOnMeas};                 // derivative modes
-    enum class iAwMode : uint8_t {iAwCondition, iAwClamp, iAwOff};  // integral anti-windup modes
-
-    float GetKp();            // proportional gain
-    float GetKi();            // integral gain
-    float GetKd();            // derivative gain
-    float GetPterm();         // proportional component of output
-    float GetIterm();         // integral component of output
-    float GetDterm();         // derivative component of output
-    uint8_t GetMode();        // manual (0), automatic (1) or timer (2)
-    uint8_t GetDirection();   // direct (0), reverse (1)
-    uint8_t GetPmode();       // pOnError (0), pOnMeas (1), pOnErrorMeas (2)
-    uint8_t GetDmode();       // dOnError (0), dOnMeas (1)
-    uint8_t GetAwMode();      // iAwCondition (0), iAwClamp (1), iAwOff (2)
-
   Documentation (GitHub): https://github.com/Dlloydev/QuickPID
  **************************************************************************************/
 
@@ -30,11 +11,11 @@ const byte outputPin = 3;
 //Define variables we'll be connecting to
 float Setpoint = 0, Input = 0, Output = 0, Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.pMode::pOnError, myPID.dMode::dOnMeas, myPID.iAwMode::iAwCondition, myPID.Action::direct);
-/*                                                                  pOnError               dOnError                iAwCondition                direct
-                                                                    pOnMeas                dOnMeas                 iAwClamp                    reverse
-                                                                    pOnErrorMeas                                   iAwOff
-*/
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd,  /* OPTIONS */
+               myPID.pMode::pOnError,                   /* pOnError (0), pOnMeas (1), pOnErrorMeas (2) */
+               myPID.dMode::dOnMeas,                    /* dOnError (0), dOnMeas (1) */
+               myPID.iAwMode::iAwCondition,             /* iAwCondition (0), iAwClamp (1), iAwOff (2) */
+               myPID.Action::direct);                   /* direct (0), reverse (1) */
 
 void setup()
 {

@@ -13,18 +13,21 @@ volatile bool computeNow = false;
 //Define Variables we'll be connecting to
 float Setpoint, Input, Output;
 
-//Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::direct);
+//specify the links
+QuickPID myPID(&Input, &Output, &Setpoint);
 
 void setup() {
-  Timer1.initialize(sampleTimeUs); // initialize timer1, and set the time interval
-  Timer1.attachInterrupt(runPid);  // attaches runPid() as a timer overflow interrupt
+  Timer1.initialize(sampleTimeUs); //initialize timer1, and set the time interval
+  Timer1.attachInterrupt(runPid);  //attaches runPid() as a timer overflow interrupt
 
   //initialize the variables we're linked to
   Input = analogRead(PIN_INPUT);
   Setpoint = 100;
+
+  //apply PID gains
+  myPID.SetTunings(Kp, Ki, Kd);
 
   //turn the PID on
   myPID.SetMode(myPID.Control::automatic);

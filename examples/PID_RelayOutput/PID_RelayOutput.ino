@@ -26,7 +26,7 @@ float Setpoint, Input, Output;
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, myPID.Action::direct);
+QuickPID myPID(&Input, &Output, &Setpoint);
 
 unsigned int WindowSize = 5000;
 unsigned int minWindow = 500;
@@ -42,6 +42,9 @@ void setup()
 
   //tell the PID to range between 0 and the full window size
   myPID.SetOutputLimits(0, WindowSize);
+
+  //apply PID gains
+  myPID.SetTunings(Kp, Ki, Kd);
 
   //turn the PID on
   myPID.SetMode(myPID.Control::automatic);
