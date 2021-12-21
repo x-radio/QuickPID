@@ -12,10 +12,10 @@ const byte outputPin = 3;
 float Setpoint = 0, Input = 0, Output = 0, Kp = 2, Ki = 5, Kd = 1;
 
 QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd,  /* OPTIONS */
-               myPID.pMode::pOnError,                   /* pOnError (0), pOnMeas (1), pOnErrorMeas (2) */
-               myPID.dMode::dOnMeas,                    /* dOnError (0), dOnMeas (1) */
-               myPID.iAwMode::iAwCondition,             /* iAwCondition (0), iAwClamp (1), iAwOff (2) */
-               myPID.Action::direct);                   /* direct (0), reverse (1) */
+               myPID.pMode::pOnError,                   /* pOnError, pOnMeas, pOnErrorMeas */
+               myPID.dMode::dOnMeas,                    /* dOnError, dOnMeas */
+               myPID.iAwMode::iAwCondition,             /* iAwCondition, iAwClamp, iAwOff */
+               myPID.Action::direct);                   /* direct, reverse */
 
 void setup()
 {
