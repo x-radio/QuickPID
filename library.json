@@ -1,8 +1,8 @@
 {
   "name": "QuickPID",
-  "version": "3.0.4",
-  "description": "A fast PID controller with Integral anti-windup, TIMER mode and multiple options for Proportional, Derivative and anti-windup modes of operation. Also includes analogWrite compatibility for ESP32 and ESP32-S2.",
-  "keywords": "PID, controller, signal",
+  "version": "3.0.5",
+  "description": "A fast PID controller with Integral anti-windup, timer mode and multiple options for Proportional, Derivative and anti-windup modes of operation. Also includes analogWrite compatibility for ESP32 and ESP32-S2.",
+  "keywords": "PID, controller, signal, autotune, tuner, stune",
   "repository":
   {
     "type": "git",
@@ -20,7 +20,7 @@
   "license": "MIT",
   "homepage": "https://github.com/Dlloydev/QuickPID",
   "dependencies": {
-    "QuickPID": "~3.0.4"
+    "QuickPID": "~3.0.5"
   },
   "frameworks": "arduino",
   "platforms": "*"
