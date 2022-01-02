@@ -1,6 +1,12 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID) [![PlatformIO Registry](https://badges.registry.platformio.org/packages/dlloydev/library/QuickPID.svg)](https://registry.platformio.org/packages/libraries/dlloydev/QuickPID)
 
-QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library except for using a more advanced anti-windup mode. Integral anti-windup can be based on conditionally using PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. Anti-windup can also be based on clamping only, or it can be turned completely off. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  PID controller modes include `timer`, which allows external timer or ISR timing control.
+QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library except for using a more advanced anti-windup mode. Integral anti-windup can be based on conditionally using PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. Anti-windup can also be based on clamping only, or it can be turned completely off. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  PID controller modes include timer, which allows external timer or ISR timing control.
+
+### Need Autotune?
+
+###### Get [sTune](https://github.com/Dlloydev/sTune)  [![arduino-library-badge](https://camo.githubusercontent.com/2f6685943640fc03f25d1851ccbb5dbcd5963d9e3c26341c9f2b1c0f564c9016/68747470733a2f2f7777772e617264752d62616467652e636f6d2f62616467652f7354756e652e7376673f)](https://www.ardu-badge.com/sTune) [![PlatformIO Registry](https://camo.githubusercontent.com/269bbd52c6be846bab52a8afe727604d3bce8e7f068e317e36042fe3c9330203/68747470733a2f2f6261646765732e72656769737472792e706c6174666f726d696f2e6f72672f7061636b616765732f646c6c6f796465762f6c6962726172792f7354756e652e737667)](https://registry.platformio.org/packages/libraries/dlloydev/sTune)
+
+A very fast autotuner that's capable of on-the-fly tunings. Example: [Autotune_QuickPID.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Autotune_QuickPID/Autotune_QuickPID.ino)
 
 ### Features
 
@@ -15,14 +21,6 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 - [x] Derivative on error `dOnError` and measurement `dOnMeas` options
 - [x] New PID Query Functions `GetPterm`, `GetIterm`, `GetDterm`, `GetPmode`, `GetDmode` and `GetAwMode`
 - [x] New integral anti-windup options `iAwCondition`, `iAwClamp` and `iAwOff`
-- [x] New `reverse` mode only changes sign of `error` and `dInput`
-- [x] Uses `float` instead of `double`
-
-#### Direct and Reverse Controller Action
-
-Direct controller action leads the output to increase when the input is larger than the setpoint (i.e. heating process). Reverse controller leads the output to decrease when the input is larger than the setpoint (i.e. cooling process).
-
-When the controller is set to `reverse` acting, the sign of the `error` and `dInput` (derivative of Input) is internally changed. All operating ranges and limits remain the same. To simulate a `reverse` acting process from a process that's  `direct` acting, the Input value needs to be "flipped". That is, if your reading from a 10-bit ADC with 0-1023 range, the input value used is (1023 - reading).
 
 ### Functions
 
@@ -105,96 +103,3 @@ void SetDerivativeMode(dMode dMode);            // Set the dTerm, based error or
 void SetAntiWindupMode(iAwMode iAwMode);        // Set iTerm anti-windup to iAwCondition, iAwClamp or iAwOff
 ```
 
-#### SetMode
-
-```c++
-void QuickPID::SetMode(Control Mode);
-```
-
-Allows the controller Mode to be set to `manual` (0) (default) or `automatic` (1) or `timer` (2). when the transition from manual to automatic  or timer occurs, the controller is automatically initialized. `timer` mode is used when the PID compute is called by an external timer function or ISR. In this mode, the timer function and `SetSampleTimeUs` use the same time period value. The PID compute and timer will always remain in sync because the sample time variable and calculations remain constant.
-See examples: [PID_AVR_Basic_Interrupt_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AVR_Basic_Interrupt_TIMER/PID_AVR_Basic_Interrupt_TIMER.ino) and [PID_AVR_Basic_Software_TIMER.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AVR_Basic_Software_TIMER/PID_AVR_Basic_Software_TIMER.ino)
-
-#### SetOutputLimits
-
-```c++
-void QuickPID::SetOutputLimits(float Min, float Max);
-```
-
-The PID controller is designed to vary its output within a given range.  By default this range is 0-255, the Arduino PWM range.
-
-#### SetTunings
-
-```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd, pMode pMode = pMode::pOnError,
-                          dMode dMode = dMode::dOnMeas, iAwMode iAwMode = iAwMode::iAwCondition)
-```
-
-This function allows the controller's dynamic performance to be adjusted. It's called automatically from the constructor, but tunings can also be adjusted on the fly during normal operation. The parameters are as described in the constructor.
-
-```c++
-void QuickPID::SetTunings(float Kp, float Ki, float Kd);
-```
-
-Set Tunings using the last remembered `pMode`, `dMode` and `iAwMode` settings. See example [PID_AdaptiveTunings.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/PID_AdaptiveTunings/PID_AdaptiveTunings.ino)
-
-#### SetControllerDirection
-
-```c++
-void QuickPID::SetControllerDirection(Action Action);
-```
-
-The PID will either be connected to a `direct` acting process (+Output leads to +Input) or a `reverse` acting process (+Output leads to -Input.) We need to know which one, because otherwise we may increase the output when we should be decreasing. This is called from the constructor.
-
-#### SetSampleTime
-
-```c++
-void QuickPID::SetSampleTimeUs(uint32_t NewSampleTimeUs);
-```
-
-Sets the period, in microseconds, at which the calculation is performed. The default is 100000µs (100ms).
-
-#### SetProportionalMode
-
-```c++
-void QuickPID::SetProportionalMode(pMode pMode);
-```
-
-Sets the computation method for the proportional term, to compute based either on error (default), on measurement, or the average of both.
-
-#### SetDerivativeMode
-
-```c++
-void QuickPID::SetDerivativeMode(dMode dMode);
-```
-
-Sets the computation method for the derivative term, to compute based either on error or on measurement (default).
-
-#### SetAntiWindupMode
-
-```c++
-void QuickPID::SetAntiWindupMode(iAwMode iAwMode);
-```
-
-Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after adding integral and proportional (on measurement) terms, or iAwCondition (default), which provides some integral correction, prevents deep saturation and reduces overshoot. Option iAwOff disables anti-windup altogether.
-
-#### AnalogWrite (PWM and DAC) for ESP32
-
-If you're using QuickPID with an ESP32 and need analogWrite compatibility, there's no need to install a library as this feature is already included. AnalogWrite [documentation](https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite)
-
-### Original README (Arduino PID)
-
-```
-***************************************************************
-* Arduino PID Library - Version 1.2.1
-* by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
-*
-* This Library is licensed under the MIT License
-***************************************************************
-```
-
- - For a detailed explanation of the original code, please visit:
-   http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
-
- - For function documentation see:  http://playground.arduino.cc/Code/PIDLibrary
-
-------
