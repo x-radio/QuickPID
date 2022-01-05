@@ -81,13 +81,9 @@ class QuickPID {
 
     void Initialize();
 
-    static constexpr float defKp = 0;  // default controller gains
-    static constexpr float defKi = 0;
-    static constexpr float defKd = 0;
-
-    float dispKp;       // tuning parameters for display purposes.
-    float dispKi;
-    float dispKd;
+    float dispKp = 0;   // for defaults and display
+    float dispKi = 0;
+    float dispKd = 0;
     float pTerm;
     float iTerm;
     float dTerm;
@@ -110,8 +106,4 @@ class QuickPID {
     float outputSum, outMin, outMax, error, lastError, lastInput;
 
 }; // class QuickPID
-
-#if (defined(ESP32) || defined(ARDUINO_ARCH_ESP32))
-#include "analogWrite.h"
-#endif
 #endif // QuickPID.h

@@ -1,7 +1,7 @@
 {
   "name": "QuickPID",
-  "version": "3.0.6",
-  "description": "A fast PID controller with timer mode and multiple options for Proportional, Derivative and Integral anti-windup modes of operation. Includes analogWrite compatibility for ESP32 and ESP32-S2.",
+  "version": "3.1.0",
+  "description": "A fast PID controller with multiple options. Various Integral anti-windup, Proportional, Derivative and timer control modes.",
   "keywords": "PID, controller, signal, autotune, tuner, stune",
   "repository":
   {

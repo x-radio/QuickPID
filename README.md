@@ -2,12 +2,6 @@
 
 QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library except for using a more advanced anti-windup mode. Integral anti-windup can be based on conditionally using PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. Anti-windup can also be based on clamping only, or it can be turned completely off. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  PID controller modes include timer, which allows external timer or ISR timing control.
 
-### Need Autotune?
-
-#### Get  [sTune](https://github.com/Dlloydev/sTune)   [![arduino-library-badge](https://camo.githubusercontent.com/2f6685943640fc03f25d1851ccbb5dbcd5963d9e3c26341c9f2b1c0f564c9016/68747470733a2f2f7777772e617264752d62616467652e636f6d2f62616467652f7354756e652e7376673f)](https://www.ardu-badge.com/sTune)  [![PlatformIO Registry](https://camo.githubusercontent.com/269bbd52c6be846bab52a8afe727604d3bce8e7f068e317e36042fe3c9330203/68747470733a2f2f6261646765732e72656769737472792e706c6174666f726d696f2e6f72672f7061636b616765732f646c6c6f796465762f6c6962726172792f7354756e652e737667)](https://registry.platformio.org/packages/libraries/dlloydev/sTune)
-
-A very fast autotuner that's capable of on-the-fly tunings. Example: [Autotune_QuickPID.ino](https://github.com/Dlloydev/QuickPID/blob/master/examples/Autotune_QuickPID/Autotune_QuickPID.ino)
-
 ### Features
 
 Development began with a fork of the Arduino PID Library. Modifications and new features have been added as described in the [releases](https://github.com/Dlloydev/QuickPID/releases).
@@ -16,7 +10,6 @@ Development began with a fork of the Arduino PID Library. Modifications and new 
 
 - [x] New functions added: `SetProportionalMode`, `SetDerivativeMode` and `SetAntiWindupMode`
 - [x] `timer` mode for calling PID compute by an external timer function or ISR
-- [x] `analogWrite()` support for ESP32 and ESP32-S2
 - [x] Proportional on error `pOnError`, measurement `pOnMeas` or both `pOnErrorMeas` options
 - [x] Derivative on error `dOnError` and measurement `dOnMeas` options
 - [x] New PID Query Functions `GetPterm`, `GetIterm`, `GetDterm`, `GetPmode`, `GetDmode` and `GetAwMode`
@@ -102,4 +95,10 @@ void SetProportionalMode(pMode pMode);          // Set pTerm based on error (def
 void SetDerivativeMode(dMode dMode);            // Set the dTerm, based error or measurement (default).
 void SetAntiWindupMode(iAwMode iAwMode);        // Set iTerm anti-windup to iAwCondition, iAwClamp or iAwOff
 ```
+
+### Need Autotune?
+
+#### Get  [sTune](https://github.com/Dlloydev/sTune)   [![arduino-library-badge](https://www.ardu-badge.com/badge/sTune.svg?)](https://www.ardu-badge.com/sTune)  [![PlatformIO Registry](https://badges.registry.platformio.org/packages/dlloydev/library/sTune.svg)](https://registry.platformio.org/packages/libraries/dlloydev/sTune)
+
+A very fast autotuner capable of on-the-fly tunings and more. Example: [Autotune_QuickPID.ino](https://github.com/Dlloydev/sTune/blob/main/examples/Autotune_QuickPID/Autotune_QuickPID.ino)
 

@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.0.6
+   QuickPID Library for Arduino - Version 3.1.0
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -17,7 +17,7 @@
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd,
+                   float Kp = 0, float Ki = 0, float Kd = 0,
                    pMode pMode = pMode::pOnError,
                    dMode dMode = dMode::dOnMeas,
                    iAwMode iAwMode = iAwMode::iAwCondition,
@@ -37,7 +37,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 }
 
 /* Constructor *********************************************************************
-   To allow using proportional on error without explicitly saying so.
+   To allow using pOnError, dOnMeas and iAwCondition without explicitly saying so.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp, float Ki, float Kd, Action action)
@@ -52,7 +52,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    Simplified constructor which uses defaults for remaining parameters.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint)
-  : QuickPID::QuickPID(Input, Output, Setpoint, defKp, defKi, defKd,
+  : QuickPID::QuickPID(Input, Output, Setpoint, dispKp, dispKi, dispKd,
                        pmode = pMode::pOnError,
                        dmode = dMode::dOnMeas,
                        iawmode = iAwMode::iAwCondition,
