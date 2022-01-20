@@ -26,7 +26,7 @@ class QuickPID {
     QuickPID(float *Input, float *Output, float *Setpoint);
 
     // Sets PID mode to manual (0), automatic (1) or timer (2).
-    void SetMode(Control mode);
+    void SetMode(Control Mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
