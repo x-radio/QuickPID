@@ -96,7 +96,7 @@ void SetDerivativeMode(dMode dMode);            // Set the dTerm, based error or
 void SetAntiWindupMode(iAwMode iAwMode);        // Set iTerm anti-windup to iAwCondition, iAwClamp or iAwOff
 ```
 
-### Need Autotune?
+### Autotuner
 
 #### Get  [sTune](https://github.com/Dlloydev/sTune)   [![arduino-library-badge](https://www.ardu-badge.com/badge/sTune.svg?)](https://www.ardu-badge.com/sTune)  [![PlatformIO Registry](https://badges.registry.platformio.org/packages/dlloydev/library/sTune.svg)](https://registry.platformio.org/packages/libraries/dlloydev/sTune)
 

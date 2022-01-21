@@ -33,9 +33,6 @@ GetDirection	KEYWORD2
 GetPmode	KEYWORD2
 GetDmode	KEYWORD2
 GetAwMode	KEYWORD2
-analogWrite	KEYWORD2
-analogWriteFrequency	KEYWORD2
-analogWriteResolution	KEYWORD2
 
 ##########################################
 # Constants (LITERAL1)
