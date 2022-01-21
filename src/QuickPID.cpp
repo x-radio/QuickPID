@@ -21,7 +21,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    pMode pMode = pMode::pOnError,
                    dMode dMode = dMode::dOnMeas,
                    iAwMode iAwMode = iAwMode::iAwCondition,
-                   Action action = Action::direct) {
+                   Action Action = Action::direct) {
 
   myOutput = Output;
   myInput = Input;
@@ -30,7 +30,7 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
 
   QuickPID::SetOutputLimits(0, 255);  // same default as Arduino PWM limit
   sampleTimeUs = 100000;              // 0.1 sec default
-  QuickPID::SetControllerDirection(action);
+  QuickPID::SetControllerDirection(Action);
   QuickPID::SetTunings(Kp, Ki, Kd, pMode, dMode, iAwMode);
 
   lastTime = micros() - sampleTimeUs;
@@ -40,12 +40,12 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    To allow using pOnError, dOnMeas and iAwCondition without explicitly saying so.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
-                   float Kp, float Ki, float Kd, Action action)
+                   float Kp, float Ki, float Kd, Action Action)
   : QuickPID::QuickPID(Input, Output, Setpoint, Kp, Ki, Kd,
                        pmode = pMode::pOnError,
                        dmode = dMode::dOnMeas,
                        iawmode = iAwMode::iAwCondition,
-                       action = Action::direct) {
+                       action = Action) {
 }
 
 /* Constructor *********************************************************************
