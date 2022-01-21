@@ -1,67 +1,68 @@
-/*************************************************************
-   PID Relay Output Example
-   Same as basic example, except that this time, the output
-   is going to a digital pin which (we presume) is controlling
-   a relay.  The pid is designed to Output an analog value,
-   but the relay can only be On/Off.
+/****************************************************************************
+  PID Relay Output Example
+  https://github.com/Dlloydev/QuickPID/tree/master/examples/PID_RelayOutput
 
-   To connect them together we use "time proportioning
-   control", essentially a really slow version of PWM.
-   First we decide on a window size (5000mS for example).
-   We then set the pid to adjust its output between 0 and that
-   window size. Lastly, we add some logic that translates the
-   PID output into "Relay On Time" with the remainder of the
-   window being "Relay Off Time". The minWindow setting is a
-   floor (minimum time) the relay would be on.
- *************************************************************/
+  Similar to basic example, except the output is a digital pin controlling
+  a mechanical relay, SSR, MOSFET or other device. To interface the PID output
+  to a digital pin, we use "time proportioning control" (software PWM).
+  First we decide on a window size (5000mS for example). We then set the pid
+  to adjust its output between 0 and that window size and finally we set the
+  PID sample time to that same window size.
 
-#include "QuickPID.h"
+  The digital output has the following features:
+  • The PID compute rate controls the rate of updating the digital output
+  • All transitions are debounced (rising and falling)
+  • Full control range (0 to windowSize) isn't limited by debounce
+  • Only one call to digitalWrite() per transition
+  *****************************************************************************/
 
-#define PIN_INPUT 0
-#define RELAY_PIN 6
+#include <QuickPID.h>
 
-//Define Variables we'll be connecting to
-float Setpoint, Input, Output;
+// pins
+const byte inputPin = 0;
+const byte relayPin = 3;
 
-//Specify the links and initial tuning parameters
-float Kp = 2, Ki = 5, Kd = 1;
+// user settings
+const unsigned long windowSize = 5000;
+const byte debounce = 50;
+float Input, Output, Setpoint = 30, Kp = 2, Ki = 5, Kd = 1;
 
-QuickPID myPID(&Input, &Output, &Setpoint);
+// status
+unsigned long windowStartTime, nextSwitchTime;
+boolean relayStatus = false;
 
-unsigned int WindowSize = 5000;
-unsigned int minWindow = 500;
-unsigned long windowStartTime;
+QuickPID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd,
+               myPID.pMode::pOnError,
+               myPID.dMode::dOnMeas,
+               myPID.iAwMode::iAwClamp,
+               myPID.Action::direct);
 
-void setup()
-{
-  pinMode(RELAY_PIN, OUTPUT);
-  windowStartTime = millis();
-
-  //initialize the variables we're linked to
-  Setpoint = 100;
-
-  //tell the PID to range between 0 and the full window size
-  myPID.SetOutputLimits(0, WindowSize);
-
-  //apply PID gains
-  myPID.SetTunings(Kp, Ki, Kd);
-
-  //turn the PID on
+void setup() {
+  pinMode(relayPin, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  myPID.SetOutputLimits(0, windowSize);
+  myPID.SetSampleTimeUs(windowSize * 1000);
   myPID.SetMode(myPID.Control::automatic);
 }
 
-void loop()
-{
-  Input = analogRead(PIN_INPUT);
+void loop() {
+  unsigned long msNow = millis();
+  Input = analogRead(inputPin);
+  if (myPID.Compute()) windowStartTime = msNow;
 
-  /************************************************
-     turn the output pin on/off based on pid output
-   ************************************************/
-  if (millis() - windowStartTime >= WindowSize)
-  { //time to shift the Relay Window
-    windowStartTime += WindowSize;
-    myPID.Compute();
+  if (!relayStatus && Output > (msNow - windowStartTime)) {
+    if (msNow > nextSwitchTime) {
+      nextSwitchTime = msNow + debounce;
+      relayStatus = true;
+      digitalWrite(relayPin, HIGH);
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
+  } else if (relayStatus && Output < (msNow - windowStartTime)) {
+    if (msNow > nextSwitchTime) {
+      nextSwitchTime = msNow + debounce;
+      relayStatus = false;
+      digitalWrite(relayPin, LOW);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
   }
-  if (((unsigned int)Output > minWindow) && ((unsigned int)Output > (millis() - windowStartTime))) digitalWrite(RELAY_PIN, HIGH);
-  else digitalWrite(RELAY_PIN, LOW);
 }
