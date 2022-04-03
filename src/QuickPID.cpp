@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.1.1
+   QuickPID Library for Arduino - Version 3.1.2
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -125,6 +125,7 @@ void QuickPID::SetTunings(float Kp, float Ki, float Kd,
                           iAwMode iAwMode = iAwMode::iAwCondition) {
 
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
+  if (Ki == 0) outputSum = 0;
   pmode = pMode; dmode = dMode; iawmode = iAwMode;
   dispKp = Kp; dispKi = Ki; dispKd = Kd;
   float SampleTimeSec = (float)sampleTimeUs / 1000000;

@@ -100,5 +100,4 @@ void SetAntiWindupMode(iAwMode iAwMode);        // Set iTerm anti-windup to iAwC
 
 #### Get  [sTune](https://github.com/Dlloydev/sTune)   [![arduino-library-badge](https://www.ardu-badge.com/badge/sTune.svg?)](https://www.ardu-badge.com/sTune)  [![PlatformIO Registry](https://badges.registry.platformio.org/packages/dlloydev/library/sTune.svg)](https://registry.platformio.org/packages/libraries/dlloydev/sTune)
 
-A very fast autotuner capable of on-the-fly tunings and more. Example: [Autotune_QuickPID.ino](https://github.com/Dlloydev/sTune/blob/main/examples/Autotune_QuickPID/Autotune_QuickPID.ino)
-
+A very fast autotuner capable of on-the-fly tunings and more.
