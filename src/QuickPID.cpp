@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.1.3
+   QuickPID Library for Arduino - Version 3.1.4
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -12,10 +12,13 @@
 
 #include "QuickPID.h"
 
+QuickPID::QuickPID() {}
+
 /* Constructor ********************************************************************
    The parameters specified here are those for for which we can't set up
    reliable defaults, so we need to have the user set them.
  **********************************************************************************/
+
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
                    float Kp = 0, float Ki = 0, float Kd = 0,
                    pMode pMode = pMode::pOnError,
