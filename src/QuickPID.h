@@ -14,6 +14,9 @@ class QuickPID {
 
     // commonly used functions ************************************************************************************
 
+    // Default constructor
+    QuickPID() {}
+
     // Constructor. Links the PID to Input, Output, Setpoint, initial tuning parameters and control modes.
     QuickPID(float *Input, float *Output, float *Setpoint, float Kp, float Ki, float Kd,
              pMode pMode, dMode dMode, iAwMode iAwMode, Action Action);

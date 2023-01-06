@@ -7,7 +7,7 @@
    setpoint and more agressive tuning parameters when we're farther away.
  ******************************************************************************/
 
-#include "QuickPID.h"
+#include <QuickPID.h>
 
 #define PIN_INPUT 0
 #define PIN_OUTPUT 3

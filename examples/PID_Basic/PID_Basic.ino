@@ -3,7 +3,7 @@
    Reading analog input 0 to control analog PWM output 3
  ********************************************************/
 
-#include "QuickPID.h"
+#include <QuickPID.h>
 
 #define PIN_INPUT 0
 #define PIN_OUTPUT 3

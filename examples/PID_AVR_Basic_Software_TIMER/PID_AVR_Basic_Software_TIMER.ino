@@ -2,8 +2,8 @@
    PID AVR Basic Software TIMER Example
    Reading analog input 0 to control analog PWM output 3
  ********************************************************/
-#include "Ticker.h" // https://github.com/sstaub/Ticker
-#include "QuickPID.h"
+#include <Ticker.h> // https://github.com/sstaub/Ticker
+#include <QuickPID.h>
 void runPid();
 
 #define PIN_INPUT 0

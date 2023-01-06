@@ -2,8 +2,8 @@
    PID AVR Basic Interrupt TIMER Example
    Reading analog input 0 to control analog PWM output 3
  ********************************************************/
-#include "TimerOne.h" // https://github.com/PaulStoffregen/TimerOne
-#include "QuickPID.h"
+#include <TimerOne.h> // https://github.com/PaulStoffregen/TimerOne
+#include <QuickPID.h>
 
 #define PIN_INPUT 0
 #define PIN_OUTPUT 3

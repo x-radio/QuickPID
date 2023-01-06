@@ -3,7 +3,7 @@
   Documentation (GitHub): https://github.com/Dlloydev/QuickPID
  **************************************************************************************/
 
-#include "QuickPID.h"
+#include <QuickPID.h>
 
 const byte inputPin = 0;
 const byte outputPin = 3;
