@@ -177,16 +177,20 @@ void QuickPID::SetOutputLimits(float Min, float Max) {
   controller is automatically initialized.
 ******************************************************************************/
 void QuickPID::SetMode(Control Mode) {
-  if (mode == Control::manual && Mode != Control::manual) { // just went from manual to automatic or timer
+  if (mode == Control::manual && Mode != Control::manual) { // just went from manual to automatic, timer or toggle
     QuickPID::Initialize();
   }
-  mode = Mode;
+  if (Mode == Control::toggle) {
+    mode = (mode == Control::manual) ? Control::automatic : Control::manual;
+  } else  mode = Mode;
 }
 void QuickPID::SetMode(uint8_t Mode) {
   if (mode == Control::manual && Mode != 0) { // just went from manual to automatic or timer
     QuickPID::Initialize();
   }
-  mode = (Control)Mode;
+  if (Mode == 3) { // toggle
+    mode = (mode == Control::manual) ? Control::automatic : Control::manual;
+  } else  mode = (Control)Mode;
 }
 
 /* Initialize()****************************************************************

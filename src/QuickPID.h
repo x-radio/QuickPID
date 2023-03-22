@@ -6,11 +6,11 @@ class QuickPID {
 
   public:
 
-    enum class Control : uint8_t {manual, automatic, timer};        // controller mode
-    enum class Action : uint8_t {direct, reverse};                  // controller action
-    enum class pMode : uint8_t {pOnError, pOnMeas, pOnErrorMeas};   // proportional mode
-    enum class dMode : uint8_t {dOnError, dOnMeas};                 // derivative mode
-    enum class iAwMode : uint8_t {iAwCondition, iAwClamp, iAwOff};  // integral anti-windup mode
+    enum class Control : uint8_t {manual, automatic, timer, toggle};  // controller mode
+    enum class Action : uint8_t {direct, reverse};                    // controller action
+    enum class pMode : uint8_t {pOnError, pOnMeas, pOnErrorMeas};     // proportional mode
+    enum class dMode : uint8_t {dOnError, dOnMeas};                   // derivative mode
+    enum class iAwMode : uint8_t {iAwCondition, iAwClamp, iAwOff};    // integral anti-windup mode
 
     // commonly used functions ************************************************************************************
 
@@ -28,7 +28,7 @@ class QuickPID {
     // Simplified constructor which uses defaults for remaining parameters.
     QuickPID(float *Input, float *Output, float *Setpoint);
 
-    // Sets PID mode to manual (0), automatic (1) or timer (2).
+    // Sets PID mode to manual (0), automatic (1), timer (2) or toggle manual/automatic (3).
     void SetMode(Control Mode);
     void SetMode(uint8_t Mode);
 
@@ -72,6 +72,9 @@ class QuickPID {
     void SetAntiWindupMode(iAwMode iAwMode);
     void SetAntiWindupMode(uint8_t IawMode);
 
+    // Ensure a bumpless transfer from manual to automatic mode
+    void Initialize();
+
     // PID Query functions ****************************************************************************************
     float GetKp();            // proportional gain
     float GetKi();            // integral gain
@@ -79,7 +82,7 @@ class QuickPID {
     float GetPterm();         // proportional component of output
     float GetIterm();         // integral component of output
     float GetDterm();         // derivative component of output
-    uint8_t GetMode();        // manual (0), automatic (1) or timer (2)
+    uint8_t GetMode();        // manual (0), automatic (1), timer (2) or toggle manual/automatic (3)
     uint8_t GetDirection();   // direct (0), reverse (1)
     uint8_t GetPmode();       // pOnError (0), pOnMeas (1), pOnErrorMeas (2)
     uint8_t GetDmode();       // dOnError (0), dOnMeas (1)
@@ -88,8 +91,6 @@ class QuickPID {
     float outputSum;          // Internal integral sum
 
   private:
-
-    void Initialize();
 
     float dispKp = 0;   // for defaults and display
     float dispKi = 0;
