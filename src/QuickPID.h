@@ -30,6 +30,7 @@ class QuickPID {
 
     // Sets PID mode to manual (0), automatic (1) or timer (2).
     void SetMode(Control Mode);
+    void SetMode(uint8_t Mode);
 
     // Performs the PID calculation. It should be called every time loop() cycles ON/OFF and calculation frequency
     // can be set using SetMode and SetSampleTime respectively.
@@ -50,6 +51,7 @@ class QuickPID {
     // Sets the controller direction or action. Direct means the output will increase when the error is positive.
     // Reverse means the output will decrease when the error is positive.
     void SetControllerDirection(Action Action);
+    void SetControllerDirection(uint8_t Direction);
 
     // Sets the sample time in microseconds with which each PID calculation is performed. Default is 100000 µs.
     void SetSampleTimeUs(uint32_t NewSampleTimeUs);
@@ -57,15 +59,18 @@ class QuickPID {
     // Sets the computation method for the proportional term, to compute based either on error (default),
     // on measurement, or the average of both.
     void SetProportionalMode(pMode pMode);
+    void SetProportionalMode(uint8_t Pmode);
 
     // Sets the computation method for the derivative term, to compute based either on error or measurement (default).
     void SetDerivativeMode(dMode dMode);
+    void SetDerivativeMode(uint8_t Dmode);
 
     // Sets the integral anti-windup mode to one of iAwClamp, which clamps the output after
     // adding integral and proportional (on measurement) terms, or iAwCondition (default), which
     // provides some integral correction, prevents deep saturation and reduces overshoot.
     // Option iAwOff disables anti-windup altogether.
     void SetAntiWindupMode(iAwMode iAwMode);
+    void SetAntiWindupMode(uint8_t IawMode);
 
     // PID Query functions ****************************************************************************************
     float GetKp();            // proportional gain
@@ -81,6 +86,7 @@ class QuickPID {
     uint8_t GetAwMode();      // iAwCondition (0, iAwClamp (1), iAwOff (2)
 
     float outputSum;          // Internal integral sum
+
   private:
 
     void Initialize();

@@ -182,6 +182,12 @@ void QuickPID::SetMode(Control Mode) {
   }
   mode = Mode;
 }
+void QuickPID::SetMode(uint8_t Mode) {
+  if (mode == Control::manual && Mode != 0) { // just went from manual to automatic or timer
+    QuickPID::Initialize();
+  }
+  mode = (Control)Mode;
+}
 
 /* Initialize()****************************************************************
   Does all the things that need to happen to ensure a bumpless transfer
@@ -200,6 +206,9 @@ void QuickPID::Initialize() {
 void QuickPID::SetControllerDirection(Action Action) {
   action = Action;
 }
+void QuickPID::SetControllerDirection(uint8_t Direction) {
+  action = (Action)Direction;
+}
 
 /* SetProportionalMode(.)*****************************************************
   Sets the computation method for the proportional term, to compute based
@@ -208,6 +217,9 @@ void QuickPID::SetControllerDirection(Action Action) {
 void QuickPID::SetProportionalMode(pMode pMode) {
   pmode = pMode;
 }
+void QuickPID::SetProportionalMode(uint8_t Pmode) {
+  pmode = (pMode)Pmode;
+}
 
 /* SetDerivativeMode(.)*******************************************************
   Sets the computation method for the derivative term, to compute based
@@ -215,6 +227,9 @@ void QuickPID::SetProportionalMode(pMode pMode) {
 ******************************************************************************/
 void QuickPID::SetDerivativeMode(dMode dMode) {
   dmode = dMode;
+}
+void QuickPID::SetDerivativeMode(uint8_t Dmode) {
+  dmode = (dMode)Dmode;
 }
 
 /* SetAntiWindupMode(.)*******************************************************
@@ -226,6 +241,9 @@ void QuickPID::SetDerivativeMode(dMode dMode) {
 ******************************************************************************/
 void QuickPID::SetAntiWindupMode(iAwMode iAwMode) {
   iawmode = iAwMode;
+}
+void QuickPID::SetAntiWindupMode(uint8_t IawMode) {
+  iawmode = (iAwMode)IawMode;
 }
 
 /* Status Functions************************************************************
