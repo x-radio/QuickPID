@@ -80,6 +80,7 @@ class QuickPID {
     uint8_t GetDmode();       // dOnError (0), dOnMeas (1)
     uint8_t GetAwMode();      // iAwCondition (0, iAwClamp (1), iAwOff (2)
 
+    float outputSum;          // Internal integral sum
   private:
 
     void Initialize();
@@ -106,7 +107,7 @@ class QuickPID {
     iAwMode iawmode = iAwMode::iAwCondition;
 
     uint32_t sampleTimeUs, lastTime;
-    float outputSum, outMin, outMax, error, lastError, lastInput;
+    float outMin, outMax, error, lastError, lastInput;
 
 }; // class QuickPID
 #endif // QuickPID.h
