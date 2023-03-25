@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.1.5
+   QuickPID Library for Arduino - Version 3.1.6
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -55,7 +55,10 @@ QuickPID::QuickPID(float* Input, float* Output, float* Setpoint,
    Simplified constructor which uses defaults for remaining parameters.
  **********************************************************************************/
 QuickPID::QuickPID(float* Input, float* Output, float* Setpoint)
-  : QuickPID::QuickPID(Input, Output, Setpoint, dispKp, dispKi, dispKd,
+  : QuickPID::QuickPID(Input, Output, Setpoint,
+                       dispKp = 0,
+                       dispKi = 0,
+                       dispKd = 0,
                        pmode = pMode::pOnError,
                        dmode = dMode::dOnMeas,
                        iawmode = iAwMode::iAwCondition,
