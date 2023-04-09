@@ -1,9 +1,9 @@
 # QuickPID   [![arduino-library-badge](https://www.ardu-badge.com/badge/QuickPID.svg?)](https://www.ardu-badge.com/QuickPID) [![PlatformIO Registry](https://badges.registry.platformio.org/packages/dlloydev/library/QuickPID.svg)](https://registry.platformio.org/packages/libraries/dlloydev/QuickPID)
-```
-you can use this library in esp-idf tool to program esp32 by cloning this repo into your components folder.
-then clean the build and rebuild.
-```
 QuickPID is an updated implementation of the Arduino PID library with additional features for PID control. By default, this implementation closely follows the method of processing the p,i,d terms as in the PID_v1 library except for using a more advanced anti-windup mode. Integral anti-windup can be based on conditionally using PI terms to provide some integral correction, prevent deep saturation and reduce overshoot. Anti-windup can also be based on clamping only, or it can be turned completely off. Also, the proportional term can be based on error, measurement, or both. The derivative term can be based on error or measurement.  PID controller modes include timer, which allows external timer or ISR timing control.
+
+```
+Note: You can use this library in esp-idf tool to program esp32 by cloning this repo into your components folder, then clean the build and rebuild.
+```
 
 ### Features
 
