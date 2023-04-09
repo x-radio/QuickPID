@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #ifndef QuickPID_h
 #define QuickPID_h
 
