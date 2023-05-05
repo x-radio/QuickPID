@@ -1,6 +1,6 @@
 {
   "name": "QuickPID",
-  "version": "3.1.7",
+  "version": "3.1.8",
   "description": "A fast PID controller with multiple options. Various Integral anti-windup, Proportional, Derivative and timer control modes.",
   "keywords": "PID, controller, signal, autotune, tuner, stune",
   "repository":

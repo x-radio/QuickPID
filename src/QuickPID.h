@@ -73,8 +73,8 @@ class QuickPID {
     void SetAntiWindupMode(iAwMode iAwMode);
     void SetAntiWindupMode(uint8_t IawMode);
 
-    // Ensure a bumpless transfer from manual to automatic mode
-    void Initialize();
+    void Initialize();        // Ensure a bumpless transfer from manual to automatic mode
+    void Reset();             // Clears pTerm, iTerm, dTerm and outputSum values
 
     // PID Query functions ****************************************************************************************
     float GetKp();            // proportional gain
@@ -83,6 +83,7 @@ class QuickPID {
     float GetPterm();         // proportional component of output
     float GetIterm();         // integral component of output
     float GetDterm();         // derivative component of output
+    float GetOutputSum();     // summation of all pid term components
     uint8_t GetMode();        // manual (0), automatic (1), timer (2) or toggle manual/automatic (3)
     uint8_t GetDirection();   // direct (0), reverse (1)
     uint8_t GetPmode();       // pOnError (0), pOnMeas (1), pOnErrorMeas (2)

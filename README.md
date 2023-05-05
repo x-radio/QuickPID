@@ -65,6 +65,14 @@ void QuickPID::Initialize();
 
 Does all the things that need to happen to ensure a bump-less transfer from manual to automatic mode.
 
+#### Reset
+
+```c++
+void QuickPID::Reset();
+```
+
+Clears `pTerm`, `iTerm`, `dTerm` and `outputSum` values.
+
 #### PID Query Functions
 
 These functions query the internal state of the PID.

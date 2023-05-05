@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.1.7
+   QuickPID Library for Arduino - Version 3.1.8
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -253,6 +253,15 @@ void QuickPID::SetAntiWindupMode(uint8_t IawMode) {
   iawmode = (iAwMode)IawMode;
 }
 
+void QuickPID::Reset() {
+  lastTime = micros() - sampleTimeUs;
+  lastInput = 0;
+  outputSum = 0;
+  pTerm = 0;
+  iTerm = 0;
+  dTerm = 0;
+}
+
 /* Status Functions************************************************************
   These functions query the internal state of the PID.
 ******************************************************************************/
@@ -273,6 +282,9 @@ float QuickPID::GetIterm() {
 }
 float QuickPID::GetDterm() {
   return dTerm;
+}
+float QuickPID::GetOutputSum() {
+  return outputSum;
 }
 uint8_t QuickPID::GetMode() {
   return static_cast<uint8_t>(mode);
