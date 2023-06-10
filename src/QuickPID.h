@@ -73,6 +73,9 @@ class QuickPID {
     void SetAntiWindupMode(iAwMode iAwMode);
     void SetAntiWindupMode(uint8_t IawMode);
 
+    // sets the output summation value
+    void SetOutputSum(float sum);
+
     void Initialize();        // Ensure a bumpless transfer from manual to automatic mode
     void Reset();             // Clears pTerm, iTerm, dTerm and outputSum values
 

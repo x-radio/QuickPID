@@ -1,5 +1,5 @@
 /**********************************************************************************
-   QuickPID Library for Arduino - Version 3.1.8
+   QuickPID Library for Arduino - Version 3.1.9
    by dlloydev https://github.com/Dlloydev/QuickPID
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
@@ -260,6 +260,11 @@ void QuickPID::Reset() {
   pTerm = 0;
   iTerm = 0;
   dTerm = 0;
+}
+
+// sets the output summation value
+void QuickPID::SetOutputSum(float sum) {
+  outputSum = sum;
 }
 
 /* Status Functions************************************************************

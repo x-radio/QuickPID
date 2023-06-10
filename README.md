@@ -106,6 +106,7 @@ void SetSampleTimeUs(uint32_t NewSampleTimeUs); // Set PID compute sample time, 
 void SetProportionalMode(pMode pMode);          // Set pTerm based on error (default), measurement, or both
 void SetDerivativeMode(dMode dMode);            // Set the dTerm, based error or measurement (default).
 void SetAntiWindupMode(iAwMode iAwMode);        // Set iTerm anti-windup to iAwCondition, iAwClamp or iAwOff
+void SetOutputSum(float sum);                   // sets the output summation value
 ```
 
 ### Autotuner
