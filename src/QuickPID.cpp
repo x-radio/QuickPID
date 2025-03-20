@@ -4,13 +4,11 @@
    Based on the Arduino PID_v1 Library. Licensed under the MIT License.
  **********************************************************************************/
 
-#if ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
+#include "esp_timer.h"
 #include "QuickPID.h"
+
+#define micros()                    (unsigned long)esp_timer_get_time()
+#define constrain(amt, low, high)   ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
 QuickPID::QuickPID() {}
 

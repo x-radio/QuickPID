@@ -1,6 +1,6 @@
-idf_component_register(
-    SRC_DIRS "src"
-    INCLUDE_DIRS "src"
-    REQUIRES arduino
-    PRIV_REQUIRES driver soc 
-)
+file(GLOB_RECURSE SRCS_LIST *.c *.cpp)
+
+idf_component_register( SRCS ${SRCS_LIST}
+                        INCLUDE_DIRS src
+                        REQUIRES main
+                        )
